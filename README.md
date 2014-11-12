@@ -10,7 +10,7 @@ We're on github:
 https://github.com/MSRCompBio/fastlmm
 
 Our documentation (including live examples) is also available as ipython notebook:
-http://nbviewer.ipython.org/github/MSRCompBio/fastlmm/blob/master/doc/ipynb/FaST-LMM.ipynb
+http://nbviewer.ipython.org/github/MSRCompBio/FaST-LMM/blob/master/doc/ipynb/FaST-LMM.ipynb
 
 
 ### Quick install:
