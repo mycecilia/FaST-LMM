@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9144f8b5-632b-4a72-bd8e-01d453affb5a}</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>test.py</StartupFile>
+    <SearchPath>..\..</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>util</Name>
+    <RootNamespace>util</RootNamespace>
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments>runs\2014-01-06_15_31_11_942832124695\distributable.p LocalInParts(115,1920,mkl_num_threads=None)</CommandLineArguments>
+    <InterpreterPath />
+    <InterpreterArguments />
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="compute_auto_pcs.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="distributable.py" />
+    <Compile Include="distributabletest.py" />
+    <Compile Include="gensnp.py" />
+    <Compile Include="indirectdistributable.py" />
+    <Compile Include="MetaDistributable.py" />
+    <Compile Include="mingrid.py" />
+    <Compile Include="NearBronze.py" />
+    <Compile Include="pickle_io.py" />
+    <Compile Include="preprocess.py" />
+    <Compile Include="runner\Hadoop.py" />
+    <Compile Include="runner\Hadoop2.py" />
+    <Compile Include="runner\HPC.py" />
+    <Compile Include="runner\localfromranges.py" />
+    <Compile Include="runner\LocalReducer.py" />
+    <Compile Include="runner\LocalMapper.py" />
+    <Compile Include="runner\LocalMultiProc.py" />
+    <Compile Include="runner\LocalInParts.py" />
+    <Compile Include="runner\Local.py" />
+    <Compile Include="runner\__init__.py" />
+    <Compile Include="run_fastlmmc.py" />
+    <Compile Include="SamplePi.py" />
+    <Compile Include="standardizer\Beta.py" />
+    <Compile Include="standardizer\Unit.py" />
+    <Compile Include="standardizer\__init__.py" />
+    <Compile Include="stats\chi2mixture.py" />
+    <Compile Include="stats\plotp.py" />
+    <Compile Include="stats\quadform\qfc_src\__init__.py" />
+    <Compile Include="stats\quadform\__init__.py" />
+    <Compile Include="stats\__init__.py" />
+    <Compile Include="test.py" />
+    <Compile Include="testdistributable.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="util.py" />
+    <Compile Include="VertexCut.py" />
+    <Compile Include="__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="runner\" />
+    <Folder Include="standardizer\" />
+    <Folder Include="stats\" />
+    <Folder Include="stats\quadform\" />
+    <Folder Include="stats\quadform\qfc_src\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="runner\PythonInstall.bat" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+</Project>

@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{52d85a6d-fd53-41e5-b7e2-6acc38373c98}</ProjectGuid>
+    <ProjectHome>
+    </ProjectHome>
+    <StartupFile>tests\test_snp_set.py</StartupFile>
+    <SearchPath>..\..</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <InterpreterId>00000000-0000-0000-0000-000000000000</InterpreterId>
+    <InterpreterVersion>
+    </InterpreterVersion>
+    <Name>association</Name>
+    <RootNamespace>varcomptest</RootNamespace>
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments>
+    </CommandLineArguments>
+    <InterpreterPath />
+    <InterpreterArguments />
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="epistasis.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="single_snp.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FastLmmSet.py" />
+    <Compile Include="FastLmmSetLOOC.py" />
+    <Compile Include="fixed.py" />
+    <Compile Include="gwas_eval.py" />
+    <Compile Include="LeaveOneChromosomeOut.py" />
+    <Compile Include="LocoGwas.py" />
+    <Compile Include="lrt.py" />
+    <Compile Include="PrecomputeLocoPcs.py" />
+    <Compile Include="snp_set.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\testepistasis.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\test_snp_set.py" />
+    <Compile Include="tests\test_single_snp.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\tests_util.py" />
+    <Compile Include="tests\test_gwas.py" />
+    <Compile Include="varcomp_test.py" />
+    <Compile Include="PairResult.py" />
+    <Compile Include="Result.py" />
+    <Compile Include="testCV.py" />
+    <Compile Include="tests\Cv.py" />
+    <Compile Include="tests\Lrt.py" />
+    <Compile Include="tests\LRT_up.py" />
+    <Compile Include="tests\Sc.py" />
+    <Compile Include="tests\__init__.py" />
+    <Compile Include="windowing_gwas.py" />
+    <Compile Include="_matchscript.py" />
+    <Compile Include="score.py" />
+    <Compile Include="_pipelines.py" />
+    <Compile Include="__init__.py" />
+    <Content Include="Fastlmm_autoselect\fastlmmc" />
+    <Content Include="Fastlmm_autoselect\FastLmmC.exe" />
+    <Content Include="Fastlmm_autoselect\libiomp5md.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Fastlmm_autoselect" />
+    <Folder Include="tests\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+</Project>

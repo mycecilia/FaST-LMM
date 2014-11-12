@@ -1,0 +1,179 @@
+import numpy as np
+import scipy as sp
+import logging
+import unittest
+import os.path
+import time
+import sys
+import doctest
+import pandas as pd
+
+from fastlmm.association import snp_set
+import fastlmm.pyplink.plink as plink
+from fastlmm.feature_selection.test import TestFeatureSelection
+from fastlmm.util.runner import Local, Hadoop, Hadoop2, HPC, LocalMultiProc, LocalInParts
+import fastlmm.util.util as ut
+
+tolerance = 1e-4
+
+
+class TestSnpSet(unittest.TestCase):
+
+    #!!created a Expect Durbin, too
+
+    @classmethod
+    def setUpClass(self):
+
+        from fastlmm.util.util import create_directory_if_necessary
+        create_directory_if_necessary(self.tempout_dir, isfile=False)
+        self.currentFolder = os.path.dirname(os.path.realpath(__file__))
+
+    tempout_dir = "tempout/snp_set"
+    reference_dir = os.path.join(TestFeatureSelection.reference_path(),"snp_set")
+
+ 
+    def file_name(self,testcase_name):
+        temp_fn = os.path.join(self.tempout_dir,testcase_name)
+        if os.path.exists(temp_fn):
+            os.remove(temp_fn)
+        return temp_fn
+
+    def test_one(self):
+        logging.info("TestSnpSet test_one")
+
+        fn = "lrt_one_kernel_fixed_mixed_effect_linear_qqfit.N300.txt"
+        tmpOutfile = self.file_name(fn)
+        referenceOutfile = self._referenceOutfile(fn)
+
+        result_dataframe = snp_set(
+            test_snps = self.currentFolder+'/../../../tests/datasets/all_chr.maf0.001.N300',
+            set_list = self.currentFolder+'/../../../tests/datasets/set_input.23.txt',
+            pheno = self.currentFolder+'/../../../tests/datasets/phenSynthFrom22.23.N300.txt',
+            output_file_name = tmpOutfile
+            )
+
+
+        out,msg=ut.compare_files(tmpOutfile, referenceOutfile, tolerance)                
+        self.assertTrue(out,msg)#msg='Files %s and %s are different.' % (tmpOutfile, referenceOutfile))
+
+    def test_two(self):
+        logging.info("TestSnpSet test_two")
+
+        fn = "lrt_up_two_kernel_mixed_effect_linear_qqfit.N300.fullrank.txt"
+        tmpOutfile = self.file_name(fn)
+        referenceOutfile = self._referenceOutfile(fn)
+
+        result_dataframe = snp_set(
+            test_snps = self.currentFolder+'/../../../tests/datasets/all_chr.maf0.001.N300',
+            set_list = self.currentFolder+'/../../../tests/datasets/set_input.23.txt',
+            pheno = self.currentFolder+'/../../../tests/datasets/phenSynthFrom22.23.N300.txt',
+            G0 = self.currentFolder+'/../../../tests/datasets/all_chr.maf0.001.chr22.23.N300.bed',
+            output_file_name = tmpOutfile,
+            test="lrt"
+            )
+
+
+        out,msg=ut.compare_files(tmpOutfile, referenceOutfile, tolerance)                
+        self.assertTrue(out,msg)#msg='Files %s and %s are different.' % (tmpOutfile, referenceOutfile))
+
+
+    def test_three(self):
+        logging.info("TestSnpSet test_three")
+
+        fn = "sc_davies_one_kernel_linear_qqfit.N300.txt"
+        tmpOutfile = self.file_name(fn)
+        referenceOutfile = self._referenceOutfile(fn)
+
+        result_dataframe = snp_set(
+            test_snps = self.currentFolder+'/../../../tests/datasets/all_chr.maf0.001.N300',
+            set_list = self.currentFolder+'/../../../tests/datasets/set_input.small.txt',
+            pheno = self.currentFolder+'/../../../tests/datasets/phenSynthFrom22.23.N300.txt',
+            test = "sc_davies",
+            output_file_name = tmpOutfile
+            )
+
+
+        out,msg=ut.compare_files(tmpOutfile, referenceOutfile, tolerance)                
+        self.assertTrue(out,msg)#msg='Files %s and %s are different.' % (tmpOutfile, referenceOutfile))
+
+
+    def test_four(self):
+        logging.info("TestSnpSet test_four")
+
+        fn = "sc_davies_two_kernel_linear_qqfit.N300.noautoselect.txt"
+        tmpOutfile = self.file_name(fn)
+        referenceOutfile = self._referenceOutfile(fn)
+
+        result_dataframe = snp_set(
+            test_snps = self.currentFolder+'/../../../tests/datasets/all_chr.maf0.001.N300',
+            set_list = self.currentFolder+'/../../../tests/datasets/set_input.small.txt',
+            pheno = self.currentFolder+'/../../../tests/datasets/phenSynthFrom22.23.N300.randcidorder.txt',
+            G0 = self.currentFolder+'/../../../tests/datasets/all_chr.maf0.001.chr22.23.N300.bed',
+            test = 'sc_davies',
+            output_file_name = tmpOutfile
+            )
+
+
+        out,msg=ut.compare_files(tmpOutfile, referenceOutfile, tolerance)                
+        self.assertTrue(out,msg)#msg='Files %s and %s are different.' % (tmpOutfile, referenceOutfile))
+
+    def test_doctest(self):
+        result = doctest.testfile("../snp_set.py")
+        assert result.failed == 0, "failed doc test: " + __file__
+
+    def _referenceOutfile(self,_infile):
+        import platform;
+        os_string=platform.platform()
+        if "Windows" in os_string:
+            outfile = os.path.splitext(_infile)[0]
+            return self.currentFolder+'/../../../tests/expected-Windows/'+outfile+'.txt'
+        elif "debian" in os_string:                   
+            outfile = os.path.splitext(_infile)[0]
+            return self.currentFolder+'/../../../tests/expected-debian/'+outfile  +'.txt'
+        elif "Linux" in os_string:                   
+            logging.warning("comparing to Debian output even though found: %s" % os_string)
+            outfile = os.path.splitext(_infile)[0]
+            return self.currentFolder+'/../../../tests/expected-debian/'+outfile  +'.txt'
+        else:
+            raise Exception("do not have regression tests for this OS:%s" % os_string)
+
+
+    def test_doctest(self):
+        old_dir = os.getcwd()
+        os.chdir(os.path.dirname(os.path.realpath(__file__))+"/..")
+        result = doctest.testfile("../snp_set.py")
+        os.chdir(old_dir)
+        assert result.failed == 0, "failed doc test: " + __file__
+
+def getTestSuite():
+    
+
+    suite1 = unittest.TestLoader().loadTestsFromTestCase(TestSnpSet)
+    return unittest.TestSuite([suite1])
+
+
+
+if __name__ == '__main__':    
+    from fastlmm.association.tests.test_snp_set import TestSnpSet
+    suites = unittest.TestSuite([getTestSuite()])
+
+    if False: #Standard test run
+        r = unittest.TextTestRunner(failfast=False)
+        r.run(suites)
+    else: #Cluster test run
+        from fastlmm.util.distributabletest import DistributableTest
+
+
+        runner = HPC(10, 'RR1-N13-09-H44',r'\\msr-arrays\Scratch\msr-pool\Scratch_Storage4\Redmond',
+                     remote_python_parent=r"\\msr-arrays\Scratch\msr-pool\Scratch_Storage4\REDMOND\carlk\Source\carlk\july_7_14\tests\runs\2014-07-24_15_02_02_554725991686\pythonpath",
+                     update_remote_python_parent=True,
+                     priority="AboveNormal",mkl_num_threads=1)
+        runner = Local()
+        #runner = LocalMultiProc(taskcount=20,mkl_num_threads=5)
+        #runner = LocalInParts(1,2,mkl_num_threads=1) # For debugging the cluster runs
+        #runner = Hadoop(100, mapmemory=8*1024, reducememory=8*1024, mkl_num_threads=1, queue="default")
+        distributable_test = DistributableTest(suites,"temp_test")
+        print runner.run(distributable_test)
+
+
+    logging.info("done with testing")

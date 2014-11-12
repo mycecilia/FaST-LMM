@@ -1,0 +1,2 @@
+SetId	LogLikeAlt	LogLikeNull	P-value_adjusted	P-value(50/50)	#SNPs_in_Set	#ExcludedSNPs	chrm	pos. range	Alt_h2	Alt_a2
+set23	-563.553517681	-782.099798693	3.20697309876e-44	2.32376119573e-97	24	24	23.0	0.0-52.0	0.919197238003	0.5550488271

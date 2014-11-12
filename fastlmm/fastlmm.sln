@@ -1,0 +1,80 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "pyplink", "pyplink\pyplink.pyproj", "{67DD0427-0316-415B-9144-8098A6ABD371}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "util", "util\util.pyproj", "{9144F8B5-632B-4A72-BD8E-01D453AFFB5A}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "tests", "..\tests\tests.pyproj", "{3EE8BAA4-AB65-41F2-AF90-A3CF3189016E}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "association", "association\association.pyproj", "{52D85A6D-FD53-41E5-B7E2-6ACC38373C98}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "external", "external\external.pyproj", "{CE9EDF94-8A08-4DB8-B2AB-FDD1171241F9}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "inference", "inference\inference.pyproj", "{6D8DCDF9-3776-4E1B-A713-E9B6F2A49865}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "feature_selection", "feature_selection\feature_selection.pyproj", "{DB93DE74-8125-420F-A2C5-2145E80D6245}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6B22A3AA-CF04-48DF-87DA-EEF401891E85}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "pysnptools", "..\pysnptools\pysnptools\pysnptools.pyproj", "{60F1CB4A-9DA3-47C2-9B89-60AC1CE93347}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 9
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://vstf-eu-dub-01.partners.extranet.microsoft.com:8443/tfs/ext04_consol_tpc
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = pyplink\\pyplink.pyproj
+		SccProjectName1 = pyplink
+		SccLocalPath1 = pyplink
+		SccProjectUniqueName2 = util\\util.pyproj
+		SccProjectName2 = util
+		SccLocalPath2 = util
+		SccProjectUniqueName3 = ..\\tests\\tests.pyproj
+		SccProjectName3 = ../tests
+		SccLocalPath3 = ..\\tests
+		SccProjectUniqueName4 = association\\association.pyproj
+		SccProjectName4 = association
+		SccLocalPath4 = association
+		SccProjectUniqueName5 = external\\external.pyproj
+		SccProjectName5 = external
+		SccLocalPath5 = external
+		SccProjectUniqueName6 = inference\\inference.pyproj
+		SccProjectName6 = inference
+		SccLocalPath6 = inference
+		SccProjectUniqueName7 = feature_selection\\feature_selection.pyproj
+		SccProjectName7 = feature_selection
+		SccLocalPath7 = feature_selection
+		SccProjectUniqueName8 = ..\\pysnptools\\pysnptools\\pysnptools.pyproj
+		SccProjectName8 = ../pysnptools/pysnptools
+		SccLocalPath8 = ..\\pysnptools\\pysnptools
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{67DD0427-0316-415B-9144-8098A6ABD371}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67DD0427-0316-415B-9144-8098A6ABD371}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9144F8B5-632B-4A72-BD8E-01D453AFFB5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9144F8B5-632B-4A72-BD8E-01D453AFFB5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EE8BAA4-AB65-41F2-AF90-A3CF3189016E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EE8BAA4-AB65-41F2-AF90-A3CF3189016E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52D85A6D-FD53-41E5-B7E2-6ACC38373C98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52D85A6D-FD53-41E5-B7E2-6ACC38373C98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE9EDF94-8A08-4DB8-B2AB-FDD1171241F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE9EDF94-8A08-4DB8-B2AB-FDD1171241F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D8DCDF9-3776-4E1B-A713-E9B6F2A49865}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D8DCDF9-3776-4E1B-A713-E9B6F2A49865}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB93DE74-8125-420F-A2C5-2145E80D6245}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB93DE74-8125-420F-A2C5-2145E80D6245}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60F1CB4A-9DA3-47C2-9B89-60AC1CE93347}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60F1CB4A-9DA3-47C2-9B89-60AC1CE93347}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

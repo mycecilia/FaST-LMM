@@ -1,0 +1,21 @@
+#-------------------------------------------------
+phenofile = 'demo/all_chr.maf0.001.phenotype.txt'
+
+bedfilenull = 'demo/all_chr.maf0.001'
+
+bedfilealt = 'demo/all_chr.maf0.001'
+
+altsetfile = 'demo/set_input.txt'
+
+covarfile  = 'demo/all_chr.maf0.001.covariates.txt'
+
+ipheno=0
+
+mindist = 2.0   #this is a comment
+
+idist=1
+
+autoselect = True
+
+nperm = 2
+#-------------------------------------------------

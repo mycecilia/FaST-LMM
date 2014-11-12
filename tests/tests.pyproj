@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>3ee8baa4-ab65-41f2-af90-a3cf3189016e</ProjectGuid>
+    <ProjectHome>
+    </ProjectHome>
+    <StartupFile>test.py</StartupFile>
+    <SearchPath>..</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <InterpreterId>00000000-0000-0000-0000-000000000000</InterpreterId>
+    <InterpreterVersion>
+    </InterpreterVersion>
+    <Name>tests</Name>
+    <RootNamespace>tests</RootNamespace>
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments />
+    <InterpreterPath />
+    <InterpreterArguments />
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="inputs\buggy\lrt_one_kernel_mixed_effect_ep_erf_qqfit.N30.py" />
+    <Compile Include="inputs\buggy\lrt_one_kernel_mixed_effect_laplace_logistic_qqfit.N30.py" />
+    <Compile Include="inputs\buggy\lrt_two_kernel_mixed_effect_laplace_logistic_qqfit.N30.py" />
+    <Compile Include="inputs\lrt_one_kernel_fixed_mixed_effect_laplace_logistic_qqfit.N30.py" />
+    <Compile Include="inputs\lrt_one_kernel_fixed_mixed_effect_linear_qqfit.N300.py" />
+    <Compile Include="inputs\lrt_one_kernel_mixed_effect_laplace_l2_logistic_qqfit.N30.py" />
+    <Compile Include="inputs\lrt_two_kernel_mixed_effect_linear_qqfit.N300.hdf5.py" />
+    <Compile Include="inputs\lrt_two_kernel_mixed_effect_linear_qqfit.N300.py" />
+    <Compile Include="inputs\lrt_up_two_kernel_mixed_effect_linear_qqfit.N300.hdf5.py" />
+    <Compile Include="inputs\lrt_up_two_kernel_mixed_effect_linear_qqfit.N300.py" />
+    <Compile Include="inputs\sc_davies_two_kernel_linear_qqfit.N300.needsReorder.py" />
+    <Compile Include="test.py" />
+    <Compile Include="inputs\sc_davies_one_kernel_linear_qqfit.N300.py" />
+    <Compile Include="inputs\sc_davies_one_kernel_logistic_qqfit.N300.py" />
+    <Compile Include="inputs\sc_davies_two_kernel_linear_qqfit.N300.py" />
+    <Compile Include="inputs\sc_mom_one_kernel_linear_qqfit.N300.py" />
+    <Compile Include="inputs\sc_mom_two_kernel_linear_qqfit.N300.py" />
+    <Compile Include="inputs\buggy\cv_two_kernel_fixed_effect_linear_qqfit.N30.py" />
+    <Compile Include="inputs\buggy\lrt_two_kernel_fixed_effect_linear_qqfit.N30.py" />
+    <Compile Include="inputs\buggy\sc_davies_two_kernel_qqfit.N30.py" />
+    <Compile Include="__init__.py" />
+    <Content Include="datasets\all_chr.maf0.001.chr22.23.N30.bed" />
+    <Content Include="datasets\all_chr.maf0.001.chr22.23.N30.bim" />
+    <Content Include="datasets\all_chr.maf0.001.chr22.23.N30.fam" />
+    <Content Include="datasets\all_chr.maf0.001.chr22.23.N300.bed" />
+    <Content Include="datasets\all_chr.maf0.001.chr22.23.N300.bim" />
+    <Content Include="datasets\all_chr.maf0.001.chr22.23.N300.fam" />
+    <Content Include="datasets\all_chr.maf0.001.covariates.N30.txt" />
+    <Content Include="datasets\all_chr.maf0.001.covariates.N300.txt" />
+    <Content Include="datasets\all_chr.maf0.001.N30.bed" />
+    <Content Include="datasets\all_chr.maf0.001.N30.bim" />
+    <Content Include="datasets\all_chr.maf0.001.N30.fam" />
+    <Content Include="datasets\all_chr.maf0.001.N300.bed" />
+    <Content Include="datasets\all_chr.maf0.001.N300.bim" />
+    <Content Include="datasets\all_chr.maf0.001.N300.fam" />
+    <Content Include="datasets\all_chr.maf0.001.N300.hdf5" />
+    <Content Include="datasets\all_chr.maf0.001.phenotype.N300.txt" />
+    <Content Include="datasets\mouse\alldata.bed" />
+    <Content Include="datasets\mouse\alldata.bim" />
+    <Content Include="datasets\mouse\alldata.fam" />
+    <Content Include="datasets\mouse\pheno.txt" />
+    <Content Include="datasets\phenSynthFrom22.23.bin.N30.txt" />
+    <Content Include="datasets\phenSynthFrom22.23.bin.N300.txt" />
+    <Content Include="datasets\phenSynthFrom22.23.N30.txt" />
+    <Content Include="datasets\phenSynthFrom22.23.N300.randcidorder.txt" />
+    <Content Include="datasets\phenSynthFrom22.23.N300.txt" />
+    <Content Include="datasets\set_input.23.txt" />
+    <Content Include="datasets\set_input.23_11.txt" />
+    <Content Include="datasets\set_input.23_17.txt" />
+    <Content Include="datasets\set_input.23_17_11.txt" />
+    <Content Include="datasets\set_input.small.txt" />
+    <Content Include="datasets\synth\all.bed" />
+    <Content Include="datasets\synth\all.bim" />
+    <Content Include="datasets\synth\all.fam" />
+    <Content Include="datasets\synth\allButChr1.bed" />
+    <Content Include="datasets\synth\allButChr1.bim" />
+    <Content Include="datasets\synth\allButChr1.fam" />
+    <Content Include="datasets\synth\chr1.bed" />
+    <Content Include="datasets\synth\chr1.bim" />
+    <Content Include="datasets\synth\chr1.fam" />
+    <Content Include="datasets\synth\chr1.sets.txt" />
+    <Content Include="datasets\synth\pheno_10_causals.txt" />
+    <Content Include="expected-Windows\epistasis\G1.txt" />
+    <Content Include="expected-Windows\epistasis\no_cov.txt" />
+    <Content Include="expected-Windows\epistasis\no_sid_list_0.txt" />
+    <Content Include="expected-Windows\epistasis\one.txt" />
+    <Content Include="expected-Windows\insample_cv_k_pcs.txt" />
+    <Content Include="expected-Windows\insample_cv_ll.csv" />
+    <Content Include="expected-Windows\insample_cv_mse.csv" />
+    <Content Include="expected-Windows\insample_cv_report.txt" />
+    <Content Include="expected-Windows\insample_cv_snp.csv" />
+    <Content Include="expected-Windows\insample_cv_xval_ll.pdf" />
+    <Content Include="expected-Windows\insample_cv_xval_mse.pdf" />
+    <Content Include="expected-Windows\lmm_full_cv_k_pcs.txt" />
+    <Content Include="expected-Windows\lmm_full_cv_ll.csv" />
+    <Content Include="expected-Windows\lmm_full_cv_mse.csv" />
+    <Content Include="expected-Windows\lmm_full_cv_report.txt" />
+    <Content Include="expected-Windows\lmm_full_cv_snp.csv" />
+    <Content Include="expected-Windows\lmm_full_cv_xval_ll.pdf" />
+    <Content Include="expected-Windows\lmm_full_cv_xval_mse.pdf" />
+    <Content Include="expected-Windows\lrt_one_kernel_fixed_mixed_effect_laplace_logistic_qqfit.N300.txt" />
+    <Content Include="expected-Windows\lrt_one_kernel_fixed_mixed_effect_linear_qqfit.N300.txt" />
+    <Content Include="expected-Windows\lrt_one_kernel_mixed_effect_ep_erf_qqfit.N30.txt" />
+    <Content Include="expected-Windows\lrt_one_kernel_mixed_effect_laplace_l2_logistic_qqfit.N30.txt" />
+    <Content Include="expected-Windows\lrt_one_kernel_mixed_effect_laplace_logistic_qqfit.N30.txt" />
+    <Content Include="expected-Windows\lrt_two_kernel_mixed_effect_laplace_logistic_qqfit.N30.txt" />
+    <Content Include="expected-Windows\lrt_two_kernel_mixed_effect_linear_qqfit.N300.hdf5.txt" />
+    <Content Include="expected-Windows\lrt_two_kernel_mixed_effect_linear_qqfit.N300.txt" />
+    <Content Include="expected-Windows\sc_davies_one_kernel_linear_qqfit.N300.txt" />
+    <Content Include="expected-Windows\sc_davies_one_kernel_logistic_qqfit.N300.txt" />
+    <Content Include="expected-Windows\sc_davies_two_kernel_linear_qqfit.N300.needsReorder.txt" />
+    <Content Include="expected-Windows\sc_davies_two_kernel_linear_qqfit.N300.noautoselect.txt" />
+    <Content Include="expected-Windows\sc_davies_two_kernel_linear_qqfit.N300.txt" />
+    <Content Include="expected-Windows\sc_mom_one_kernel_linear_qqfit.N300.txt" />
+    <Content Include="expected-Windows\sc_mom_two_kernel_linear_qqfit.N300.txt" />
+    <Content Include="expected-Windows\epistasis\topsnps.pairs.txt" />
+    <Content Include="expected-Windows\single_snp\cid_intersect.txt" />
+    <Content Include="expected-Windows\single_snp\covar_by_chrom.txt" />
+    <Content Include="expected-Windows\single_snp\G0_has_reader.txt" />
+    <Content Include="expected-Windows\single_snp\G1.txt" />
+    <Content Include="expected-Windows\single_snp\G1_mixing.txt" />
+    <Content Include="expected-Windows\single_snp\no_cov.txt" />
+    <Content Include="expected-Windows\single_snp\no_cov_b.txt" />
+    <Content Include="expected-Windows\single_snp\one.txt" />
+    <Content Include="expected-Windows\single_snp\one_looc.txt" />
+    <Content Include="expected-Windows\single_snp\preload_files.txt" />
+    <Content Include="expected-Windows\single_snp\topsnps.single.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="datasets" />
+    <Folder Include="datasets\mouse\" />
+    <Folder Include="datasets\synth\" />
+    <Folder Include="expected-Windows\epistasis\" />
+    <Folder Include="expected-Windows\single_snp\" />
+    <Folder Include="inputs" />
+    <Folder Include="inputs\buggy" />
+    <Folder Include="expected-Windows\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+</Project>

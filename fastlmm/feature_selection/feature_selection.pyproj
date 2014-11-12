@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{db93de74-8125-420f-a2c5-2145e80d6245}</ProjectGuid>
+    <ProjectHome>
+    </ProjectHome>
+    <StartupFile>test.py</StartupFile>
+    <SearchPath>..\..</SearchPath>
+    <WorkingDirectory>
+    </WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <InterpreterId>00000000-0000-0000-0000-000000000000</InterpreterId>
+    <InterpreterVersion>
+    </InterpreterVersion>
+    <Name>feature_selection</Name>
+    <RootNamespace>feature_selection</RootNamespace>
+    <SccProjectName>$/ERG01/src/fastlmm/feature_selection</SccProjectName>
+    <SccProvider>{4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}</SccProvider>
+    <SccAuxPath>https://vstf-eu-dub-01.partners.extranet.microsoft.com:8443/tfs/ext04_consol_tpc</SccAuxPath>
+    <SccLocalPath>.</SccLocalPath>
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments>
+    </CommandLineArguments>
+    <InterpreterPath />
+    <InterpreterArguments />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="feature_selection_cv.py" />
+    <Compile Include="feature_selection_example.py" />
+    <Compile Include="kernel_ridge_cv.py" />
+    <Compile Include="PerformSelectionDistributable.py" />
+    <Compile Include="test.py" />
+    <Compile Include="__init__.py" />
+    <Compile Include="examples\ScanISP.Toydata.config.py" />
+    <Compile Include="examples\ScanLMM.Toydata.config.py" />
+    <Compile Include="examples\ScanOSP.Toydata.config.py" />
+    <Content Include="examples\bronze.txt" />
+    <Content Include="examples\toydata.5chrom.bed" />
+    <Content Include="examples\toydata.5chrom.bim" />
+    <Content Include="examples\toydata.5chrom.fam" />
+    <Content Include="examples\toydata.bed" />
+    <Content Include="examples\toydata.bim" />
+    <Content Include="examples\toydata.cov" />
+    <Content Include="examples\toydata.dat" />
+    <Content Include="examples\toydata.fam" />
+    <Content Include="examples\toydata.iidmajor.hdf5" />
+    <Content Include="examples\toydata.map" />
+    <Content Include="examples\toydata.ped" />
+    <Content Include="examples\toydata.phe" />
+    <Content Include="examples\toydata.shufflePlus.phe" />
+    <Content Include="examples\toydata.sim" />
+    <Content Include="examples\toydata.snpmajor.hdf5" />
+    <Content Include="examples\toydataTest.phe" />
+    <Content Include="examples\toydataTrain.phe" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="examples" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+</Project>
