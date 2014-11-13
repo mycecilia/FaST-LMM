@@ -316,12 +316,14 @@ class FeatureSelectionInSample(object):
         import pylab
         if measure == "ll":
             pylab.plot(self.grid_k, self.ll.mean(axis=0).T, "-x", label=self.grid_k)
+            pylab.ylabel("-ll")
         else:
             pylab.plot(self.grid_k, self.mse.mean(axis=0).T, "-x", label=self.grid_k)
+            pylab.ylabel("mse")
         #pylab.yscale("log")
         #pylab.xscale("log")
         pylab.xlabel("num features in foreground")
-        pylab.ylabel(measure)
+        
         pylab.grid(True)
         pylab.title(measure)
         #pylab.legend()
