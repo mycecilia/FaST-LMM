@@ -219,22 +219,37 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
     covar = np.hstack((covar['vals'],np.ones((test_snps.iid_count, 1))))  #We always add 1's to the end.
     y =  pheno['vals']
 
+    
+
+    assert 0.0 <= mixing <= 1.0
+    
+    # combine two kernels (normalize kernels to diag(K)=N
     if mixing == 0.0:
-        G = G0_standardized.val
+        G0_standardized_val = 1./np.sqrt((G0_standardized.val**2).sum() / float(G0_standardized.val.shape[0])) * G0_standardized.val
+        G = G0_standardized_val
+    elif mixing == 1.0:
+        G1_standardized_val = 1./np.sqrt((G1_standardized.val**2).sum() / float(G1_standardized.val.shape[0])) * G1_standardized.val
+        G = G1_standardized_val
     else:
         assert G1_standardized.sid_count > 0, "If a nonzero mixing weight is given, G1 is required"
         logging.info("concat G1, mixing {0}".format(mixing))
-        G = np.concatenate((np.sqrt(1.0-mixing) * G0_standardized.val, np.sqrt(mixing) * G1_standardized.val),1)
-
+        
+        #TODO: make this efficient (write C-code to perform this operation in-place)!!
+        G0_standardized_val = 1./np.sqrt((G0_standardized.val**2).sum() / float(G0_standardized.val.shape[0])) * G0_standardized.val
+        G1_standardized_val = 1./np.sqrt((G1_standardized.val**2).sum() / float(G1_standardized.val.shape[0])) * G1_standardized.val
+        
+        #G = np.concatenate((np.sqrt(1.0-mixing) * G0_norm, np.sqrt(mixing) * G1_norm),1)
+        G = np.concatenate((np.sqrt(1.0-mixing) * G0_standardized_val, np.sqrt(mixing) * G1_standardized_val),1)
+        
 
     #TODO: make sure low-rank case is handled correctly
     from fastlmm.inference.lmm_cov import LMM as fastLMM
     lmm = fastLMM(X=covar, Y=y, G=G, K=None)
 
     if external_log_delta is None:
-        result = lmm.find_log_delta(sid_count=G.shape[1], min_log_delta=min_log_delta, max_log_delta=max_log_delta)
+        result = lmm.find_log_delta(sid_count=1, min_log_delta=min_log_delta, max_log_delta=max_log_delta)
         external_log_delta = result['log_delta']
-    internal_delta = np.exp(external_log_delta) * G.shape[1]
+    internal_delta = np.exp(external_log_delta)
     logging.info("internal_delta={0}".format(internal_delta))
     logging.info("external_log_delta={0}".format(external_log_delta))
 

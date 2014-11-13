@@ -1,10 +1,7 @@
 import numpy as np
-import scipy as sp
 import logging
 import unittest
 import os.path
-import time
-import sys
 import doctest
 import pandas as pd
 
@@ -12,7 +9,7 @@ from fastlmm.association import single_snp
 from fastlmm.association import single_snp_leave_out_one_chrom
 import fastlmm.pyplink.plink as plink
 from fastlmm.feature_selection.test import TestFeatureSelection
-from fastlmm.util.runner import Local, Hadoop, Hadoop2, HPC, LocalMultiProc, LocalInParts
+from fastlmm.util.runner import Local, HPC
 
 class TestSingleSnp(unittest.TestCase):
 
@@ -59,7 +56,7 @@ class TestSingleSnp(unittest.TestCase):
             sid = row.SNP
             pvalue = frame[frame['SNP'] == sid].iloc[0].PValue
             reldiff = abs(row.Pvalue - pvalue)/row.Pvalue
-            assert reldiff < .035, "'{0}' pvalue_list differ too much {4} -- {2} vs {3}".format(snp0cpp,None,row.Pvalue,pvalue,diff)
+            assert reldiff < .035, "'{0}' pvalue_list differ too much {4} -- {2} vs {3}".format(sid,None,row.Pvalue,pvalue,reldiff)
  
     def file_name(self,testcase_name):
         temp_fn = os.path.join(self.tempout_dir,testcase_name+".txt")
@@ -224,7 +221,7 @@ class TestSingleSnp(unittest.TestCase):
         for _, row in reference.iterrows():
             sid = row.SNP
             pvalue = frame[frame['SNP'] == sid].iloc[0].PValue
-            assert abs(row.Pvalue - pvalue) < 1e-5, "pair {0} differs too much from file '{1}'".format(key,reffile)
+            assert abs(row.Pvalue - pvalue) < 1e-5, "pair {0} differs too much from file '{1}'".format(sid,reffile)
 
     def test_doctest(self):
         old_dir = os.getcwd()
@@ -315,7 +312,8 @@ def getTestSuite():
 
 
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
+    # this import is needed for the runner
     from fastlmm.association.tests.test_single_snp import TestSingleSnp
     suites = unittest.TestSuite([getTestSuite()])
 
