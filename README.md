@@ -7,7 +7,7 @@ See the FaST-LMM website for related software:
 http://research.microsoft.com/en-us/um/redmond/projects/MSCompBio/Fastlmm/
 
 Our documentation (including live examples) is also available as ipython notebook:
-http://nbviewer.ipython.org/github/MSRCompBio/FaST-LMM/blob/master/doc/ipynb/FaST-LMM.ipynb
+http://nbviewer.ipython.org/github/MicrosoftGenomics/FaST-LMM/blob/master/doc/ipynb/FaST-LMM.ipynb
 
 
 ### Quick install:
