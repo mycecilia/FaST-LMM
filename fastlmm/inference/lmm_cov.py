@@ -584,7 +584,7 @@ class LMM(object):
             
 			# compute inverse efficiently
 			[S_WW,U_WW] = la.eigh(WW)
-				# compute S_WW^{-1} * UWX
+			# compute S_WW^{-1} * UWX
                         
 			WY = computeAKB(Sd=Sd, denom=denom, UA=UW, UUA=UUW, UB=UY, UUB=UUY)
 			UWY = U_WW.T.dot(WY)
