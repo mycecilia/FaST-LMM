@@ -12,6 +12,7 @@ from fastlmm.util.pickle_io import load, save
 import time
 import pysnptools.pysnptools.util.util as srutil
 import pandas as pd
+from pysnptools import pysnptools
 
 def single_snp(test_snps,pheno,
                  G0=None, G1=None, mixing=0.0, #!!test mixing and G1
@@ -219,27 +220,27 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
     covar = np.hstack((covar['vals'],np.ones((test_snps.iid_count, 1))))  #We always add 1's to the end.
     y =  pheno['vals']
 
-    
+    from pysnptools.pysnptools.standardizer.diag_K_to_N import DiagKtoN
 
     assert 0.0 <= mixing <= 1.0
     
     # combine two kernels (normalize kernels to diag(K)=N
     if mixing == 0.0:
-        G0_standardized_val = 1./np.sqrt((G0_standardized.val**2).sum() / float(G0_standardized.val.shape[0])) * G0_standardized.val
-        G = G0_standardized_val
+        #G0_standardized_val = 1./np.sqrt((G0_standardized.val**2).sum() / float(G0_standardized.val.shape[0])) * G0_standardized.val
+        G = DiagKtoN(G0_standardized.val.shape[0]).standardize(G0_standardized.val)
     elif mixing == 1.0:
-        G1_standardized_val = 1./np.sqrt((G1_standardized.val**2).sum() / float(G1_standardized.val.shape[0])) * G1_standardized.val
-        G = G1_standardized_val
+        #G1_standardized_val = 1./np.sqrt((G1_standardized.val**2).sum() / float(G1_standardized.val.shape[0])) * G1_standardized.val
+        G = DiagKtoN(G1_standardized.val.shape[0]).standardize(G1_standardized.val)
     else:
         assert G1_standardized.sid_count > 0, "If a nonzero mixing weight is given, G1 is required"
         logging.info("concat G1, mixing {0}".format(mixing))
         
-        #TODO: make this efficient (write C-code to perform this operation in-place)!!
-        G0_standardized_val = 1./np.sqrt((G0_standardized.val**2).sum() / float(G0_standardized.val.shape[0])) * G0_standardized.val
-        G1_standardized_val = 1./np.sqrt((G1_standardized.val**2).sum() / float(G1_standardized.val.shape[0])) * G1_standardized.val
-        
-        #G = np.concatenate((np.sqrt(1.0-mixing) * G0_norm, np.sqrt(mixing) * G1_norm),1)
-        G = np.concatenate((np.sqrt(1.0-mixing) * G0_standardized_val, np.sqrt(mixing) * G1_standardized_val),1)
+        G0_standardized_val = DiagKtoN(G0_standardized.val.shape[0]).standardize(G0_standardized.val)
+        G1_standardized_val = DiagKtoN(G1_standardized.val.shape[0]).standardize(G1_standardized.val)
+         
+        G0_standardized_val *= (np.sqrt(1.0-mixing))
+        G1_standardized_val *= np.sqrt(mixing) 
+        G = np.concatenate((G0_standardized_val, G1_standardized_val),1)
         
 
     #TODO: make sure low-rank case is handled correctly
