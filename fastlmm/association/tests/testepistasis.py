@@ -362,13 +362,13 @@ class TestEpistasis(unittest.TestCase):
         assert len(pvalue_list) == len(reference), "# of pairs differs from file '{0}'".format(reffile)
         for row in reference:
             sid0 = row[0]
-            sid1 = row[1]
+            sid1 = row[4]
             if sid0 < sid1:
                 key = (sid0, sid1)
             else:
                 key = (sid1, sid0)
 
-            assert abs(float(row[2])-pair_to_pvalue[key]) < 1e-5, "pair {0} differs too much from file '{1}'".format(key,reffile)
+            assert abs(float(row[8])-pair_to_pvalue[key]) < 1e-5, "pair {0} differs too much from file '{1}'".format(key,reffile)
 
     def test_doctest(self):
         old_dir = os.getcwd()

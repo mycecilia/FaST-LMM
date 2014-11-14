@@ -56,7 +56,7 @@ class TestSingleSnp(unittest.TestCase):
             sid = row.SNP
             pvalue = frame[frame['SNP'] == sid].iloc[0].PValue
             reldiff = abs(row.Pvalue - pvalue)/row.Pvalue
-            assert reldiff < .035, "'{0}' pvalue_list differ too much {4} -- {2} vs {3}".format(sid,None,row.Pvalue,pvalue,reldiff)
+            assert reldiff < .035, "'{0}' pvalue_list differ too much {4} -- {2} vs {3}".format(sid,None,row.PValue,pvalue,reldiff)
  
     def file_name(self,testcase_name):
         temp_fn = os.path.join(self.tempout_dir,testcase_name+".txt")
@@ -221,7 +221,7 @@ class TestSingleSnp(unittest.TestCase):
         for _, row in reference.iterrows():
             sid = row.SNP
             pvalue = frame[frame['SNP'] == sid].iloc[0].PValue
-            assert abs(row.Pvalue - pvalue) < 1e-5, "pair {0} differs too much from file '{1}'".format(sid,reffile)
+            assert abs(row.PValue - pvalue) < 1e-5, "pair {0} differs too much from file '{1}'".format(sid,reffile)
 
     def test_doctest(self):
         old_dir = os.getcwd()
@@ -297,7 +297,7 @@ class TestSingleSnpLeaveOutOneChrom(unittest.TestCase):
         for _, row in reference.iterrows():
             sid = row.SNP
             pvalue = frame[frame['SNP'] == sid].iloc[0].PValue
-            assert abs(row.Pvalue - pvalue) < 1e-5, "snp {0} differs too much from file '{1}'".format(sid,reffile)
+            assert abs(row.PValue - pvalue) < 1e-5, "snp {0} differs too much from file '{1}'".format(sid,reffile)
 
 
         
