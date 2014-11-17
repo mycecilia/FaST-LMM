@@ -62,7 +62,7 @@ ext.append(Extension("pysnptools.pysnptools.snpreader.wrap_matrix_subset", ["pys
 #python setup.py sdist bdist_wininst upload
 setup(
     name='fastlmm',
-    version='0.2.1',
+    version='0.2.2',
     description='Fast GWAS',
     long_description=readme(),
     keywords='gwas bioinformatics LMMs MLMs',
