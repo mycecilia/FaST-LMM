@@ -1,7 +1,8 @@
+
 ###############################################################################
 # Set default behavior to automatically normalize line endings.
 ###############################################################################
-* text=auto
+# * text=auto
 
 ###############################################################################
 # Set default behavior for command prompt diff.
@@ -43,6 +44,7 @@
 #*.jpg   binary
 #*.png   binary
 #*.gif   binary
+*.bed    binary
 
 ###############################################################################
 # diff behavior for common document formats
@@ -51,6 +53,8 @@
 # is only available from the command line. Turn it on by uncommenting the 
 # entries below.
 ###############################################################################
+#*.bed -diff
+#*.bed   diff=astextplain
 #*.doc   diff=astextplain
 #*.DOC   diff=astextplain
 #*.docx  diff=astextplain
