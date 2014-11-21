@@ -9,9 +9,10 @@ import gc
 import logging
 
 # common modules
+import matplotlib
+matplotlib.use('Agg') #This lets it work even on machines without graphics displays
 import scipy as sp
 import numpy as np
-#import pylab
 import pandas as pd
 import sys
 

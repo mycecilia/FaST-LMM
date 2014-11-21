@@ -19,7 +19,6 @@ import fastlmm.util.util as util
 import fastlmm.inference as fastlmm
 
 from feature_selection_cv import load_snp_data
-import matplotlib.pylab as PLT 
 
 class KernelRidgeCV(): # implements IDistributable
     '''
@@ -47,7 +46,7 @@ class KernelRidgeCV(): # implements IDistributable
             File name of covariates file
 
         offset : bool, default=True
-            adds offset to the covariates specified in cov_fn, if neccesssary
+            adds offset to the covariates specified in cov_fn, if necessary
         """
  
         # data file names
@@ -84,6 +83,11 @@ class KernelRidgeCV(): # implements IDistributable
             best regularization parameter delta for ridge regression
 
         """
+        import matplotlib
+        matplotlib.use('Agg') #This lets it work even on machines without graphics displays
+        import matplotlib.pylab as PLT 
+
+
         # use precomputed data if available
         if self.K == None:
             self.setup_kernel()

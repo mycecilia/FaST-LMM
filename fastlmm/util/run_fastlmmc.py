@@ -1,8 +1,9 @@
-import logging as LG
 import subprocess 
 import os 
 import scipy
 import scipy.io as IO
+import sys
+import logging
 
  # methods to call FaSTLMM-C++ Code
 
@@ -99,8 +100,20 @@ def run(bfile=None,pheno=None,bfileSim=None,sim=None,linreg=None,covar=None,out=
     for more information, we refer to the user-manual of fast-lmm
     '''
     os.environ["FastLmmUseAnyMklLib"] = "1"
-    LG.info('Run FAST-LMM')   
-    cmd = '\"%s/FastLMMC.exe\" -simLearnType Once'%(fastlmm_path) # change that! logdelta is always only optimized on the null model
+    logging.info('Run FAST-LMM')   
+
+    osname = sys.platform
+    if (osname.find("win") >= 0):    #         was loaded, if it was loaded from a file
+        fastlmmpath = os.path.join(fastlmm_path, "fastlmmc.exe")
+    elif (osname.find("linux") >= 0):
+        fastlmmpath = os.path.join(fastlmm_path, "fastlmmc")
+    else:
+        logging.info('\n\n unsupported operating system!')
+    if not os.path.isfile(fastlmmpath) : raise Exception("Expect file {0}".format(fastlmmpath))
+    logging.info("fastlmmC path=" + fastlmmpath)
+
+
+    cmd = '\"%s\" -simLearnType Once'%(fastlmmpath) # change that! logdelta is always only optimized on the null model
     
     if bfile!=None:
         assert os.path.exists(bfile + '.bed'), 'ouch, bfile is missing: %s'%bfile
@@ -162,7 +175,7 @@ def run(bfile=None,pheno=None,bfileSim=None,sim=None,linreg=None,covar=None,out=
         cmd += ' -bfileSim %s'%bfileSim
     if topKbyLinReg!=None:
         cmd += ' -topKbyLinReg %d'%topKbyLinReg
-    LG.info(cmd)
+    logging.info(cmd)
     
     output = subprocess.check_output(cmd,shell=True,stderr=subprocess.STDOUT)
     print output

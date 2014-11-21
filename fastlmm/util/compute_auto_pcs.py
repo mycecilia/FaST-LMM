@@ -31,8 +31,8 @@ def compute_auto_pcs(snpreader, cutoff=.1, k_values=np.arange(11), output_file_n
     >>> logging.basicConfig(level=logging.INFO)
     >>> file_name = "../feature_selection/examples/toydata"
     >>> best_pcs = compute_auto_pcs(file_name)
-    >>> print best_pcs['vals'].shape
-    (500L, 0L)
+    >>> print int(best_pcs['vals'].shape[0]),int(best_pcs['vals'].shape[1])
+    500 0
 
     """
     #!!could use regression tests beyond the docttest

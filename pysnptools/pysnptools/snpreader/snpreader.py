@@ -45,8 +45,8 @@ class SnpReader(object):
         >>> snpdata_subset = subset_on_disk.read() # efficiently reads the specified subset of values from the disk
         >>> print snpdata_subset # prints the specification of the in-memory SNP information
         SnpData(Bed('../../tests/datasets/all_chr.maf0.001.N300')[[3,4],::2])
-        >>> snpdata_subset.val.shape # The dimensions of the ndarray of SNP values
-        (2L, 508L)
+        >>> int(snpdata_subset.val.shape[0]),int(snpdata_subset.val.shape[1]) # The dimensions of the ndarray of SNP values
+        (2, 508)
 
   
     Methods & Properties:
@@ -488,8 +488,8 @@ class SnpReader(object):
         >>> from pysnptools.pysnptools.standardizer.unit import Unit
         >>> snp_on_disk = Bed('../../tests/datasets/all_chr.maf0.001.N300') # Specify SNP data on disk
         >>> kernel = snp_on_disk.kernel(Unit())
-        >>> print kernel.shape, kernel[0,0]
-        (300L, 300L) 901.421835903
+        >>> print (int(kernel.shape[0]),int(kernel.shape[1])), kernel[0,0]
+        (300, 300) 901.421835903
         """        #print "entering kernel with {0},{1},{2}".format(self, standardizer, blocksize)
         t0 = time.time()
         K = SP.zeros([self.iid_count,self.iid_count])

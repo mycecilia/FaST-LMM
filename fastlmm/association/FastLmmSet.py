@@ -797,7 +797,7 @@ class FastLmmSet: # implements IDistributable
             osname = sys.platform
             dir = os.path.split(__file__)[0] #__file__ is the pathname of the file from which the module
             if (osname.find("win") >= 0):    #         was loaded, if it was loaded from a file
-              fastlmmpath = os.path.join(dir,"Fastlmm_autoselect", "fastlmmc.exe")
+                fastlmmpath = os.path.join(dir,"Fastlmm_autoselect", "fastlmmc.exe")
             elif (osname.find("linux") >= 0):
                 fastlmmpath = os.path.join(dir,"Fastlmm_autoselect", "fastlmmc")
             else:

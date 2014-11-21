@@ -37,17 +37,18 @@ class CleanCommand(Clean):
         Clean.run(self)
         if os.path.exists('build'):
             shutil.rmtree('build')
-        for dirpath, dirnames, filenames in os.walk('fastlmm'):
-            for filename in filenames:
-                if (filename.endswith('.so') or filename.endswith('.pyd')
-                             or filename.find("wrap_plink_parser.cpp") != -1 # remove automatically generated source file
-                             or filename.find("wrap_qfc.cpp") != -1 # remove automatically generated source file
-                             #or filename.endswith('.dll')
-                             #or filename.endswith('.pyc')
-                             ):
-                    tmp_fn = os.path.join(dirpath, filename)
-                    print "removing", tmp_fn
-                    os.unlink(tmp_fn)
+            for dirpath, dirnames, filenames in os.walk('.'):
+                for filename in filenames:
+                    if (filename.endswith('.so') or filename.endswith('.pyd')
+                                 or filename.find("wrap_plink_parser.cpp") != -1 # remove automatically generated source file
+                                 or filename.find("wrap_qfc.cpp") != -1 # remove automatically generated source file
+                                 or filename.find("wrap_matrix_subset.cpp") != -1 # remove automatically generated source file
+                                 #or filename.endswith('.dll')
+                                 #or filename.endswith('.pyc')
+                                 ):
+                        tmp_fn = os.path.join(dirpath, filename)
+                        print "removing", tmp_fn
+                        os.unlink(tmp_fn)
 
 # set up macro
 if "win" in platform.system().lower():

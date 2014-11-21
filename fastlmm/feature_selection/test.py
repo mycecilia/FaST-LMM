@@ -252,7 +252,7 @@ class TestFeatureSelection(unittest.TestCase):
                 delimiter = "," if tempfile_name.lower().endswith(".csv") else "\t"
                 out,msg=ut.compare_files(os.path.join(output_dir,tempfile_name), referenceOutfile, self.tolerance,delimiter=delimiter)
                 if not out:
-                    import pdb; pdb.set_trace()
+                    pass #import pdb; pdb.set_trace()
                 self.assertTrue(out,msg)#msg='Files %s and %s are different.' % (tmpOutfile, referenceOutfile))
       
     @staticmethod
@@ -498,7 +498,7 @@ def getTestSuite():
     """
     suite1 = unittest.TestLoader().loadTestsFromTestCase(TestTwoKernelFeatureSelection)
     suite2 = unittest.TestLoader().loadTestsFromTestCase(TestFeatureSelection)
-    return unittest.TestSuite([suite1, suite2])
+    return unittest.TestSuite([suite1,suite2])
 
 
 if __name__ == '__main__':

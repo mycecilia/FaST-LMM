@@ -381,9 +381,6 @@ def getTestSuite():
 
     return test_suite
 
-snpreader_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),"snpreader")
-
-
 if __name__ == '__main__':
 
     suites = getTestSuite()

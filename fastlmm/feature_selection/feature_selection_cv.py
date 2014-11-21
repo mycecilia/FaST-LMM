@@ -388,7 +388,6 @@ class FeatureSelectionStrategy(object):
         """
         turn cross-validation results into results
         """
-
         #self.run_once() #Don't need and saves time
 
         # average over splits
@@ -448,6 +447,8 @@ class FeatureSelectionStrategy(object):
             # save cv scores
             if create_pdf and (output_prefix != None):
                 # visualize results
+                import matplotlib
+                matplotlib.use('Agg') #This lets it work even on machines without graphics displays
                 import pylab
                 pylab.figure()
                 ax = pylab.subplot(111)
@@ -513,8 +514,10 @@ class FeatureSelectionStrategy(object):
                 util.create_directory_if_necessary(out_fn)
                 df.to_csv(out_fn, column_label="delta")
             if create_pdf and (output_prefix != None):
-                import pylab
                 # visualize results
+                import matplotlib
+                matplotlib.use('Agg') #This lets it work even on machines without graphics displays
+                import pylab
                 pylab.figure()
                 ax = pylab.subplot(111)
                 try:
