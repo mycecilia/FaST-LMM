@@ -107,6 +107,9 @@ def run(bfile=None,pheno=None,bfileSim=None,sim=None,linreg=None,covar=None,out=
         fastlmmpath = os.path.join(fastlmm_path, "fastlmmc.exe")
     elif (osname.find("linux") >= 0):
         fastlmmpath = os.path.join(fastlmm_path, "fastlmmc")
+        import stat
+        st = os.stat(fastlmmpath)
+        os.chmod(fastlmmpath, st.st_mode | stat.S_IEXEC)
     else:
         logging.info('\n\n unsupported operating system!')
     if not os.path.isfile(fastlmmpath) : raise Exception("Expect file {0}".format(fastlmmpath))

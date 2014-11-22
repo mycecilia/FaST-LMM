@@ -228,6 +228,29 @@ class TestFeatureSelection(unittest.TestCase):
     def test_blocking_cov_pcs_insample_cv(self):
         self.blocking_cov_pcs(strategy="insample_cv")
 
+    @staticmethod
+    def reference_file(outfile):
+        #!!similar code elsewhere
+        import platform;
+        os_string=platform.platform()
+
+        file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),"..","..","tests")
+        windows_fn = file_path + '/expected-Windows/'+outfile
+        assert os.path.exists(windows_fn)
+        debian_fn = file_path + '/expected-debian/'+outfile
+        if not os.path.exists(debian_fn): #If reference file is not in debian folder, look in windows folder
+            debian_fn = windows_fn
+
+        if "debian" in os_string or "Linux" in os_string:
+            if "Linux" in os_string:
+                logging.warning("comparing to Debian output even though found: %s" % os_string)
+            return debian_fn
+        else:
+            if "Windows" not in os_string:
+                logging.warning("comparing to Windows output even though found: %s" % os_string)
+            return windows_fn 
+
+
     def blocking_cov_pcs(self,strategy):
         currentFolder = os.path.dirname(os.path.realpath(__file__))
         cov_fn = currentFolder + "/examples/toydata.cov"
@@ -243,33 +266,20 @@ class TestFeatureSelection(unittest.TestCase):
             pass
         self.blocking(self.snpreader_bed, cov_fn, num_pcs=3, strategy=strategy, output_prefix=os.path.join(output_dir,strategy))
 
-        for tempfile_name in os.listdir(output_dir):
-            referenceOutfile = os.path.join(self.reference_path(),tempfile_name)
+        for outfile in os.listdir(output_dir):
+            referenceOutfile = TestFeatureSelection.reference_file(outfile)
+
             import fastlmm.util.util as ut
-            if tempfile_name.lower().endswith(".pdf") or tempfile_name == "output_prefix_report.txt" or tempfile_name.lower().endswith("_k_pcs.txt"):
+            if outfile.lower().endswith(".pdf") or outfile == "output_prefix_report.txt" or outfile.lower().endswith("_k_pcs.txt"):
                 self.assertTrue(os.path.exists(referenceOutfile))
             else:
-                delimiter = "," if tempfile_name.lower().endswith(".csv") else "\t"
-                out,msg=ut.compare_files(os.path.join(output_dir,tempfile_name), referenceOutfile, self.tolerance,delimiter=delimiter)
-                if not out:
-                    pass #import pdb; pdb.set_trace()
-                self.assertTrue(out,msg)#msg='Files %s and %s are different.' % (tmpOutfile, referenceOutfile))
+                delimiter = "," if outfile.lower().endswith(".csv") else "\t"
+                tmpOutfile=os.path.join(output_dir,outfile)
+                out,msg=ut.compare_files(tmpOutfile, referenceOutfile, self.tolerance,delimiter=delimiter)
+                #if not out:
+                    #import pdb; pdb.set_trace() #This will mess up LocalMultiProc runs
+                self.assertTrue(out, "msg='{0}', ref='{1}', tmp='{2}'".format(msg, referenceOutfile, tmpOutfile))
       
-    @staticmethod
-    def reference_path():
-        file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),"..","..","tests")
-        import platform
-        os_string=platform.platform()
-        if "Windows" in os_string:
-            return file_path + '/expected-Windows'
-        elif "debian" in os_string:                   
-            return file_path + '/expected-debian'
-        elif "Linux" in os_string:                   
-            logging.warn("WARNING: comparing to Debian output even though found: %s" % os_string)
-            return file_path + '/expected-debian'
-        else:
-            raise Exception("do not have regression tests for this OS:%s" % os_string)
-
      
     def blocking(self, snpreader, cov_fn=None, num_pcs=0, output_prefix = None, strategy="lmm_full_cv"):
         """

@@ -11,8 +11,8 @@ from pysnptools.pysnptools.snpreader.bed import Bed
 from fastlmm.util.pickle_io import load, save
 import time
 import pysnptools.pysnptools.util.util as srutil
-import pandas as pd
 from pysnptools import pysnptools
+import pandas as pd
 
 def single_snp(test_snps,pheno,
                  G0=None, G1=None, mixing=0.0, #!!test mixing and G1

@@ -25,7 +25,6 @@ class TestSingleSnp(unittest.TestCase):
         self.cov_fn = os.path.join(self.pythonpath,  'tests/datasets/all_chr.maf0.001.covariates.N300.txt')
 
     tempout_dir = "tempout/single_snp"
-    reference_dir = os.path.join(TestFeatureSelection.reference_path(),"single_snp")
 
     def test_match_cpp(self):
         '''
@@ -45,7 +44,7 @@ class TestSingleSnp(unittest.TestCase):
 
         frame = single_snp(test_snps=snps[:,test_idx], pheno=pheno, G0=snps[:,sim_idx], covar=covar,log_delta=0)
 
-        referenceOutfile = os.path.join(self.reference_dir,"topsnps.single.txt")
+        referenceOutfile = TestFeatureSelection.reference_file("single_snp/topsnps.single.txt")
 
         reference = pd.read_table(referenceOutfile,sep="\t") # We've manually remove all comments and blank lines from this file
         assert len(frame) == len(reference)
@@ -208,7 +207,7 @@ class TestSingleSnp(unittest.TestCase):
         self.compare_files(frame,"one")
 
     def compare_files(self,frame,ref_base):
-        reffile = os.path.join(self.reference_dir,ref_base+".txt")
+        reffile = TestFeatureSelection.reference_file("single_snp/"+ref_base+".txt")
 
         #sid_list,pvalue_list = frame['SNP'].as_matrix(),frame['Pvalue'].as_matrix()
 
@@ -242,7 +241,6 @@ class TestSingleSnpLeaveOutOneChrom(unittest.TestCase):
         self.cov_fn = os.path.join(self.pythonpath,  'fastlmm/feature_selection/examples/toydata.cov')
 
     tempout_dir = "tempout/single_snp"
-    reference_dir = os.path.join(TestFeatureSelection.reference_path(),"single_snp")
 
     def file_name(self,testcase_name):
         temp_fn = os.path.join(self.tempout_dir,testcase_name+".txt")
@@ -284,7 +282,7 @@ class TestSingleSnpLeaveOutOneChrom(unittest.TestCase):
             self.compare_files(frame,"covar_by_chrom")
 
     def compare_files(self,frame,ref_base):
-        reffile = os.path.join(self.reference_dir,ref_base+".txt")
+        reffile = TestFeatureSelection.reference_file("single_snp/"+ref_base+".txt")
 
         #sid_list,pvalue_list = frame['SNP'].as_matrix(),frame['Pvalue'].as_matrix()
 

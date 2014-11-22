@@ -800,6 +800,9 @@ class FastLmmSet: # implements IDistributable
                 fastlmmpath = os.path.join(dir,"Fastlmm_autoselect", "fastlmmc.exe")
             elif (osname.find("linux") >= 0):
                 fastlmmpath = os.path.join(dir,"Fastlmm_autoselect", "fastlmmc")
+                import stat
+                st = os.stat(fastlmmpath)
+                os.chmod(fastlmmpath, st.st_mode | stat.S_IEXEC)
             else:
                 logging.info('\n\n unsupported operating system!')
             if not os.path.isfile(fastlmmpath) : raise Exception("Expect file {0}".format(fastlmmpath))

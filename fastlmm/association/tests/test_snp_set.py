@@ -29,8 +29,6 @@ class TestSnpSet(unittest.TestCase):
         self.currentFolder = os.path.dirname(os.path.realpath(__file__))
 
     tempout_dir = "tempout/snp_set"
-    reference_dir = os.path.join(TestFeatureSelection.reference_path(),"snp_set")
-
  
     def file_name(self,testcase_name):
         temp_fn = os.path.join(self.tempout_dir,testcase_name)
@@ -54,7 +52,7 @@ class TestSnpSet(unittest.TestCase):
 
 
         out,msg=ut.compare_files(tmpOutfile, referenceOutfile, tolerance)                
-        self.assertTrue(out,msg)#msg='Files %s and %s are different.' % (tmpOutfile, referenceOutfile))
+        self.assertTrue(out, "msg='{0}', ref='{1}', tmp='{2}'".format(msg, referenceOutfile, tmpOutfile))
 
     def test_two(self):
         logging.info("TestSnpSet test_two")
@@ -94,7 +92,7 @@ class TestSnpSet(unittest.TestCase):
 
 
         out,msg=ut.compare_files(tmpOutfile, referenceOutfile, tolerance)                
-        self.assertTrue(out,msg)#msg='Files %s and %s are different.' % (tmpOutfile, referenceOutfile))
+        self.assertTrue(out, "msg='{0}', ref='{1}', tmp='{2}'".format(msg, referenceOutfile, tmpOutfile))
 
 
     def test_four(self):
@@ -115,7 +113,7 @@ class TestSnpSet(unittest.TestCase):
 
 
         out,msg=ut.compare_files(tmpOutfile, referenceOutfile, tolerance)                
-        self.assertTrue(out,msg)#msg='Files %s and %s are different.' % (tmpOutfile, referenceOutfile))
+        self.assertTrue(out, "msg='{0}', ref='{1}', tmp='{2}'".format(msg, referenceOutfile, tmpOutfile))
 
     def test_doctest(self):
         result = doctest.testfile("../snp_set.py")
@@ -124,18 +122,22 @@ class TestSnpSet(unittest.TestCase):
     def _referenceOutfile(self,_infile):
         import platform;
         os_string=platform.platform()
-        if "Windows" in os_string:
-            outfile = os.path.splitext(_infile)[0]
-            return self.currentFolder+'/../../../tests/expected-Windows/'+outfile+'.txt'
-        elif "debian" in os_string:                   
-            outfile = os.path.splitext(_infile)[0]
-            return self.currentFolder+'/../../../tests/expected-debian/'+outfile  +'.txt'
-        elif "Linux" in os_string:                   
-            logging.warning("comparing to Debian output even though found: %s" % os_string)
-            outfile = os.path.splitext(_infile)[0]
-            return self.currentFolder+'/../../../tests/expected-debian/'+outfile  +'.txt'
+        outfile = os.path.splitext(_infile)[0]
+
+        windows_fn = self.currentFolder+'/../../../tests/expected-Windows/'+outfile+'.txt'
+        assert os.path.exists(windows_fn)
+        debian_fn = self.currentFolder+'/../../../tests/expected-debian/'+outfile  +'.txt'
+        if not os.path.exists(debian_fn): #If reference file is not in debian folder, look in windows folder
+            debian_fn = windows_fn
+
+        if "debian" in os_string or "Linux" in os_string:
+            if "Linux" in os_string:
+                logging.warning("comparing to Debian output even though found: %s" % os_string)
+            return debian_fn
         else:
-            raise Exception("do not have regression tests for this OS:%s" % os_string)
+            if "Windows" not in os_string:
+                logging.warning("comparing to Windows output even though found: %s" % os_string)
+            return windows_fn 
 
 
     def test_doctest(self):

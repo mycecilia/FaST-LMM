@@ -1,2 +1,0 @@
-SetId	LogLikeAlt	LogLikeNull	P-value_adjusted	P-value(50/50)	#SNPs_in_Set	#ExcludedSNPs	Alt_h2	Alt_a2
-set23	-712.976529818	-809.108030315	6.35709155295e-201	5.09743613499e-44	24	0	0.55665168886	0.0

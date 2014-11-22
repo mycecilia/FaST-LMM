@@ -28,8 +28,6 @@ class TestEpistasis(unittest.TestCase):
 
 
     tempout_dir = "tempout/epistasis"
-    reference_dir = os.path.join(TestFeatureSelection.reference_path(),"epistasis")
-
 
     def test_match_cpp(self):
         '''
@@ -50,7 +48,7 @@ class TestEpistasis(unittest.TestCase):
         frame = epistasis(snps[:,test_idx], pheno,covar=covar, G0 = snps[:,sim_idx],log_delta=0)
         sid0,sid1,pvalue_list =np.array(frame['SNP0']),np.array(frame['SNP1']),np.array(frame['PValue'])
 
-        referenceOutfile = os.path.join(self.reference_dir,"topsnps.pairs.txt")
+        referenceOutfile = TestFeatureSelection.reference_file("epistasis/topsnps.pairs.txt")
 
         import pandas as pd
         table = pd.read_table(referenceOutfile,sep="\t") # We've manually remove all comments and blank lines from this file
@@ -347,7 +345,7 @@ class TestEpistasis(unittest.TestCase):
         
 
     def compare_files(self,sid0_list,sid1_list,pvalue_list,ref_base):
-        reffile = os.path.join(self.reference_dir,ref_base+".txt")
+        reffile = TestFeatureSelection.reference_file("epistasis/"+ref_base+".txt")
 
         pair_to_pvalue = {}
         for index, sid0 in enumerate(sid0_list):
