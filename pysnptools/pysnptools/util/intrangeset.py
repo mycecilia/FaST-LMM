@@ -40,6 +40,7 @@ class IntRangeSet(object):
         return sum(self._item_to_length.values())
 
     def __eq__(self, other):
+        self, other = IntRangeSet._make_args_range_set(self, other)
         if len(self._start_items)!=len(other._start_items):
             return False
         for i, start in enumerate(self._start_items):
@@ -48,6 +49,7 @@ class IntRangeSet(object):
         return True
 
     def __ne__(self, other):
+        self, other = IntRangeSet._make_args_range_set(self, other)
         return not self==other
 
     def add(self, input, input2=None):
@@ -77,6 +79,7 @@ class IntRangeSet(object):
                         last = start
                     else:
                         last = int(last)
+                    assert start <= last, "Invalid range. Start " + str(start) + " must be no greater than last " + str(last) + "."
                     length = last - start + 1
                     self._try_add(start, length)
         elif hasattr(input, 'ranges'):
@@ -90,7 +93,7 @@ class IntRangeSet(object):
 
 
 
-    #True if item was added. False if it already existed in the range.
+    #True if any item was added. False if everything was already in the set
     #!!!cmk should there be any trys
     def _try_add(self, start, length=1): #!!!cmk should it be "length" or "last"
         assert length > 0, "Length must be greater than zero"
@@ -100,12 +103,12 @@ class IntRangeSet(object):
             if length <= self._item_to_length[start]:
                 return False
             else:
-                self._item_to_length[start] = length;
+                self._item_to_length[start] = length
                 index += 1	  # index should point to the following range for the remainder of this method
-                previous = start;
-                last = start + length - 1;
+                previous = start
+                last = start + length - 1
         elif index == 0:
-            self._start_items.insert(index, start);
+            self._start_items.insert(index, start)
             self._item_to_length[start] = length
             previous = start
             last = start + length - 1
@@ -115,12 +118,12 @@ class IntRangeSet(object):
             last = previous + self._item_to_length[previous] - 1
 
             if start <= last + 1:
-                new_length = start - previous + length;
+                new_length = start - previous + length
                 assert new_length > 0 # real assert
                 if new_length < self._item_to_length[previous]:
                     return False
                 else:
-                    self._item_to_length[previous] = new_length;
+                    self._item_to_length[previous] = new_length
                     last = previous + new_length - 1
             else: # after previous range, not contiguous with previous range
                 self._start_items.insert(index, start)
@@ -136,7 +139,7 @@ class IntRangeSet(object):
         next = self._start_items[index]
         while last >= next - 1:
             new_last = max(last, next + self._item_to_length[next] - 1)
-            self._item_to_length[previous] = new_last - previous + 1 #ItemToLength[previous] + ItemToLength[next];
+            self._item_to_length[previous] = new_last - previous + 1 #ItemToLength[previous] + ItemToLength[next]
             del self._item_to_length[next]
             del self._start_items[index]
             last = new_last
@@ -355,6 +358,134 @@ class IntRangeSet(object):
 
         assert IntRangeSet("30-100,300")^IntRangeSet("0-66,100,200") == IntRangeSet("0-29,67-99,200,300")
 
+        assert IntRangeSet("10-14,55-59")[0:5] == IntRangeSet("10-14")
+        assert IntRangeSet("10-14,55-59")[1:5] == IntRangeSet("11-14")
+        assert IntRangeSet("10-14,55-59")[9:10] == IntRangeSet("59")
+        assert IntRangeSet("10-14,55-59")[-2:] == IntRangeSet("58-59")
+        assert IntRangeSet("10-14,55-59")[0:5:2] == IntRangeSet("10,12,14")
+
+        try:
+            IntRangeSet("10-14,55-59")[100]
+        except KeyError:
+            pass
+        try:
+            IntRangeSet("10-14,55-59")[-100]
+        except KeyError:
+            pass
+
+
+        assert max(IntRangeSet("10-14,55-59")) == 59
+        assert min(IntRangeSet("10-14,55-59")) == 10
+
+        assert IntRangeSet("10-14,55-59") + IntRangeSet("58-60,100") == IntRangeSet("10-14,55-60,100")
+        assert IntRangeSet("10-14,55-59") + "58-60,100" == IntRangeSet("10-14,55-60,100")
+
+        mult_test0 = IntRangeSet("10-14,55-59")
+        mult_test1 = mult_test0 * 3
+        assert mult_test0 == mult_test1
+        assert mult_test0 is not mult_test1
+
+        assert IntRangeSet("10-14,55-59").index(10) == 0
+        assert IntRangeSet("10-14,55-59").index(11) == 1
+        assert IntRangeSet("10-14,55-59").index(55) == 5
+        assert IntRangeSet("10-14,55-59").index(56) == 6
+        try:
+            IntRangeSet("10-14,55-59").index(9)
+        except IndexError:
+            pass
+        try:
+            IntRangeSet("10-14,55-59").index(15)
+        except IndexError:
+            pass
+
+        try:
+            IntRangeSet(3.34)
+        except Exception:
+            pass
+        try:
+            3.34 in IntRangeSet()
+        except Exception:
+            pass
+
+        assert IntRangeSet("10-14,55-59").count(10) == 1
+        assert IntRangeSet("10-14,55-59").count(100) == 0
+
+        assert IntRangeSet("10-14,55-59").isdisjoint(100)
+        assert not IntRangeSet("10-14,55-59").isdisjoint("57-100")
+
+        assert IntRangeSet("10-14,55-59") <= "10-14,55-59"
+        assert not IntRangeSet("10-14,55-59") < "10-14,55-59"
+        assert IntRangeSet("10-14,55-59") < "9-14,55-59"
+
+        assert IntRangeSet("10-14,55-59") >= "10-14,55-59"
+        assert not IntRangeSet("10-14,55-59") > "10-14,55-59"
+        assert IntRangeSet("9-14,55-59") > "10-14,55-59"
+
+        update0 = IntRangeSet("9-14,55-59")
+        update0 |= "10,30,100"
+        assert update0 == IntRangeSet("9-14,30,55-59,100")
+
+        update0 = IntRangeSet("9-14,55-59")
+        update0 &= "10,100" & "0-100"
+        assert update0 == IntRangeSet("10")
+
+        update0 = IntRangeSet("9-14,55-59")
+        update0 -= "10,100" - "30"
+        assert update0 == IntRangeSet("9,11-14,55-59")
+
+        update0 = IntRangeSet("9-14,55-59")
+        update0 ^= "10,100" ^ "30"
+        assert update0 == IntRangeSet("9,11-14,30,55-59,100")
+
+        remove0 = IntRangeSet("9-14,55-59")
+        remove0.remove(9)
+        assert remove0 == IntRangeSet("10-14,55-59")
+
+        remove0 = IntRangeSet("9-14,55-59")
+        remove0.remove(10,13)
+        assert remove0 == IntRangeSet("10,14,55-59")
+
+        remove0 = IntRangeSet("9-14,55-59")
+        try:
+            remove0.remove("100")
+        except KeyError:
+            pass
+
+        remove0 = IntRangeSet("9-14,55-59")
+        try:
+            remove0.remove(IntRangeSet("100"),101)
+        except Exception:
+            pass
+
+        discard0 = IntRangeSet("9-14,55-59")
+        discard0.discard(9)
+        assert discard0 == IntRangeSet("10-14,55-59")
+
+        discard0 = IntRangeSet("9-14,55-59")
+        discard0.discard(10,13)
+        assert discard0 == IntRangeSet("10,14,55-59")
+
+        discard0 = IntRangeSet("9-14,55-59")
+        discard0.discard("100")
+        assert discard0 == "9-14,55-59"
+
+        discard0 = IntRangeSet("9-14,55-59")
+        try:
+            discard0.discard(IntRangeSet("100"),101)
+        except Exception:
+            pass
+
+        pop0 = IntRangeSet("9-14,55-59")
+        assert pop0.pop() == 59
+        assert pop0 == "9-14,55-58"
+
+        pop0 = IntRangeSet("1","3")
+        assert pop0.pop() == 3
+        assert pop0.pop() == 1
+        try:
+            pop0.pop()
+        except KeyError:
+            pass
 
 
     #s[i] ith item of s, origin 0 (3) 
@@ -362,12 +493,18 @@ class IntRangeSet(object):
     #s[i:j:k] slice of s from i to j with step k (3)(5) 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            if key.step is not None and key.step == 1:
-                other = IntRangeSet(self[slice.start],self[slice.stop-1])
+            start,stop,step = key.start,key.stop,key.step
+            if step is None:
+                step = 1
+            if stop is None:
+                stop = len(self)
+
+            if step == 1:
+                other = IntRangeSet(self[start],self[stop-1])
                 return other & self
             else:
                 logging.warn("Slicing with a step other than 1 is implemented slowly") #!!
-                return IntRangeSet(self[index] for index in key.indices)
+                return IntRangeSet(self[index] for index in xrange(start,stop,step))
         elif key >= 0:
             for start in self._start_items:
                 length = self._item_to_length[start]
@@ -415,10 +552,10 @@ class IntRangeSet(object):
 
     #s * n, n * s n shallow copies of s concatenated (2) 
     def __mul__(self, n):
-        return InRangeSet(self)
+        return IntRangeSet(self)
 
     #s.index(x) index of the first occurrence of x in s
-    def __index__(self, element):
+    def index(self, element):
         index = bisect_left(self._start_items, element)
 
         # Find the position_in_its_range of this element
@@ -436,42 +573,46 @@ class IntRangeSet(object):
                 position_in_its_range = element - start
 
         # Sum up the length of all preceding ranges
-        preceeding_starts = self._start_items[0:index-1]
+        preceeding_starts = self._start_items[0:index]
         preceeding_lengths = (self._item_to_length[start] for start in preceeding_starts)
         result = position_in_its_range + sum(preceeding_lengths)
         return result
 
     #s.count(x) total number of occurrences of x in s   
-    def __count__(self,x):
+    def count(self,x):
         if x in self:
             return 1
         else:
             return 0
 
     #Return True if the set has no elements in common with other. Sets are disjoint if and only if their intersection is the empty set.
-    def isdisjoint(*args):
-        args = IntRangeSet._make_args_range_set(*args)
-        intersection = IntRangeSet._and__(*args) #!! this could be faster by not materializing the full intersection
+    def isdisjoint(self, other):
+        self, other = IntRangeSet._make_args_range_set(self, other)
+        intersection = self & other #!! this could be faster by not materializing the full intersection
         return len(intersection._start_items)==0
 
     #issubset(other)set <= other
     #Test whether every element in the set is in other.
-    def _le_(self, other):
+    def __le__(self, other):
+        self, other = IntRangeSet._make_args_range_set(self, other)
         return self in other
 
     #set < other
     #Test whether the set is a proper subset of other, that is, set <= other and set != other.
-    def _lt_(self, other):
+    def __lt__(self, other):
+        self, other = IntRangeSet._make_args_range_set(self, other)
         return self != other and self in other
 
     #issuperset(other)set >= other
     #Test whether every element in other is in the set.
-    def __ge_(self,other):
+    def __ge__(self,other):
+        self, other = IntRangeSet._make_args_range_set(self, other)
         return other in self
 
     #set > other
     #Test whether the set is a proper superset of other, that is, set >= other and set != other.
-    def _gt_(self, other):
+    def __gt__(self, other):
+        self, other = IntRangeSet._make_args_range_set(self, other)
         return self != other and other in self
 
     #union(other, ...)set | other | ...
@@ -493,10 +634,6 @@ class IntRangeSet(object):
 
     def _binary_intersection(self,other):
         result = IntRangeSet()
-        if len(other._start_items) < len(self._start_items): #If other might be smaller, start by looking at its ranges
-            temp = other
-            other = self
-            self = temp
 
         if len(self._start_items) == 0:
             return result
@@ -534,8 +671,7 @@ class IntRangeSet(object):
         return result
 
     def _universe(*args):
-        if len(args)==0:
-            return IntRangeSet()
+        assert len(args) > 0
 
         args = IntRangeSet._make_args_range_set(*args)
 
@@ -596,35 +732,73 @@ class IntRangeSet(object):
         args = list(IntRangeSet._make_args_range_set(*args))
         return IntRangeSet.__or__(*args)-IntRangeSet.__and__(*args)
 
+    def _update(self, result):
+        self._start_items = result._start_items
+        self._item_to_length = result._item_to_length
+
     #update(other, ...)set |= other | ...
     #Update the set, adding elements from all others.
+    def __ior__(*args):
+        args[0]._update(IntRangeSet.__or__(*args))
 
 
     #Changed in version 2.6: Accepts multiple input iterables.
     #intersection_update(other, ...)set &= other & ...
     #Update the set, keeping only elements found in it and all others.
+    def __iand__(*args):
+        args[0]._update(IntRangeSet.__and__(*args))
 
 
     #Changed in version 2.6: Accepts multiple input iterables.
     #difference_update(other, ...)set -= other | ...
     #Update the set, removing elements found in others.
+    def __isub__(*args):
+        args[0]._update(IntRangeSet.__sub__(*args))
 
 
     #Changed in version 2.6: Accepts multiple input iterables.
     #symmetric_difference_update(other)set ^= other
     #Update the set, keeping only elements found in either set, but not in both.
-    #add(elem)
-    #Add element elem to the set.
+    def __ixor__(*args):
+        args[0]._update(IntRangeSet.__xor__(*args))
+
     #remove(elem)
     #Remove element elem from the set. Raises KeyError if elem is not contained in the set.
+    #!!could implement more efficiently like add/_try_add
+    def remove(self, input, input2=None):
+        if isinstance(input,IntRangeSet):
+            assert input2 is None
+        else:
+            input = IntRangeSet(input, input2)
+        if not input < self:
+            raise KeyError()
+        self -= input
+
+
     #discard(elem)
     #Remove element elem from the set if it is present.
+    #!!could implement more efficiently like add/_try_add
+    def discard(self, input, input2=None):
+        if isinstance(input,IntRangeSet):
+            assert input2 is None
+        else:
+            input = IntRangeSet(input, input2)
+        self -= input
+
     #pop()
     #Remove and return an arbitrary element from the set. Raises KeyError if the set is empty.
-    #clear()
-    #Remove all elements from the set.
-
-
+    def pop(self):
+        if len(self._start_items)==0:
+            raise KeyError()
+        #Get the last range
+        start = self[-1]
+        length = self._item_to_length[start]
+        if length == 1:
+            del self._item_to_length[start]
+            self._start_items.pop()
+        else:
+            self._item_to_length[start] = length - 1
+        return start+length-1
 
 
 if __name__ == "__main__":
