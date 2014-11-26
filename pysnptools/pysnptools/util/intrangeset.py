@@ -158,21 +158,6 @@ class IntRangeSet(object):
             length = self._item_to_length[start]
             return start, length, index, element <= start+length-1 # we already know element is greater than start
 
-    ##Find the best range for this element. Start will always be <= element. Last will be < start if not found
-    #def _best_start_last_index(self, element):
-    #    if index != len(self._start_items) and self._start_items[index] == element:
-    #        return element, element+self._item_to_length[element]-1,index
-    #    elif index == 0:   # item is before any of the ranges
-    #        return element, element-1,index-1
-    #    else:
-    #        start = self._start_items[index - 1]
-    #        last = start+self._item_to_length[start]-1
-    #        if element <= last: # we already know it's greater than start
-    #            return start, last, index
-    #        else:
-    #            return element, element-1,index
-
-
     #Returns True iff item is within the ranges of this IntRangeSet.
     def __contains__(self, input):
         if isinstance(input,(int,long)):
@@ -363,6 +348,13 @@ class IntRangeSet(object):
         assert IntRangeSet("1-100") & IntRangeSet("-2,1-3,20,25-99,101") == IntRangeSet("1-3,20,25-99")
         assert IntRangeSet("1-100") & IntRangeSet("2-3,90-110") == IntRangeSet("2-3,90-100")
 
+        assert IntRangeSet("0-66")-IntRangeSet("30-100") == IntRangeSet("0-29")
+        assert IntRangeSet("0-66,100,200")-IntRangeSet("30-100,300") == IntRangeSet("0-29,200")
+        assert IntRangeSet("30-100")-IntRangeSet("0-66") == IntRangeSet("67-100")
+        assert IntRangeSet("30-100,300")-IntRangeSet("0-66,100,200") == IntRangeSet("67-99,300")
+
+        assert IntRangeSet("30-100,300")^IntRangeSet("0-66,100,200") == IntRangeSet("0-29,67-99,200,300")
+
 
 
     #s[i] ith item of s, origin 0 (3) 
@@ -376,7 +368,7 @@ class IntRangeSet(object):
             else:
                 logging.warn("Slicing with a step other than 1 is implemented slowly") #!!
                 return IntRangeSet(self[index] for index in key.indices)
-        elif key > 0:
+        elif key >= 0:
             for start in self._start_items:
                 length = self._item_to_length[start]
                 if key < length:
@@ -403,14 +395,21 @@ class IntRangeSet(object):
         return self[-1]
 
     #s + t the concatenation of s and t (6) 
-    def __add__(self, other):
-        return self.__concat__(other)
+    def __add__(*args):
+        return IntRangeSet.__concat__(*args)
 
-    def __concat__(self, other):
-        if not isinstance(other,IntRangeSet):
-            other = IntRangeSet(other)
-        result = IntRangeSet(self)
-        result.add(other)
+    def _make_args_range_set(*args):
+        for arg in args:
+            if isinstance(arg,IntRangeSet):
+                yield arg
+            else:
+                yield IntRangeSet(arg)
+
+    def __concat__(*args):
+        args = IntRangeSet._make_args_range_set(*args)
+        result = IntRangeSet()
+        for arg in args:
+            result.add(arg)
         return result
 
 
@@ -450,8 +449,9 @@ class IntRangeSet(object):
             return 0
 
     #Return True if the set has no elements in common with other. Sets are disjoint if and only if their intersection is the empty set.
-    def isdisjoint(self,other):
-        intersection = self & other #!! this could be faster by not materializing the full intersection
+    def isdisjoint(*args):
+        args = IntRangeSet._make_args_range_set(*args)
+        intersection = IntRangeSet._and__(*args) #!! this could be faster by not materializing the full intersection
         return len(intersection._start_items)==0
 
     #issubset(other)set <= other
@@ -476,18 +476,23 @@ class IntRangeSet(object):
 
     #union(other, ...)set | other | ...
     #Return a new set with elements from the set and all others.
-    def __or__(self, other):
-        return self+other
+    def __or__(*args):
+        args = IntRangeSet._make_args_range_set(*args)
+        return IntRangeSet.__concat__(*args)
 
     #Changed in version 2.6: Accepts multiple input iterables.
     #intersection(other, ...)set & other & ...
     #Return a new set with elements common to the set and all others.
-    def __and__(self, other):
-        if not isinstance(other,IntRangeSet):
-            other = IntRangeSet(other)
+    def __and__(*args):
+        args = sorted(IntRangeSet._make_args_range_set(*args),key=lambda int_range_set:len(int_range_set._start_items))
+        result = args[0] #!!!what if no args, emtpy? The universe?
+        for arg in args[1:]:
+            result = result._binary_intersection(arg)
+        return result
 
+
+    def _binary_intersection(self,other):
         result = IntRangeSet()
-
         if len(other._start_items) < len(self._start_items): #If other might be smaller, start by looking at its ranges
             temp = other
             other = self
@@ -531,17 +536,18 @@ class IntRangeSet(object):
     def _universe(*args):
         if len(args)==0:
             return IntRangeSet()
+
+        args = IntRangeSet._make_args_range_set(*args)
+
         start = None
         last = None
         for int_range_set in args:
-            if not isinstance(int_range_set,IntRangeSet):
-                int_range_set = IntRangeSet(int_range_set)
-                first2 = int_range_set[0]
-                last2 = int_range_set[-1]
-                if first is None or  first2 < first:
-                    first = first2
-                if last is None or  last2 < last:
-                    last = last2
+            start2 = int_range_set[0]
+            last2 = int_range_set[-1]
+            if start is None or  start2 < start:
+                start = start2
+            if last is None or  last2 > last:
+                last = last2
         return IntRangeSet(start,last)
 
     def _complement(self,universe):
@@ -556,33 +562,39 @@ class IntRangeSet(object):
             assert startU == startS, "The universe must be a superset of self"
 
         for i, (startS, lastS) in enumerate(self.ranges):
-            if i+1 < len(self._item_to_length):
-                start_next = self._item_to_length[i+1]
+            if i+1 < len(self._start_items):
+                start_next = self._start_items[i+1]
                 result._try_add(lastS+1,start_next-(lastS+1))
             else:
                 if lastS < lastU:
-                    result._try_add(lastS+1,lastU-(lastS+1))
+                    result._try_add(lastS+1,lastU-lastS)
                 else:
                     assert lastS == lastU, "The universe must be a superset of self"
         return result
 
+    @staticmethod
+    def _comp_others(universe, args):
+        for i, arg in enumerate(args):
+            if i == 0:
+                yield arg
+            else:
+                yield arg._complement(universe)
 
     #Changed in version 2.6: Accepts multiple input iterables.
     #difference(other, ...)set - other - ...
     #Return a new set with elements in the set that are not in the others.
-    def __sub__(self, other):
-        if not isinstance(other,IntRangeSet):
-            other = IntRangeSet(other)
-        universe = self._universe(other)
-        complement = other._complement(universe)
-        return complement & self
-
-    
-
+    def __sub__(*args):
+        args = list(IntRangeSet._make_args_range_set(*args))
+        universe = IntRangeSet._universe(*args)
+        comp_others = IntRangeSet._comp_others(universe, args)
+        return IntRangeSet.__and__(*comp_others)
 
     #Changed in version 2.6: Accepts multiple input iterables.
     #symmetric_difference(other)set ^ other
     #Return a new set with elements in either the set or other but not both.
+    def __xor__(*args):
+        args = list(IntRangeSet._make_args_range_set(*args))
+        return IntRangeSet.__or__(*args)-IntRangeSet.__and__(*args)
 
     #update(other, ...)set |= other | ...
     #Update the set, adding elements from all others.
