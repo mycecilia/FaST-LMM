@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{60f1cb4a-9da3-47c2-9b89-60ac1ce93347}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>test.py</StartupFile>
+    <StartupFile>util\intrangeset.py</StartupFile>
     <SearchPath>..\..\;..\doc\source\;..\doc\</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -52,6 +52,9 @@
     <Compile Include="standardizer\unit.py" />
     <Compile Include="standardizer\__init__.py" />
     <Compile Include="test.py" />
+    <Compile Include="util\intrangeset.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="util\util.py" />
     <Compile Include="util\__init__.py" />
     <Compile Include="__init__.py">
