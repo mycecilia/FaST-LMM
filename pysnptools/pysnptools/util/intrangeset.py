@@ -405,7 +405,10 @@ class IntRangeSet(object):
     #s + t the concatenation of s and t (6) 
     def __add__(self, other):
         return self.__concat__(other)
+
     def __concat__(self, other):
+        if not isinstance(other,IntRangeSet):
+            other = IntRangeSet(other)
         result = IntRangeSet(self)
         result.add(other)
         return result
@@ -480,6 +483,9 @@ class IntRangeSet(object):
     #intersection(other, ...)set & other & ...
     #Return a new set with elements common to the set and all others.
     def __and__(self, other):
+        if not isinstance(other,IntRangeSet):
+            other = IntRangeSet(other)
+
         result = IntRangeSet()
 
         if len(other._start_items) < len(self._start_items): #If other might be smaller, start by looking at its ranges
@@ -522,11 +528,56 @@ class IntRangeSet(object):
                 last0 = start0+length0-1
         return result
 
+    def _universe(*args):
+        if len(args)==0:
+            return IntRangeSet()
+        start = None
+        last = None
+        for int_range_set in args:
+            if not isinstance(int_range_set,IntRangeSet):
+                int_range_set = IntRangeSet(int_range_set)
+                first2 = int_range_set[0]
+                last2 = int_range_set[-1]
+                if first is None or  first2 < first:
+                    first = first2
+                if last is None or  last2 < last:
+                    last = last2
+        return IntRangeSet(start,last)
+
+    def _complement(self,universe):
+        result = IntRangeSet()
+        assert len(universe._item_to_length) == 1, "The universe must contain a single range"
+        startU = universe[0]
+        lastU = universe[-1]
+        startS = self[0]
+        if startU < startS: #the universe has a smaller element than self
+            result._try_add(startU, startS-startU)
+        else:
+            assert startU == startS, "The universe must be a superset of self"
+
+        for i, (startS, lastS) in enumerate(self.ranges):
+            if i+1 < len(self._item_to_length):
+                start_next = self._item_to_length[i+1]
+                result._try_add(lastS+1,start_next-(lastS+1))
+            else:
+                if lastS < lastU:
+                    result._try_add(lastS+1,lastU-(lastS+1))
+                else:
+                    assert lastS == lastU, "The universe must be a superset of self"
+        return result
 
 
     #Changed in version 2.6: Accepts multiple input iterables.
     #difference(other, ...)set - other - ...
     #Return a new set with elements in the set that are not in the others.
+    def __sub__(self, other):
+        if not isinstance(other,IntRangeSet):
+            other = IntRangeSet(other)
+        universe = self._universe(other)
+        complement = other._complement(universe)
+        return complement & self
+
+    
 
 
     #Changed in version 2.6: Accepts multiple input iterables.
