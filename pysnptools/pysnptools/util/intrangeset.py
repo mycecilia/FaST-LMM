@@ -823,8 +823,16 @@ class IntRangeSet(object):
     #Update the set, adding elements from all others.
     #Changed in version 2.6: Accepts multiple input iterables.
     def __ior__(*args):
-        return args[0]._clone_state(IntRangeSet.union(*args))
+        if len(args)==0:
+            return IntRangeSet()
+
+        args = list(IntRangeSet._make_args_range_set(*args))
+        for arg in args[1:]:
+            args[0].add(arg)
+        return args[0]
     update = __ior__
+    def __iadd__(*args):
+        return IntRangeSet.__ior__(*args)
 
 
     #intersection_update(other, ...)set &= other & ...
