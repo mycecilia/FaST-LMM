@@ -21,14 +21,13 @@ class IntRangeSet(object):
     def copy(self):
             return IntRangeSet(self)
 
-    @property #!!!cmk should ranges be a property or method (see itervalues, etc)
     def ranges(self):
         for item in self._start_items:
             last = item + self._item_to_length[item] - 1
             yield (item, last)
 
     def __iter__(self):
-        for (first, last) in self.ranges:
+        for (first, last) in self.ranges():
             for i in xrange(first,last+1):
                 yield i
 
@@ -83,7 +82,7 @@ class IntRangeSet(object):
                     length = last - start + 1
                     self._try_add(start, length)
         elif hasattr(input, 'ranges'):
-            for start, last in input.ranges:
+            for start, last in input.ranges():
                 self._try_add(start, last-start+1)
         elif hasattr(input, '__iter__'):
             for element in input:
@@ -170,7 +169,7 @@ class IntRangeSet(object):
             return IntRangeSet(input) in self
         elif hasattr(input, 'ranges'):
             # Returns true iff the entire range (start,last) is captured by this int_range_set.
-            for start_in, last_in in input.ranges:
+            for start_in, last_in in input.ranges():
                 start_self,length_self,index,contains = self._best_start_length_index_contains(start_in)
                 if not contains or last_in > start_self+length_self-1:
                     return False
@@ -203,7 +202,7 @@ class IntRangeSet(object):
         from cStringIO import StringIO
         fp = StringIO()
 
-        for index, (start, last) in enumerate(self.ranges):
+        for index, (start, last) in enumerate(self.ranges()):
             if index > 0:
                 fp.write(separator2)
 
@@ -779,7 +778,7 @@ class IntRangeSet(object):
         else:
             assert startU == startS, "The universe must be a superset of self"
 
-        for i, (startS, lastS) in enumerate(self.ranges):
+        for i, (startS, lastS) in enumerate(self.ranges()):
             if i+1 < len(self._start_items):
                 start_next = self._start_items[i+1]
                 result._try_add(lastS+1,start_next-(lastS+1))
