@@ -175,6 +175,7 @@ class IntRangeSet(object):
         assert str(IntRangeSet((7,10))) == "7-10"
         assert str(IntRangeSet(xrange(7,11))) == "7-10"
         assert str(IntRangeSet(np.s_[7:11])) == "7-10"
+        assert str(IntRangeSet(np.s_[7:11:2])) == "7,9"
         assert str(IntRangeSet(xrange(7,11,2))) == "7,9"
         assert str(IntRangeSet(None)) == "empty"
         assert str(IntRangeSet("empty")) == "empty"
@@ -313,6 +314,22 @@ class IntRangeSet(object):
         except IndexError:
             pass
 
+        assert IntRangeSet("10-14,55-59").index("57,56-56") == 6 #returns the index of the start of the contiguous place where 57,"56-56" occurs
+        try:
+            IntRangeSet("10-14,55-59").index([10,55]) #Doesn't pass because 10,55 doesn't occur contiguously
+        except IndexError:
+            pass
+        try:
+            IntRangeSet("10-14,55-59").index("100-110")
+        except IndexError:
+            pass
+        try:
+            IntRangeSet("10-14,55-59").index("14-16")
+        except IndexError:
+            pass
+
+
+
         try:
             IntRangeSet(3.34)
         except Exception:
@@ -356,6 +373,9 @@ class IntRangeSet(object):
         update0 |= IntRangeSet("10,30,100") | "30"
         assert update0 == IntRangeSet("9-14,30,55-59,100")
 
+        update0 = IntRangeSet("9-14,55-59")
+        update0 += IntRangeSet("10,30,100") + "30"
+        assert update0 == IntRangeSet("9-14,30,55-59,100")
 
 
         update0 = IntRangeSet("9-14,55-59")
@@ -413,10 +433,8 @@ class IntRangeSet(object):
         assert discard0 == "9-14,55-59"
 
         discard0 = IntRangeSet("9-14,55-59")
-        try:
-            discard0.discard(IntRangeSet("100"),101)
-        except Exception:
-            pass
+        discard0.discard(IntRangeSet("100"),101)
+        assert discard0 == "9-14,55-59"
 
         pop0 = IntRangeSet("9-14,55-59")
         assert pop0.pop() == 59
@@ -470,6 +488,14 @@ class IntRangeSet(object):
 
         assert list(reversed(IntRangeSet("10-14,55-59"))) == list(reversed(list(IntRangeSet("10-14,55-59"))))
 
+        IntRangeSet("10-14,55-59").sum() == sum(IntRangeSet("10-14,55-59"))
+
+        try:
+            IntRangeSet("10:14")
+        except Exception:
+            pass
+
+        IntRangeSet("1,12-14,55-60,71,102").add("12-100") == IntRangeSet("1,12-100,102")
 
 
     #s[i] ith item of s, origin 0 (3) 
@@ -520,13 +546,13 @@ class IntRangeSet(object):
     def _min_and_max(*ranges_args):
         lo = float("+inf")
         hi = float("-inf")
-        for ranges0 in ranges_args: #!!!cmk change range0 to range
-            if isinstance(ranges0,IntRangeSet):
-                lo = min(lo, ranges0._start_items[0])
-                start = ranges0._start_items[-1]
-                hi = max(hi, start+ranges0._start_to_length[start]-1)
+        for ranges in ranges_args:
+            if isinstance(ranges,IntRangeSet):
+                lo = min(lo, ranges._start_items[0])
+                start = ranges._start_items[-1]
+                hi = max(hi, start+ranges._start_to_length[start]-1)
             else:
-                for start,last in IntRangeSet._static_ranges(ranges0):
+                for start,last in IntRangeSet._static_ranges(ranges):
                     lo = min(lo,start)
                     hi = max(hi,last)
         return lo,hi
@@ -634,8 +660,8 @@ class IntRangeSet(object):
         ranges_args = IntRangeSet._make_args_range_set(*ranges_args) #generator to made every ranges a IntRangeSet
         ranges_args = sorted(ranges_args,key=lambda int_range_set:len(int_range_set._start_items)) #sort so that IntRangeSet with smaller range_count is first
         result = ranges_args[0] #!!!what if no args, emtpy? The universe?
-        for ranges0 in ranges_args[1:]: #!!!cmk rename ranges0 to ranges
-            result = result._binary_intersection(ranges0)
+        for ranges in ranges_args[1:]: #!!!cmk rename ranges to ranges
+            result = result._binary_intersection(ranges)
         return result
     intersection = __and__
 
@@ -880,7 +906,7 @@ class IntRangeSet(object):
                     for range_string in iterable.split(","):
                         match = IntRangeSet._rangeExpression.match(range_string) #!!! is there a good error message if it is not well formed?
                         if match is None:
-                            raise Error("The string is not well-formed. '{0}'".format(range_string))
+                            raise Exception("The string is not well-formed. '{0}'".format(range_string))
                         start = int(match.group("start"))
                         last = int(match.group("last") or start)
                         yield start,last
