@@ -1,49 +1,74 @@
+#!!!cmk see email todo
+
 import re
 from bisect import bisect_left
 import logging
+import numpy as np
 
 class IntRangeSet(object):
-#This is an IntRangeSet it represents a set of integers as a collection of ranges (aka intervals)
+#This is an IntRangeSet it represents a set of integers as a collection of ranges (aka intervals, regions)
 
     _rangeExpression = re.compile(r"^(?P<start>-?\d+)(-(?P<last>-?\d+))?$")
 
-    def __init__(self, input=None, input2=None):
-        if isinstance(input,IntRangeSet):
-            assert input2 is None
-            self._start_items = list(input._start_items)
-            self._item_to_length = dict(input._item_to_length)
+    def __init__(self, *ranges_args):
+        if len(ranges_args) > 0 and isinstance(ranges_args[0],IntRangeSet): #Because we know self is empty, optimize for the case in which the first item is a IntRangeSet
+            self._start_items = list(ranges_args[0]._start_items)
+            self._start_to_length = dict(ranges_args[0]._start_to_length)
+            ranges_args = ranges_args[1:]
         else:
             self._start_items = []
-            self._item_to_length = {}
-            self.add(input, input2)
+            self._start_to_length = {}
+        self.add(*ranges_args) 
 
+    #same: a.add(b,...), a+=b, a|=b, a.update(b,...), !!!cmk extend? append?
+    def add(self, *ranges_args):
+        #!!consider special casing the add of a single int. Anything else?
+        for start,last in IntRangeSet._static_ranges(*ranges_args):
+            self._internal_add(start, last-start+1)
+    #update(other, ...)set |= other | ...
+    #Update the set, adding elements from all others.
+    #Changed in version 2.6: Accepts multiple input iterables.
+    def __iadd__(self, *ranges_args):
+        IntRangeSet.add(self, *ranges_args)
+        return self
+    def __ior__(self, *ranges_args):
+        IntRangeSet.add(self, *ranges_args)
+        return self
+    update = __ior__
 
     def copy(self):
             return IntRangeSet(self)
 
     def ranges(self):
         for item in self._start_items:
-            last = item + self._item_to_length[item] - 1
-            yield (item, last)
+            last = item + self._start_to_length[item] - 1
+            yield item, last
 
     def __iter__(self):
         for (first, last) in self.ranges():
             for i in xrange(first,last+1):
                 yield i
 
-    def clear(self):  #!!!cmk is add_range the best name? Should we support slice notation?
+    def clear(self):
         del self._start_items[:]
-        self._item_to_length.clear()
+        self._start_to_length.clear()
 
     def __len__(self):
-        return sum(self._item_to_length.values())
+        return sum(self._start_to_length.values())
+
+    def sum(self):
+        result = 0
+        for start in self._start_items:
+            length = self._start_to_length[start]
+            result += (start + start + length - 1)*length//2
+        return result
 
     def __eq__(self, other):
         self, other = IntRangeSet._make_args_range_set(self, other)
         if other is None or len(self._start_items)!=len(other._start_items):
             return False
         for i, start in enumerate(self._start_items):
-            if start != other._start_items[i] or self._item_to_length[start] != other._item_to_length[start]:
+            if start != other._start_items[i] or self._start_to_length[start] != other._start_to_length[start]:
                 return False
         return True
 
@@ -51,139 +76,21 @@ class IntRangeSet(object):
         #Don't need to call _make_args_range_set because __eq__ will call it
         return not self==other
 
-    def add(self, input, input2=None):
-        if isinstance(input,(int,long)) and isinstance(input2,(int,long)):
-            assert input <= input2, "Invalid range. Start " + str(input) + " must be no greater than last " + str(input2) + "."
-            length = input2 - input + 1
-            self._try_add(input, length)
-            return
-
-        assert input2 is None, "If input2 is not None, then both input and input2 should be integers"
-
-        if input is None:
-            pass
-        elif isinstance(input,(int,long)) and input2 is None:
-            self._try_add(input)
-        elif isinstance(input,str):
-            # Parses strings of the form -10--5,-2-10,12-12. Spaces are allowed, no other characters are.
-            # "empty" will return an empty range
-            if input == "empty": #!!const #!!!cmk is "empty" the best way to print an empty set?
-                pass
-            else:
-                for range_string in input.split(","):
-                    match = self._rangeExpression.match(range_string) #!!! is there a good error message if it is not well formed?
-                    start = int(match.group("start"))
-                    last = match.group("last")
-                    if last is None:
-                        last = start
-                    else:
-                        last = int(last)
-                    assert start <= last, "Invalid range. Start " + str(start) + " must be no greater than last " + str(last) + "."
-                    length = last - start + 1
-                    self._try_add(start, length)
-        elif hasattr(input, 'ranges'):
-            for start, last in input.ranges():
-                self._try_add(start, last-start+1)
-        elif hasattr(input, '__iter__'):
-            for element in input:
-                self.add(element)
-        else:
-            raise Exception("Don't know how to construct a InRangeSet from '{0}' (and '{1}')".format(input, input2))
-
-
-
-    #True if any item was added. False if everything was already in the set
-    #!!!cmk should there be any trys
-    def _try_add(self, start, length=1): #!!!cmk should it be "length" or "last"
-        assert length > 0, "Length must be greater than zero"
-        assert len(self._start_items) == len(self._item_to_length)
-        index = bisect_left(self._start_items, start)
-        if index != len(self._start_items) and self._start_items[index] == start:
-            if length <= self._item_to_length[start]:
-                return False
-            else:
-                self._item_to_length[start] = length
-                index += 1	  # index should point to the following range for the remainder of this method
-                previous = start
-                last = start + length - 1
-        elif index == 0:
-            self._start_items.insert(index, start)
-            self._item_to_length[start] = length
-            previous = start
-            last = start + length - 1
-            index += 1  # index_of_miss should point to the following range for the remainder of this method
-        else:
-            previous = self._start_items[index - 1]
-            last = previous + self._item_to_length[previous] - 1
-
-            if start <= last + 1:
-                new_length = start - previous + length
-                assert new_length > 0 # real assert
-                if new_length < self._item_to_length[previous]:
-                    return False
-                else:
-                    self._item_to_length[previous] = new_length
-                    last = previous + new_length - 1
-            else: # after previous range, not contiguous with previous range
-                self._start_items.insert(index, start)
-                self._item_to_length[start] = length
-                previous = start
-                last = start + length - 1
-                index += 1
-
-        if index == len(self._start_items):
-            return True
-
-        # collapse next range into this one
-        next = self._start_items[index]
-        while last >= next - 1:
-            new_last = max(last, next + self._item_to_length[next] - 1)
-            self._item_to_length[previous] = new_last - previous + 1 #ItemToLength[previous] + ItemToLength[next]
-            del self._item_to_length[next]
-            del self._start_items[index]
-            last = new_last
-            if index >= len(self._start_items):
-                break
-            next =  self._start_items[index]
-        return True
-
-    # return the range that has the largest start and for which start<=element
-    def _best_start_length_index_contains(self, element):
-        index = bisect_left(self._start_items, element)
-        if index != len(self._start_items) and self._start_items[index] == element: #element is the start element of some range
-            return element, self._item_to_length[element], index, True
-        elif index == 0: # element is before any of the ranges
-            return element, 0, -1, False
-        else:
-            index -= 1
-            start = self._start_items[index]
-            length = self._item_to_length[start]
-            return start, length, index, element <= start+length-1 # we already know element is greater than start
-
+    #Same: a >= b, b.issuperset(a,...), b in a
     #Returns True iff item is within the ranges of this IntRangeSet.
-    def __contains__(self, input):
-        if isinstance(input,(int,long)):
-            _,_,_,contains = self._best_start_length_index_contains(input)
-            return contains
-        elif isinstance(input,str):
-            return IntRangeSet(input) in self
-        elif hasattr(input, 'ranges'):
-            # Returns true iff the entire range (start,last) is captured by this int_range_set.
-            for start_in, last_in in input.ranges():
-                start_self,length_self,index,contains = self._best_start_length_index_contains(start_in)
-                if not contains or last_in > start_self+length_self-1:
-                    return False
-            return True
-        elif hasattr(input, '__iter__'):
-            start_self, last_self = (0,-1) #init to an range that contains nothing
-            for element in input:
-                if element < start_self or element > last_self: #not in the current range? Find the best one for this element
-                    _,_,_,contains = self._best_start_length_index_contains(element)
-                    if not contains:
-                        return False #If not, its not in any range, so return False
-            return True
-        else:
-            raise Exception("Don't know how to test if '{0}' is contained in the IntRangeSet".format(input))
+    def __contains__(self, *ranges_args):
+        for start_in,last_in in IntRangeSet._static_ranges(*ranges_args):
+            start_self,length_self,index,contains = self._best_start_length_index_contains(start_in)
+            if not contains or last_in > start_self+length_self-1:
+                return False
+        return True
+    #issuperset(other)set >= other
+    #Test whether every element in other is in the set.
+    def __ge__(self,other):
+        return other in self
+    issuperset = __ge__
+
+
 
     @property
     def isempty(self):
@@ -264,9 +171,10 @@ class IntRangeSet(object):
         assert int_range_set1 != int_range_set2
 
         assert str(IntRangeSet(7)) == "7"
-        assert str(IntRangeSet(7,7)) == "7"
-        assert str(IntRangeSet(7,10)) == "7-10"
+        assert str(IntRangeSet((7,7))) == "7"
+        assert str(IntRangeSet((7,10))) == "7-10"
         assert str(IntRangeSet(xrange(7,11))) == "7-10"
+        assert str(IntRangeSet(np.s_[7:11])) == "7-10"
         assert str(IntRangeSet(xrange(7,11,2))) == "7,9"
         assert str(IntRangeSet(None)) == "empty"
         assert str(IntRangeSet("empty")) == "empty"
@@ -478,7 +386,7 @@ class IntRangeSet(object):
 
         remove0 = IntRangeSet("9-14,55-59")
         remove0.remove(10,13)
-        assert remove0 == IntRangeSet("9,14,55-59")
+        assert remove0 == IntRangeSet("9,11-12,14,55-59")
 
         remove0 = IntRangeSet("9-14,55-59")
         try:
@@ -498,7 +406,7 @@ class IntRangeSet(object):
 
         discard0 = IntRangeSet("9-14,55-59")
         discard0.discard(10,13)
-        assert discard0 == IntRangeSet("9,14,55-59")
+        assert discard0 == IntRangeSet("9,11-12,14,55-59")
 
         discard0 = IntRangeSet("9-14,55-59")
         discard0.discard("100")
@@ -569,21 +477,20 @@ class IntRangeSet(object):
     #s[i:j:k] slice of s from i to j with step k (3)(5) 
     def __getitem__(self, key):
         if isinstance(key, slice):
+            lenx = len(self)
             start,stop,step = key.start,key.stop,key.step
-            if step is None:
-                step = 1
-            if stop is None:
-                stop = len(self)
+            start = start or 0
+            stop = stop or lenx
+            step = step or 1
 
             if step == 1:
-                other = IntRangeSet(self[start],self[stop-1])
-                return other & self
+                return self & (self[start],self[stop-1])
             else:
-                logging.warn("Slicing with a step other than 1 is implemented slowly") #!!
-                return IntRangeSet(self[index] for index in xrange(start,stop,step))
+                logging.info("Slicing with a step other than 1 is implemented slowly") #!!
+                return IntRangeSet(self[index] for index in xrange(*key.indices(lenx)))
         elif key >= 0:
             for start in self._start_items:
-                length = self._item_to_length[start]
+                length = self._start_to_length[start]
                 if key < length:
                     return start+key
                 key -= length
@@ -593,19 +500,36 @@ class IntRangeSet(object):
             key = -key-1
             for start_index in xrange(len(self._start_items)):
                 start = self._start_items[-1-start_index]
-                length = self._item_to_length[start]
+                length = self._start_to_length[start]
                 if key < length:
                     return start+length-1-key
                 key -= length
             raise KeyError()
 
     #max(s) largest item of s   
-    def max(self):
-        return self[-1]
+    def max(self, *ranges_args):
+        lo,hi = self._min_and_max(self,*ranges_args)
+        return hi
 
     #min(s) smallest item of s   
-    def min(self):
-        return self[0]
+    def min(self, *ranges_args):
+        lo,hi = self._min_and_max(self,*ranges_args)
+        return lo
+
+    @staticmethod
+    def _min_and_max(*ranges_args):
+        lo = float("+inf")
+        hi = float("-inf")
+        for ranges0 in ranges_args: #!!!cmk change range0 to range
+            if isinstance(ranges0,IntRangeSet):
+                lo = min(lo, ranges0._start_items[0])
+                start = ranges0._start_items[-1]
+                hi = max(hi, start+ranges0._start_to_length[start]-1)
+            else:
+                for start,last in IntRangeSet._static_ranges(ranges0):
+                    lo = min(lo,start)
+                    hi = max(hi,last)
+        return lo,hi
 
     def _make_args_range_set(*args):
         for arg in args:
@@ -616,24 +540,37 @@ class IntRangeSet(object):
             else:
                 yield IntRangeSet(arg)
 
-    def __concat__(*args):
-        args = IntRangeSet._make_args_range_set(*args)
+    #same: a.union(b,...), a+b, a|b, a.concat(b,...), a.or(b,...)
+    def __concat__(*ranges_args):
         result = IntRangeSet()
-        for arg in args:
-            result.add(arg)
+        result.add(*ranges_args)
         return result
-
     #s + t the concatenation of s and t (6) 
-    __add__ = __concat__
-
+    __add__ = __concat__ #!!!expand all these out
+        #union(other, ...)set | other | ...
+    #Return a new set with elements from the set and all others.
+    #Changed in version 2.6: Accepts multiple input iterables.
+    def __or__(self, other):
+        return self+other
+    union = __concat__
 
 
     #s * n, n * s n shallow copies of s concatenated (2) 
     def __mul__(self, n):
         return IntRangeSet(self)
 
-    #s.index(x) index of the first occurrence of x in s
-    def index(self, element):
+    #s.index(x) index of the x in s
+    def index(self, other):
+        if isinstance(other,(int,long)):
+            return self._index_element(other)
+        else:
+            piece = self & IntRangeSet._universe(other)
+            if piece == other:
+                return self._index_element(piece[0])
+            else:
+                raise IndexError()
+
+    def _index_element(self, element):
         index = bisect_left(self._start_items, element)
 
         # Find the position_in_its_range of this element
@@ -644,7 +581,7 @@ class IntRangeSet(object):
         else:
             index -= 1
             start = self._start_items[index]
-            last = start+self._item_to_length[start]-1
+            last = start+self._start_to_length[start]-1
             if element > last: # we already know it's greater than start
                 raise IndexError()
             else:
@@ -652,42 +589,35 @@ class IntRangeSet(object):
 
         # Sum up the length of all preceding ranges
         preceeding_starts = self._start_items[0:index]
-        preceeding_lengths = (self._item_to_length[start] for start in preceeding_starts)
+        preceeding_lengths = (self._start_to_length[start] for start in preceeding_starts)
         result = position_in_its_range + sum(preceeding_lengths)
         return result
 
     #s.count(x) total number of occurrences of x in s   
-    def count(self,x):
-        if x in self:
+    def count(self, ranges):
+        if ranges in self:
             return 1
         else:
             return 0
 
     #Return True if the set has no elements in common with other. Sets are disjoint if and only if their intersection is the empty set.
-    def isdisjoint(self, other):
-        self, other = IntRangeSet._make_args_range_set(self, other)
-        intersection = self & other #!! this could be faster by not materializing the full intersection
-        return len(intersection._start_items)==0
+    def isdisjoint(self, ranges):
+        intersection = self & ranges #!! this could be faster by not materializing the full intersection
+        return intersection.isempty
 
+    #Same: a <= b, a.issubset(b)
     #issubset(other)set <= other
     #Test whether every element in the set is in other.
-    def __le__(self, other):
-        self, other = IntRangeSet._make_args_range_set(self, other)
-        return self in other
+    def __le__(self, ranges):
+        self, ranges = IntRangeSet._make_args_range_set(self, ranges)
+        return self in ranges
     issubset = __le__
 
     #set < other
     #Test whether the set is a proper subset of other, that is, set <= other and set != other.
-    def __lt__(self, other):
-        self, other = IntRangeSet._make_args_range_set(self, other)
-        return self != other and self in other
-
-    #issuperset(other)set >= other
-    #Test whether every element in other is in the set.
-    def __ge__(self,other):
-        self, other = IntRangeSet._make_args_range_set(self, other)
-        return other in self
-    issuperset = __ge__
+    def __lt__(self, ranges):
+        self, ranges = IntRangeSet._make_args_range_set(self, ranges)
+        return self != ranges and self in ranges
 
     #set > other
     #Test whether the set is a proper superset of other, that is, set >= other and set != other.
@@ -695,48 +625,44 @@ class IntRangeSet(object):
         self, other = IntRangeSet._make_args_range_set(self, other)
         return self != other and other in self
 
-    #union(other, ...)set | other | ...
-    #Return a new set with elements from the set and all others.
-    #Changed in version 2.6: Accepts multiple input iterables.
-    def __or__(self, other):
-        return self+other
-    union = __concat__
 
+    #Same: a & b, a.intersection(b,...)
     #intersection(other, ...)set & other & ...
     #Return a new set with elements common to the set and all others.
     #Changed in version 2.6: Accepts multiple input iterables.
-    def __and__(*args):
-        args = sorted(IntRangeSet._make_args_range_set(*args),key=lambda int_range_set:len(int_range_set._start_items))
-        result = args[0] #!!!what if no args, emtpy? The universe?
-        for arg in args[1:]:
-            result = result._binary_intersection(arg)
+    def __and__(*ranges_args):
+        ranges_args = IntRangeSet._make_args_range_set(*ranges_args) #generator to made every ranges a IntRangeSet
+        ranges_args = sorted(ranges_args,key=lambda int_range_set:len(int_range_set._start_items)) #sort so that IntRangeSet with smaller range_count is first
+        result = ranges_args[0] #!!!what if no args, emtpy? The universe?
+        for ranges0 in ranges_args[1:]: #!!!cmk rename ranges0 to ranges
+            result = result._binary_intersection(ranges0)
         return result
     intersection = __and__
 
     def _binary_intersection(self,other):
         result = IntRangeSet()
 
-        if len(self._start_items) == 0:
+        if self.isempty:
             return result
 
         index = 0
         start0 = self._start_items[index]
-        length0 = self._item_to_length[start0]
+        length0 = self._start_to_length[start0]
         last0 = start0+length0-1
         while True:
             start1,length1,index1,contains = other._best_start_length_index_contains(start0)
             last1=start1+length1-1
             if contains:
                 if last0 <= last1: #All of range0 fits inside some range1, so add it the intersection and next look at the next range0
-                    result._try_add(start0,length0)
+                    result._internal_add(start0,length0)
                     index+=1
                     if index >= len(self._start_items):
                         break # leave the while loop
                     start0 = self._start_items[index]
-                    length0 = self._item_to_length[start0]
+                    length0 = self._start_to_length[start0]
                     last0 = start0+length0-1
                 else: #Only part of range0 fits inside some range0, so add that part and then next look at the rest of range0
-                    result._try_add(start0,last1-start0+1)
+                    result._internal_add(start0,last1-start0+1)
                     start0 = last1+1
                     length0=last0-start0+1
             else: #start0 is not contained in any range1, so swap self and other and then next look at the next range0
@@ -747,170 +673,137 @@ class IntRangeSet(object):
                 if index >= len(self._start_items):
                     break # leave the while loop
                 start0 = self._start_items[index]
-                length0 = self._item_to_length[start0]
+                length0 = self._start_to_length[start0]
                 last0 = start0+length0-1
         return result
 
-    def _universe(*args):
-        assert len(args) > 0
-
-        args = IntRangeSet._make_args_range_set(*args)
-
-        start = None
-        last = None
-        for int_range_set in args:
-            start2 = int_range_set[0]
-            last2 = int_range_set[-1]
-            if start is None or  start2 < start:
-                start = start2
-            if last is None or  last2 > last:
-                last = last2
-        return IntRangeSet(start,last)
+    @staticmethod
+    def _universe(*ranges_args):
+        return IntRangeSet(IntRangeSet._min_and_max(*ranges_args))
 
     def _complement(self,universe):
         result = IntRangeSet()
-        assert len(universe._item_to_length) == 1, "The universe must contain a single range"
+        assert len(universe._start_to_length) == 1, "The universe must contain a single range"
         startU = universe[0]
         lastU = universe[-1]
         startS = self[0]
         if startU < startS: #the universe has a smaller element than self
-            result._try_add(startU, startS-startU)
+            result._internal_add(startU, startS-startU)
         else:
             assert startU == startS, "The universe must be a superset of self"
 
         for i, (startS, lastS) in enumerate(self.ranges()):
             if i+1 < len(self._start_items):
                 start_next = self._start_items[i+1]
-                result._try_add(lastS+1,start_next-(lastS+1))
+                result._internal_add(lastS+1,start_next-(lastS+1))
             else:
                 if lastS < lastU:
-                    result._try_add(lastS+1,lastU-lastS)
+                    result._internal_add(lastS+1,lastU-lastS)
                 else:
                     assert lastS == lastU, "The universe must be a superset of self"
         return result
 
     @staticmethod
-    def _comp_others(universe, args):
-        for i, arg in enumerate(args):
-            if i == 0:
-                yield arg
-            else:
-                yield arg._complement(universe)
+    def _comp_others(universe, first, *others):
+        yield first
+        for i, other in enumerate(others):
+            yield other._complement(universe)
 
+    #Same a-b, a.difference(b,...)
     #difference(other, ...)set - other - ...
     #Return a new set with elements in the set that are not in the others.
     #Changed in version 2.6: Accepts multiple input iterables.
-    def __sub__(*args):
-        args = list(IntRangeSet._make_args_range_set(*args))
-        universe = IntRangeSet._universe(*args)
-        comp_others = IntRangeSet._comp_others(universe, args)
+    def __sub__(*ranges_args): #!!could be made faster by being more direct instead of using complements
+        ranges_args = list(IntRangeSet._make_args_range_set(*ranges_args))
+        universe = IntRangeSet._universe(*ranges_args)
+        comp_others = IntRangeSet._comp_others(universe, *ranges_args)
         return IntRangeSet.intersection(*comp_others)
     difference = __sub__
 
+    #same a^b, a.symmetric_difference(b)
     #symmetric_difference(other)set ^ other
     #Return a new set with elements in either the set or other but not both.
     def __xor__(self, other):
-        self, other = IntRangeSet._make_args_range_set(self, other)
-        return IntRangeSet.union(self, other)-IntRangeSet.intersection(self, other)
+        return (self | other) - (self & other) #!! could be made more direct and faster
     symmetric_difference = __xor__
 
     def _clone_state(self, result):
         self._start_items = result._start_items
-        self._item_to_length = result._item_to_length
+        self._start_to_length = result._start_to_length
         return self
 
-    #update(other, ...)set |= other | ...
-    #Update the set, adding elements from all others.
-    #Changed in version 2.6: Accepts multiple input iterables.
-    def __ior__(*args):
-        if len(args)==0:
-            return IntRangeSet()
-
-        args = list(IntRangeSet._make_args_range_set(*args))
-        for arg in args[1:]:
-            args[0].add(arg)
-        return args[0]
-    update = __ior__
-    def __iadd__(*args):
-        return IntRangeSet.__ior__(*args)
 
 
     #intersection_update(other, ...)set &= other & ...
     #Update the set, keeping only elements found in it and all others.
     #Changed in version 2.6: Accepts multiple input iterables.
-    def __iand__(*args):
-        return args[0]._clone_state(IntRangeSet.intersection(*args))
+    def __iand__(*ranges_args):
+        return ranges_args[0]._clone_state(IntRangeSet.intersection(*ranges_args))
     intersection_update = __iand__
 
+    #same a-=b, a.difference_update(b,...), a.discard(b,...), a.remove(b,...). Note that "remove" is the only one that raises an error if the b,... aren't in a.
     #difference_update(other, ...)set -= other | ...
     #Update the set, removing elements found in others.
     #Changed in version 2.6: Accepts multiple input iterables.
-    def __isub__(*args):
-        return args[0]._clone_state(IntRangeSet.difference(*args))
+    def __isub__(*ranges_args):
+        return ranges_args[0]._clone_state(IntRangeSet.difference(*ranges_args))
     difference_update = __isub__
+
+    #remove(elem)
+    #Remove element elem from the set. Raises KeyError if elem is not contained in the set.
+    #!!could implement more efficiently like add/_internal_add
+    def remove(self, *ranges_args):
+        if not self.__contains__(*ranges_args):
+            raise KeyError()
+        self.difference_update(*ranges_args)
+
+
+    #discard(elem)
+    #Remove element elem from the set if it is present.
+    #!!could implement more efficiently like add/_internal_add
+    def discard(self, *ranges_args):
+        self.difference_update(*ranges_args)
+
 
 
     #symmetric_difference_update(other)set ^= other
     #Update the set, keeping only elements found in either set, but not in both.
     def __ixor__(self, other):
-        return self._clone_state(IntRangeSet.symmetric_difference(self, other))
+        return self._clone_state(self ^ other)
     symmetric_difference_update = __ixor__
-
-    #remove(elem)
-    #Remove element elem from the set. Raises KeyError if elem is not contained in the set.
-    #!!could implement more efficiently like add/_try_add
-    def remove(self, input, input2=None):
-        if isinstance(input,IntRangeSet):
-            assert input2 is None
-        else:
-            input = IntRangeSet(input, input2)
-        if not input < self:
-            raise KeyError()
-        self -= input
-
-
-    #discard(elem)
-    #Remove element elem from the set if it is present.
-    #!!could implement more efficiently like add/_try_add
-    def discard(self, input, input2=None):
-        if isinstance(input,IntRangeSet):
-            assert input2 is None
-        else:
-            input = IntRangeSet(input, input2)
-        self -= input
 
     #pop()
     #Remove and return an arbitrary element from the set. Raises KeyError if the set is empty.
     def pop(self):
-        if len(self._start_items)==0:
+        if self.isempty:
             raise KeyError()
         #Get the last range
         start = self._start_items[-1]
-        length = self._item_to_length[start]
+        length = self._start_to_length[start]
         if length == 1:
-            del self._item_to_length[start]
+            del self._start_to_length[start]
             self._start_items.pop()
         else:
-            self._item_to_length[start] = length - 1
+            self._start_to_length[start] = length - 1
         return start+length-1
 
 
     def __delitem__(self,key):
         if isinstance(key, slice):
+            lenx = len(self)
             start,stop,step = key.start,key.stop,key.step
-            if step is None:
-                step = 1
-            if stop is None:
-                stop = len(self)
+            start = start or 0
+            stop = stop or lenx
+            step = step or 1
 
             if step == 1:
-                self -= IntRangeSet(self[start],self[stop-1])
+                self -= (self[start],self[stop-1])
             else:
-                logging.warn("Slicing with a step other than 1 is implemented slowly") #!!
-                self -= (self[index] for index in xrange(start,stop,step))
+                logging.info("Slicing with a step other than 1 is implemented slowly") #!!
+                self -= (self[index] for index in xrange(*key.indices(lenx)))
         elif key >= 0:
             for start in self._start_items:
-                length = self._item_to_length[start]
+                length = self._start_to_length[start]
                 if key < length:
                     self -= start+key 
                     return 
@@ -921,7 +814,7 @@ class IntRangeSet(object):
             key = -key-1
             for start_index in xrange(len(self._start_items)):
                 start = self._start_items[-1-start_index]
-                length = self._item_to_length[start]
+                length = self._start_to_length[start]
                 if key < length:
                     self -= start+length-1-key
                     return 
@@ -930,9 +823,142 @@ class IntRangeSet(object):
 
     def __reversed__(self):
         for start in reversed(self._start_items):
-            length = self._item_to_length[start]
+            length = self._start_to_length[start]
             for item in xrange(start+length-1, start-1, -1):
                 yield item
+
+    @staticmethod
+    #This will gather adjacent ranges together into one range, e.g.  1-3,4,5-6 -> 1-6
+    def _static_ranges(*iterables):
+        iter = IntRangeSet._inner_static_ranges(*iterables)
+        try:
+            start0,last0 = iter.next()
+            assert start0 <= last0, "Invalid range. Start " + str(start0) + " must be no greater than last " + str(last0) + "."
+        except StopIteration:
+            return
+        while True:
+            try:
+                start1,last1 = iter.next()
+                assert start1 <= last1, "Invalid range. Start " + str(start1) + " must be no greater than last " + str(last1) + "."
+            except StopIteration:
+                yield start0,last0
+                return
+            if last0+1==start1: #We don't try to merge all cases, just the most common
+                last0=last1
+            elif last1+1==start0:
+                start0=start1
+            else:
+                yield start0,last0
+                start0,last0=start1,last1
+
+    @staticmethod
+    def _inner_static_ranges(*iterables):
+        for iterable in iterables:
+            if isinstance(iterable,(int,long)):
+                yield iterable,iterable
+            elif isinstance(iterable,tuple):
+                assert len(iterable)==2 and isinstance(iterable[0],(int,long)) and isinstance(iterable[1],(int,long)), "Tuples must contain exactly two int elements that represent the start (inclusive) and last (inclusive) elements of a range."
+                yield iterable[0],iterable[1]
+            elif isinstance(iterable,slice):
+                start = iterable.start
+                stop = iterable.stop
+                step = iterable.step or 1
+                assert start is not None and start >=0 and stop is not None and start < stop and step > 0, "With slice, start and stop must be nonnegative numbers, stop must be more than start, and step, if given, must be at least 1"
+                if step == 1:
+                    yield start,stop-1
+                else:
+                    for start in xrange(start,stop,step):
+                        yield start, start
+            elif iterable is None:
+                pass
+            elif isinstance(iterable,str):
+            # Parses strings of the form -10--5,-2-10,12-12. Spaces are allowed, no other characters are.
+            # "empty" will return an empty range
+                if iterable == "empty": #!!const #!! is "empty" the best way to print an empty set?
+                    pass
+                else:
+                    for range_string in iterable.split(","):
+                        match = IntRangeSet._rangeExpression.match(range_string) #!!! is there a good error message if it is not well formed?
+                        if match is None:
+                            raise Error("The string is not well-formed. '{0}'".format(range_string))
+                        start = int(match.group("start"))
+                        last = int(match.group("last") or start)
+                        yield start,last
+            elif hasattr(iterable, 'ranges'):
+                for start, last in iterable.ranges():
+                    yield start,last
+            elif hasattr(iterable, '__iter__'):
+                for start, last in IntRangeSet._static_ranges(*iterable):
+                    yield start,last
+            else:
+                raise Exception("Don't know how to construct a InRangeSet from '{0}'".format(iterable))
+
+    #True if any item was added. False if everything was already in the set
+    def _internal_add(self, start, length=1): #!! should it be "length" or "last"
+        assert length > 0, "Length must be greater than zero"
+        assert len(self._start_items) == len(self._start_to_length)
+        index = bisect_left(self._start_items, start)
+        if index != len(self._start_items) and self._start_items[index] == start:
+            if length <= self._start_to_length[start]:
+                return
+            else:
+                self._start_to_length[start] = length
+                index += 1	  # index should point to the following range for the remainder of this method
+                previous = start
+                last = start + length - 1
+        elif index == 0:
+            self._start_items.insert(index, start)
+            self._start_to_length[start] = length
+            previous = start
+            last = start + length - 1
+            index += 1  # index_of_miss should point to the following range for the remainder of this method
+        else:
+            previous = self._start_items[index - 1]
+            last = previous + self._start_to_length[previous] - 1
+
+            if start <= last + 1:
+                new_length = start - previous + length
+                assert new_length > 0 # real assert
+                if new_length < self._start_to_length[previous]:
+                    return
+                else:
+                    self._start_to_length[previous] = new_length
+                    last = previous + new_length - 1
+            else: # after previous range, not contiguous with previous range
+                self._start_items.insert(index, start)
+                self._start_to_length[start] = length
+                previous = start
+                last = start + length - 1
+                index += 1
+
+        if index == len(self._start_items):
+            return
+
+        # collapse next range into this one
+        next = self._start_items[index]
+        while last >= next - 1:
+            new_last = max(last, next + self._start_to_length[next] - 1)
+            self._start_to_length[previous] = new_last - previous + 1 #ItemToLength[previous] + ItemToLength[next]
+            del self._start_to_length[next]
+            del self._start_items[index]
+            last = new_last
+            if index >= len(self._start_items):
+                break
+            next = self._start_items[index]
+        return
+
+    # return the range that has the largest start and for which start<=element
+    def _best_start_length_index_contains(self, element):
+        index = bisect_left(self._start_items, element)
+        if index != len(self._start_items) and self._start_items[index] == element: #element is the start element of some range
+            return element, self._start_to_length[element], index, True
+        elif index == 0: # element is before any of the ranges
+            return element, 0, -1, False
+        else:
+            index -= 1
+            start = self._start_items[index]
+            length = self._start_to_length[start]
+            return start, length, index, element <= start+length-1 # we already know element is greater than start
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
