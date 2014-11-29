@@ -29,10 +29,10 @@ class IntRangeSet(object):
     #Update the set, adding elements from all others.
     #Changed in version 2.6: Accepts multiple input iterables.
     def __iadd__(self, *ranges_args):
-        IntRangeSet.add(self, *ranges_args)
+        self.add(*ranges_args)
         return self
     def __ior__(self, *ranges_args):
-        IntRangeSet.add(self, *ranges_args)
+        self.add(*ranges_args)
         return self
     update = __ior__
 
@@ -266,10 +266,11 @@ class IntRangeSet(object):
         assert IntRangeSet("1-100") & IntRangeSet("-2,1-3,20,25-99,101") == IntRangeSet("1-3,20,25-99")
         assert IntRangeSet("1-100") & IntRangeSet("2-3,90-110") == IntRangeSet("2-3,90-100")
 
-        assert IntRangeSet("0-66")-IntRangeSet("30-100") == IntRangeSet("0-29")
+        assert IntRangeSet("0-66") - "30-100" == IntRangeSet("0-29")
+        assert IntRangeSet("0-29,51-66").difference("40-100") == IntRangeSet("0-29")
         assert IntRangeSet("0-66").difference("30-50","40-100") == IntRangeSet("0-29")
-        assert IntRangeSet("0-66,100,200")-IntRangeSet("30-100,300") == IntRangeSet("0-29,200")
-        assert IntRangeSet("30-100")-IntRangeSet("0-66") == IntRangeSet("67-100")
+        assert IntRangeSet("0-66,100,200") - "30-100,300" == "0-29,200"
+        assert IntRangeSet("30-100") - "0-66" == "67-100"
         assert IntRangeSet("30-100,300")-IntRangeSet("0-66,100,200") == IntRangeSet("67-99,300")
 
         assert IntRangeSet("30-100,300")^IntRangeSet("0-66,100,200") == IntRangeSet("0-29,67-99,200,300")
@@ -495,7 +496,15 @@ class IntRangeSet(object):
         except Exception:
             pass
 
-        IntRangeSet("1,12-14,55-60,71,102").add("12-100") == IntRangeSet("1,12-100,102")
+        add0 = IntRangeSet("1,12-14,55-60,71,102")
+        add0.add("12-100")
+        assert add0 == "1,12-100,102"
+
+        assert IntRangeSet("1,12-14,55-60,71,102") - "5-71" == "1,102"
+        assert IntRangeSet("1,12-14,55-60,71,102") - "12-65" == "1,71,102"
+        assert IntRangeSet("1,12-14,55-60,71,102") - "13-56" == "1,12,57-60,71,102"
+
+
 
 
     #s[i] ith item of s, origin 0 (3) 
@@ -590,7 +599,7 @@ class IntRangeSet(object):
         if isinstance(other,(int,long)):
             return self._index_element(other)
         else:
-            piece = self & IntRangeSet._universe(other)
+            piece = self & IntRangeSet._min_and_max(other)
             if piece == other:
                 return self._index_element(piece[0])
             else:
@@ -703,54 +712,24 @@ class IntRangeSet(object):
                 last0 = start0+length0-1
         return result
 
-    @staticmethod
-    def _universe(*ranges_args):
-        return IntRangeSet(IntRangeSet._min_and_max(*ranges_args))
-
-    def _complement(self,universe):
-        result = IntRangeSet()
-        assert len(universe._start_to_length) == 1, "The universe must contain a single range"
-        startU = universe[0]
-        lastU = universe[-1]
-        startS = self[0]
-        if startU < startS: #the universe has a smaller element than self
-            result._internal_add(startU, startS-startU)
-        else:
-            assert startU == startS, "The universe must be a superset of self"
-
-        for i, (startS, lastS) in enumerate(self.ranges()):
-            if i+1 < len(self._start_items):
-                start_next = self._start_items[i+1]
-                result._internal_add(lastS+1,start_next-(lastS+1))
-            else:
-                if lastS < lastU:
-                    result._internal_add(lastS+1,lastU-lastS)
-                else:
-                    assert lastS == lastU, "The universe must be a superset of self"
-        return result
-
-    @staticmethod
-    def _comp_others(universe, first, *others):
-        yield first
-        for i, other in enumerate(others):
-            yield other._complement(universe)
 
     #Same a-b, a.difference(b,...)
     #difference(other, ...)set - other - ...
     #Return a new set with elements in the set that are not in the others.
     #Changed in version 2.6: Accepts multiple input iterables.
-    def __sub__(*ranges_args): #!!could be made faster by being more direct instead of using complements
-        ranges_args = list(IntRangeSet._make_args_range_set(*ranges_args))
-        universe = IntRangeSet._universe(*ranges_args)
-        comp_others = IntRangeSet._comp_others(universe, *ranges_args)
-        return IntRangeSet.intersection(*comp_others)
+    def __sub__(self, *ranges_args): #!!could be made faster by being more direct instead of using complements
+        result = self.copy()
+        result.difference_update(*ranges_args)
+        return result
     difference = __sub__
 
     #same a^b, a.symmetric_difference(b)
     #symmetric_difference(other)set ^ other
     #Return a new set with elements in either the set or other but not both.
     def __xor__(self, other):
-        return (self | other) - (self & other) #!! could be made more direct and faster
+        result = self | other
+        result -= self & other
+        return result #!!could be made faster by being more direct
     symmetric_difference = __xor__
 
     def _clone_state(self, result):
@@ -771,8 +750,11 @@ class IntRangeSet(object):
     #difference_update(other, ...)set -= other | ...
     #Update the set, removing elements found in others.
     #Changed in version 2.6: Accepts multiple input iterables.
-    def __isub__(*ranges_args):
-        return ranges_args[0]._clone_state(IntRangeSet.difference(*ranges_args))
+    def __isub__(self, *ranges_args):
+        #!!consider special casing the add of a single int. Anything else?
+        for start,last in IntRangeSet._static_ranges(*ranges_args):
+            self._internal_isub(start, last-start+1)
+        return self
     difference_update = __isub__
 
     #remove(elem)
@@ -919,7 +901,6 @@ class IntRangeSet(object):
             else:
                 raise Exception("Don't know how to construct a InRangeSet from '{0}'".format(iterable))
 
-    #True if any item was added. False if everything was already in the set
     def _internal_add(self, start, length=1): #!! should it be "length" or "last"
         assert length > 0, "Length must be greater than zero"
         assert len(self._start_items) == len(self._start_to_length)
@@ -985,6 +966,76 @@ class IntRangeSet(object):
             start = self._start_items[index]
             length = self._start_to_length[start]
             return start, length, index, element <= start+length-1 # we already know element is greater than start
+
+    def _delete_ranges(self,start_range_index,stop_range_index):
+        for range_index in xrange(start_range_index,stop_range_index):
+            del self._start_to_length[self._start_items[range_index]]
+        del self._start_items[start_range_index:stop_range_index]
+
+    def _shorten_last_range(self,last_in,start1,length1,index1):
+        delta_start = last_in-start1+1
+        self._start_items[index1] += delta_start
+        del self._start_to_length[start1]
+        self._start_to_length[start1+delta_start]=length1-delta_start
+        assert len(self._start_items) == len(self._start_to_length)
+           
+    def _shorten_first_range(self,start_in,start0,length0):
+        assert len(self._start_items) == len(self._start_to_length)
+        self._start_to_length[start0] = start_in-start0
+        assert len(self._start_items) == len(self._start_to_length)
+
+    def _internal_isub(self, start_in, length_in=1): #!! should it be "length" or "last"?
+        assert length_in > 0, "Length must be greater than zero"
+        assert len(self._start_items) == len(self._start_to_length)
+        last_in = start_in+length_in-1
+
+        # return the range that has the largest start and for which start<=element
+        start0,length0,index0,contains0 = self._best_start_length_index_contains(start_in)
+        if length_in > 1:
+            start1,length1,index1,contains1 = self._best_start_length_index_contains(last_in)
+        else:
+            start1,length1,index1,contains1 = start0,length0,index0,contains0
+
+        #Is the front of first range unchanged, changed, or deleted?
+        if not contains0:#unchanged
+            #Is the end of last range unchanged, changed, or deleted?
+            if not contains1:#unchanged
+                self._delete_ranges(index0+1,index1+1) #delete any middle range
+            elif start1+length1-1 == last_in: # deleted
+                self._delete_ranges(index0+1,index1+1) #delete any middle and the last ranges
+            else: #changed
+                assert index0 < index1, "real assert"
+                self._shorten_last_range(last_in,start1,length1,index1)                #shorten last range
+                self._delete_ranges(index0+1,index1)                    #delete any middle ranges
+        elif start0 == start_in: # deleted
+            #Is the end of last range unchanged, changed, or deleted?
+            if not contains1:#unchanged
+                self._delete_ranges(index0,index1+1) #delete start range and any middle ranges
+            elif start1+length1-1 == last_in: # deleted
+                self._delete_ranges(index0,index1+1) #delete start range and any middle ranges and last range
+            else: #changed
+                assert index0 <= index1, "real assert"
+                self._shorten_last_range(last_in,start1,length1,index1)              #shorten last range
+                self._delete_ranges(index0,index1)                    #delete start range and any middle ranges
+        else: #changed
+            #Is the end of last range unchanged, changed, or deleted?
+            if not contains1:#unchanged
+                self._shorten_first_range(start_in,start0,length0)              #shorten first range
+                self._delete_ranges(index0+1,index1)                    #delete any middle ranges
+            elif start1+length1-1 == last_in: # deleted
+                self._shorten_first_range(start_in,start0,length0)              #shorten first range
+                self._delete_ranges(index0+1,index1+1)                    #delete any middle ranges and last range
+            else: #changed
+                if index0 == index1: #need to split into two ranges
+                    self._start_items.insert(index0+1,last_in+1)
+                    self._start_to_length[last_in+1] = (start1+length1-1)-(last_in+1)+1
+                    self._shorten_first_range(start_in,start0,length0)              #shorten first range
+                else:
+                    self._shorten_last_range(last_in,start1,length1,index1)              #shorten last range
+                    self._shorten_first_range(start_in,start0,length0)              #shorten first range
+                    self._delete_ranges(index0+1,index1)                    #delete any middle ranges
+        assert len(self._start_items) == len(self._start_to_length)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
