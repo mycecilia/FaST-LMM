@@ -4,59 +4,190 @@ import re
 from bisect import bisect_left
 import logging
 import numpy as np
+import unittest
+import doctest
 
 class IntRangeSet(object):
-#This is an IntRangeSet it represents a set of integers as a collection of ranges (aka intervals, regions)
+    '''
+    This is a class for manipulating ranges of integers (including longs) as sets. For example,
+    here we take the union of two IntRangeSets:
+
+    >>> print IntRangeSet("100-499,500-1000") | IntRangeSet("-20,400-600")
+    IntRangeSet('-20,100-1000')
+
+    '''
 
     _rangeExpression = re.compile(r"^(?P<start>-?\d+)(-(?P<last>-?\d+))?$")
 
-    def __init__(self, *ranges_args):
-        if len(ranges_args) > 0 and isinstance(ranges_args[0],IntRangeSet): #Because we know self is empty, optimize for the case in which the first item is a IntRangeSet
-            self._start_items = list(ranges_args[0]._start_items)
-            self._start_to_length = dict(ranges_args[0]._start_to_length)
-            ranges_args = ranges_args[1:]
+    def __init__(self, *ranges_inputs):
+        #!!!cmk confirm that this appears in docs
+        '''
+        Create a IntRangeSet from zero or more ranges input. For example:
+
+        >>> print IntRangeSet() #create from zero ranges input
+        IntRangeSet('')
+
+        >>> print IntRangeSet('-10-100,200-500') #create from one ranges input
+        IntRangeSet('-10-100,200-500')
+
+        >>> print IntRangeSet('-10-100,200-500', '150') #create from two ranges inputs
+        IntRangeSet('-10-100,150,200-500')
+
+        A ranges input can be an integer. Here we have four integer inputs:
+        >>> print IntRangeSet(5,6,3+4,-10)
+        IntRangeSet('-10,5-7')
+
+        A ranges input can be a string.
+        >>> print IntRangeSet('-10--3,5,-30--9')
+        IntRangeSet('-30--3,5')
+
+        A ranges input can be an iteration of ranges inputs.
+        >>> print IntRangeSet([3,4,5,7,'-10--3'])
+        IntRangeSet('-10--3,3-5,7')
+        >>> print IntRangeSet(xrange(0,100))
+        IntRangeSet('0-99')
+
+        A ranges input can be a tuple of exactly two items: a start integer and a last integer.
+        Note that the LAST integer is INCLUSIVE. This differs from the STOP value common in other
+        Python libraries that are exclusive.
+        >>> print IntRangeSet((-10,-3)) #Go from -10 (inclusive) to -3 (inclusive)
+        IntRangeSet('-10--3')
+        >>> print IntRangeSet([(-10,-3),(2,5)]) # A list of tuples.
+        IntRangeSet('-10--3,2-5')
+
+        A ranges input can be a IntRangeSet (or anything with a .ranges() iterator):
+        >>> print IntRangeSet(IntRangeSet("3-10"))
+        IntRangeSet('3-10')
+
+        A ranges input can be a slice:
+        >>> import numpy as np
+        >>> print IntRangeSet(np.s_[0:100],np.s_[75:500:100]) #Two ranges ranges, each one a slice
+        IntRangeSet('0-99,175,275,375,475')
+
+        The parts of a ranges input can be in any order and may overlap
+        >>> print IntRangeSet('12-15,11-12,5')
+        IntRangeSet('5,11-15')
+
+        Negatives integers and large integers are fine
+        >>> print IntRangeSet('-16000000000-20000000000,-17000000001')
+        IntRangeSet('-17000000001,-16000000000-20000000000')
+        '''
+        if len(ranges_inputs) > 0 and isinstance(ranges_inputs[0],IntRangeSet): #Because we know self is empty, optimize for the case in which the first item is a IntRangeSet
+            self._start_items = list(ranges_inputs[0]._start_items)
+            self._start_to_length = dict(ranges_inputs[0]._start_to_length)
+            ranges_inputs = ranges_inputs[1:]
         else:
             self._start_items = []
             self._start_to_length = {}
-        self.add(*ranges_args) 
+        self.add(*ranges_inputs) 
 
-    #same: a.add(b,...), a+=b, a|=b, a.update(b,...), !!!cmk extend? append?
-    def add(self, *ranges_args):
+    def add(self, *ranges_inputs):
+        '''
+        Union zero or more ranges inputs into the current IntRangeSet.
+
+        These are the same:
+        a |= b
+        a += b
+        a.add(b)
+        a.update(b)
+
+        For example:
+        >>> a = IntRangeSet('0-4,6-10')
+        >>> a |= 5
+        >>> print a
+        IntRangeSet('0-10')
+
+
+        The 'add' and 'update' methods also support unioning multiple ranges inputs,
+        For example:
+        >>> a = IntRangeSet('0-4,6-10')
+        >>> a.add('5','100-200')
+        >>> print a
+        IntRangeSet('0-10,100-200')
+        '''
+
         #!!consider special casing the add of a single int. Anything else?
-        for start,last in IntRangeSet._static_ranges(*ranges_args):
+        for start,last in IntRangeSet._static_ranges(*ranges_inputs):
             self._internal_add(start, last-start+1)
     #update(other, ...)set |= other | ...
     #Update the set, adding elements from all others.
     #Changed in version 2.6: Accepts multiple input iterables.
-    def __iadd__(self, *ranges_args):
-        self.add(*ranges_args)
+    def __iadd__(self, *ranges_inputs):
+        self.add(*ranges_inputs)
         return self
-    def __ior__(self, *ranges_args):
-        self.add(*ranges_args)
+    def __ior__(self, *ranges_inputs):
+        self.add(*ranges_inputs)
         return self
     update = __ior__
 
     def copy(self):
-            return IntRangeSet(self)
+        '''
+        Create a deep copy of a IntRangeSet.
+        '''
+        return IntRangeSet(self)
 
     def ranges(self):
+        '''
+        Iterate, in order, the ranges of a IntRangeSet as (start,last) tuples.
+        For example:
+        >>> for start,last in IntRangeSet('0-10,100-200').ranges():
+        ...       print "start is {0}, last is {1}".format(start,last)
+        start is 0, last is 10
+        start is 100, last is 200
+
+        '''
         for item in self._start_items:
             last = item + self._start_to_length[item] - 1
             yield item, last
 
     def __iter__(self):
+        #!!!cmk be sure this appears in the documentation
+        '''
+        Iterate, in order, the integer elements of the IntRangeSet
+        For example:
+        >>> print [element for element in IntRangeSet('0-9,12')]
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 12]
+
+        '''
         for (first, last) in self.ranges():
             for i in xrange(first,last+1):
                 yield i
 
     def clear(self):
+        '''
+        Remove all ranges from this IntRangeSet.
+
+        >>> a = IntRangeSet('0-9,12')
+        >>> a.clear()
+        >>> print a
+        IntRangeSet('')
+
+        '''
         del self._start_items[:]
         self._start_to_length.clear()
 
     def __len__(self):
+        #!!!cmk be sure this appears in the documentation
+        '''
+        The number of integer elements in the IntRangeSet
+        >>> print len(IntRangeSet('0-9,12'))
+        11
+
+        Note: This is computed in time linear in the number of ranges, rather than integer elements.
+
+        '''
         return sum(self._start_to_length.values())
 
+    #!!!cmk ranges_count propperty???
     def sum(self):
+        '''
+        The sum of the integer elements in the IntRangeSet
+        >>> print IntRangeSet('0-9,12').sum()
+        57
+
+        Note: This is more efficient than sum(IntRangeSet('0-9,12')) because is computed
+        in time linear in the number of ranges, rather than integer elements.
+        '''
         result = 0
         for start in self._start_items:
             length = self._start_to_length[start]
@@ -64,6 +195,18 @@ class IntRangeSet(object):
         return result
 
     def __eq__(self, other):
+        #!!!cmk be sure this appears in the documentation
+        '''
+        True exacty when the IntRangeSet on the left is set equivalent to the ranges input on the right.
+        >>> print IntRangeSet('0-9,12') == IntRangeSet('0-9,12')
+        True
+        >>> print IntRangeSet('0-9,12') == IntRangeSet('0-9')
+        False
+        >>> print IntRangeSet('0-9,12') == IntRangeSet('12,0-4,5-9')
+        True
+        >>> print IntRangeSet('0-9,12') == '0-9,12' # The right-hand can be any ranges input
+        True
+        '''
         self, other = IntRangeSet._make_args_range_set(self, other)
         if other is None or len(self._start_items)!=len(other._start_items):
             return False
@@ -73,13 +216,47 @@ class IntRangeSet(object):
         return True
 
     def __ne__(self, other):
+        #!!!cmk be sure this appears in the documentation
+        '''
+        a != b
+        is the same as
+        not a == b
+        '''
         #Don't need to call _make_args_range_set because __eq__ will call it
         return not self==other
 
-    #Same: a >= b, b.issuperset(a,...), b in a
+    #Same: a >= b, a.issuperset(b,...), b in a
     #Returns True iff item is within the ranges of this IntRangeSet.
-    def __contains__(self, *ranges_args):
-        for start_in,last_in in IntRangeSet._static_ranges(*ranges_args):
+    def __contains__(self, *ranges_inputs):
+        #!!!cmk be sure this appears in the documentation
+        '''
+        True exactly when all the ranges input is a subset of the IntRangeSet.
+
+        These are the same:
+        b in a
+        a >= b
+        a.issuperset(b)
+
+        For example:
+        >>> print 3 in IntRangeSet('0-4,6-10')
+        True
+        >>> print IntRangeSet('4-6') in IntRangeSet('0-4,6-10')
+        False
+        >>> '6-8' in IntRangeSet('0-4,6-10') # The left-hand of 'in' can be any ranges input
+        True
+        >>> print IntRangeSet('0-4,6-10') >= '6-8' # The right-hand of 'in' can be any ranges input
+        True
+
+        The 'issuperset' method also supports unioning multiple ranges inputs.
+        For example:
+        >>> print IntRangeSet('0-4,6-10').issuperset(4,7,8)
+        True
+        >>> print IntRangeSet('0-4,6-10').issuperset(4,7,8,100)
+        False
+
+        Note: By definition, any set is a superset of itself.
+        '''
+        for start_in,last_in in IntRangeSet._static_ranges(*ranges_inputs):
             start_self,length_self,index,contains = self._best_start_length_index_contains(start_in)
             if not contains or last_in > start_self+length_self-1:
                 return False
@@ -88,23 +265,45 @@ class IntRangeSet(object):
     #Test whether every element in other is in the set.
     def __ge__(self,other):
         return other in self
-    issuperset = __ge__
+    #!!!cmk check that the documentation for all of these is OK
+    issuperset = __contains__
 
-
-
+    
     @property
     def isempty(self):
-        return len(self._start_items)==0
+        '''
+        True exactly when the IntRangeSet is empty.
+        >>> print IntRangeSet().isempty
+        True
+        >>> print IntRangeSet(4).isempty
+        False
+        '''
+        return len(self._start_items) == 0
 
     def __str__(self):
+        #!!!cmk be sure this appears in the documentation
+        '''
+        Use the standard str(a) function to create a string representation of a, an IntRangeSet.
+
+        >>> print "Hello " + str(IntRangeSet(2,3,4,10))
+        Hello IntRangeSet('2-4,10')
+        '''
         return repr(self)
 
+
     def __repr__(self):
-        return self._repr_internal("-", ",")
+        #!!!cmk be sure this appears in the documentation
+        '''
+        Use the standard repr(a) function to create a string representation of a, an IntRangeSet.
+
+        >>> print "Hello " + repr(IntRangeSet(2,3,4,10))
+        Hello IntRangeSet('2-4,10')
+        '''
+        return "IntRangeSet('{0}')".format(self._repr_internal("-", ","))
 
     def _repr_internal(self, seperator1, separator2):
         if self.isempty:
-            return "empty" #!!const
+            return ""
 
         from cStringIO import StringIO
         fp = StringIO()
@@ -123,43 +322,43 @@ class IntRangeSet(object):
     def _test():
         int_range_set = IntRangeSet()
         int_range_set.add(0)
-        assert "0" == str(int_range_set)
+        assert "IntRangeSet('0')" == str(int_range_set)
         int_range_set.add(1)
-        assert "0-1" == str(int_range_set)
+        assert "IntRangeSet('0-1')" == str(int_range_set)
         int_range_set.add(4)
-        assert "0-1,4" == str(int_range_set)
+        assert "IntRangeSet('0-1,4')" == str(int_range_set)
         int_range_set.add(5)
-        assert "0-1,4-5" == str(int_range_set)
+        assert "IntRangeSet('0-1,4-5')" == str(int_range_set)
         int_range_set.add(7)
-        assert "0-1,4-5,7" == str(int_range_set)
+        assert "IntRangeSet('0-1,4-5,7')" == str(int_range_set)
         int_range_set.add(2)
-        assert "0-2,4-5,7" == str(int_range_set)
+        assert "IntRangeSet('0-2,4-5,7')" == str(int_range_set)
         int_range_set.add(3)
-        assert "0-5,7" == str(int_range_set)
+        assert "IntRangeSet('0-5,7')" == str(int_range_set)
         int_range_set.add(6)
-        assert "0-7" == str(int_range_set)
+        assert "IntRangeSet('0-7')" == str(int_range_set)
         int_range_set.add(-10)
-        assert "-10,0-7" == str(int_range_set)
+        assert "IntRangeSet('-10,0-7')" == str(int_range_set)
         int_range_set.add(-5)
-        assert "-10,-5,0-7" == str(int_range_set)
+        assert "IntRangeSet('-10,-5,0-7')" == str(int_range_set)
 
-        assert str(IntRangeSet("-10--5")) == "-10--5"
-        assert str(IntRangeSet("-10--5,-3")) == "-10--5,-3"
-        assert str(IntRangeSet("-10--5,-3,-2-1")) == "-10--5,-3-1"
-        assert str(IntRangeSet("-10--5,-3,-2-1,1-5")) == "-10--5,-3-5"
-        assert str(IntRangeSet("-10--5,-3,-2-1,1-5,7-12")) == "-10--5,-3-5,7-12"
-        assert str(IntRangeSet("-10--5,-3,-2-1,1-5,7-12,13-15")) == "-10--5,-3-5,7-15"
-        assert str(IntRangeSet("-10--5,-3,-2-1,1-5,7-12,13-15,14-16")) == "-10--5,-3-5,7-16"
-        assert str(IntRangeSet("-10--5,-3,-2-1,1-5,7-12,13-15,14-16,20-25")) == "-10--5,-3-5,7-16,20-25"
-        assert str(IntRangeSet("-10--5,-3,-2-1,1-5,7-12,13-15,14-16,20-25,22-23")) == "-10--5,-3-5,7-16,20-25"
+        assert IntRangeSet("-10--5") == "-10--5"
+        assert IntRangeSet("-10--5,-3") == "-10--5,-3"
+        assert IntRangeSet("-10--5,-3,-2-1") == "-10--5,-3-1"
+        assert IntRangeSet("-10--5,-3,-2-1,1-5") == "-10--5,-3-5"
+        assert IntRangeSet("-10--5,-3,-2-1,1-5,7-12") == "-10--5,-3-5,7-12"
+        assert IntRangeSet("-10--5,-3,-2-1,1-5,7-12,13-15") == "-10--5,-3-5,7-15"
+        assert IntRangeSet("-10--5,-3,-2-1,1-5,7-12,13-15,14-16") == "-10--5,-3-5,7-16"
+        assert IntRangeSet("-10--5,-3,-2-1,1-5,7-12,13-15,14-16,20-25") == "-10--5,-3-5,7-16,20-25"
+        assert IntRangeSet("-10--5,-3,-2-1,1-5,7-12,13-15,14-16,20-25,22-23") == "-10--5,-3-5,7-16,20-25"
 
         range = "-10--5,-3,-2-1,1-5,7-12,13-15,14-16,20-25,22-23"
         int_range_set = IntRangeSet(range)
-        assert str(int_range_set) == "-10--5,-3-5,7-16,20-25"
+        assert int_range_set == "-10--5,-3-5,7-16,20-25"
 
         range = "1-5,0,4-10,-10--5,-12--3,15-20,12-21,-13"
         int_range_set = IntRangeSet(range)
-        assert str(int_range_set) == "-13--3,0-10,12-21"
+        assert int_range_set == "-13--3,0-10,12-21"
 
         assert len(int_range_set) == 32
 
@@ -170,26 +369,26 @@ class IntRangeSet(object):
         int_range_set2.add(7)
         assert int_range_set1 != int_range_set2
 
-        assert str(IntRangeSet(7)) == "7"
-        assert str(IntRangeSet((7,7))) == "7"
-        assert str(IntRangeSet((7,10))) == "7-10"
-        assert str(IntRangeSet(xrange(7,11))) == "7-10"
-        assert str(IntRangeSet(np.s_[7:11])) == "7-10"
-        assert str(IntRangeSet(np.s_[7:11:2])) == "7,9"
-        assert str(IntRangeSet(xrange(7,11,2))) == "7,9"
-        assert str(IntRangeSet(None)) == "empty"
-        assert str(IntRangeSet("empty")) == "empty"
+        assert str(IntRangeSet(7)) == "IntRangeSet('7')"
+        assert str(IntRangeSet((7,7))) == "IntRangeSet('7')"
+        assert str(IntRangeSet((7,10))) == "IntRangeSet('7-10')"
+        assert str(IntRangeSet(xrange(7,11))) == "IntRangeSet('7-10')"
+        assert str(IntRangeSet(np.s_[7:11])) == "IntRangeSet('7-10')"
+        assert str(IntRangeSet(np.s_[7:11:2])) == "IntRangeSet('7,9')"
+        assert str(IntRangeSet(xrange(7,11,2))) == "IntRangeSet('7,9')"
+        assert str(IntRangeSet(None)) == "IntRangeSet('')"
+        assert str(IntRangeSet()) == "IntRangeSet('')"
         assert [e for e in IntRangeSet("-10--5,-3")] == [-10,-9,-8,-7,-6,-5,-3]
         int_range_set3 = IntRangeSet(7,10)
         int_range_set3.clear()
-        assert str(int_range_set3) == "empty"
+        assert str(int_range_set3) == "IntRangeSet('')" 
         assert len(IntRangeSet("-10--5,-3")) == 7
 
         int_range_set4 = IntRangeSet("-10--5,-3")
         int_range_set4.add(-10,-7)
-        assert str(int_range_set4) == "-10--5,-3"
+        assert int_range_set4 == "-10--5,-3"
         int_range_set4.add(-10,-4)
-        assert str(int_range_set4) == "-10--3"
+        assert int_range_set4 == "-10--3"
 
         int_range_set5 = IntRangeSet("-10--5,-3")
         assert -11 not in int_range_set5
@@ -228,16 +427,16 @@ class IntRangeSet(object):
         assert IntRangeSet("1-3").union("2,4,6","1,6,-100") == IntRangeSet("-100,1-4,6")
 
 
-        assert IntRangeSet("empty") & IntRangeSet("empty") == IntRangeSet("empty")
-        assert IntRangeSet("empty").intersection("empty","empty") == IntRangeSet("empty")
-        assert IntRangeSet("empty") & IntRangeSet("empty") & IntRangeSet("empty") == IntRangeSet("empty")
+        assert IntRangeSet() & IntRangeSet() == IntRangeSet()
+        assert IntRangeSet().intersection("","") == IntRangeSet()
+        assert IntRangeSet() & IntRangeSet() & IntRangeSet() == IntRangeSet()
 
-        assert IntRangeSet("1") & IntRangeSet("empty") == IntRangeSet("empty")
-        assert IntRangeSet("empty") & IntRangeSet("1") == IntRangeSet("empty")
-        assert IntRangeSet("1-5") & IntRangeSet("empty") == IntRangeSet("empty")
-        assert IntRangeSet("empty") & IntRangeSet("1-5") == IntRangeSet("empty")
-        assert IntRangeSet("1-5,7") & IntRangeSet("empty") == IntRangeSet("empty")
-        assert IntRangeSet("empty") & IntRangeSet("1-5,7") == IntRangeSet("empty")
+        assert IntRangeSet("1") & IntRangeSet() == IntRangeSet()
+        assert IntRangeSet() & IntRangeSet("1") == IntRangeSet()
+        assert IntRangeSet("1-5") & IntRangeSet() == IntRangeSet()
+        assert IntRangeSet() & IntRangeSet("1-5") == IntRangeSet()
+        assert IntRangeSet("1-5,7") & IntRangeSet() == IntRangeSet()
+        assert IntRangeSet() & IntRangeSet("1-5,7") == IntRangeSet()
 
         assert IntRangeSet("1") & IntRangeSet("1") == IntRangeSet("1")
         assert IntRangeSet("1-5") & IntRangeSet("1") == IntRangeSet("1")
@@ -250,15 +449,15 @@ class IntRangeSet(object):
         assert IntRangeSet("1-5,7") & IntRangeSet("2") == IntRangeSet("2")
 
 
-        assert IntRangeSet("-2") & IntRangeSet("1-5,7") == IntRangeSet("empty")
-        assert IntRangeSet("1-5") & IntRangeSet("-2") == IntRangeSet("empty")
-        assert IntRangeSet("-2") & IntRangeSet("1-5") == IntRangeSet("empty")
-        assert IntRangeSet("1-5,7") & IntRangeSet("-2") == IntRangeSet("empty")
+        assert IntRangeSet("-2") & IntRangeSet("1-5,7") == IntRangeSet()
+        assert IntRangeSet("1-5") & IntRangeSet("-2") == IntRangeSet()
+        assert IntRangeSet("-2") & IntRangeSet("1-5") == IntRangeSet()
+        assert IntRangeSet("1-5,7") & IntRangeSet("-2") == IntRangeSet()
 
-        assert IntRangeSet("22") & IntRangeSet("1-5,7") == IntRangeSet("empty")
-        assert IntRangeSet("1-5") & IntRangeSet("22") == IntRangeSet("empty")
-        assert IntRangeSet("22") & IntRangeSet("1-5") == IntRangeSet("empty")
-        assert IntRangeSet("1-5,7") & IntRangeSet("22") == IntRangeSet("empty")
+        assert IntRangeSet("22") & IntRangeSet("1-5,7") == IntRangeSet()
+        assert IntRangeSet("1-5") & IntRangeSet("22") == IntRangeSet()
+        assert IntRangeSet("22") & IntRangeSet("1-5") == IntRangeSet()
+        assert IntRangeSet("1-5,7") & IntRangeSet("22") == IntRangeSet()
 
 
         assert IntRangeSet("-2,1-3,20,25-99,101") & IntRangeSet("1-100") == IntRangeSet("1-3,20,25-99")
@@ -315,7 +514,7 @@ class IntRangeSet(object):
         except IndexError:
             pass
 
-        assert IntRangeSet("10-14,55-59").index("57,56-56") == 6 #returns the index of the start of the contiguous place where 57,"56-56" occurs
+        assert IntRangeSet("10-14,55-59").index("57,56-56") == '6-7' #returns the index of the start of the contiguous place where 57,"56-56" occurs
         try:
             IntRangeSet("10-14,55-59").index([10,55]) #Doesn't pass because 10,55 doesn't occur contiguously
         except IndexError:
@@ -511,51 +710,102 @@ class IntRangeSet(object):
     #s[i:j] slice of s from i to j (3)(4) 
     #s[i:j:k] slice of s from i to j with step k (3)(5) 
     def __getitem__(self, key):
-        if isinstance(key, slice):
-            lenx = len(self)
-            start,stop,step = key.start,key.stop,key.step
-            start = start or 0
-            stop = stop or lenx
-            step = step or 1
+        #!!!cmk be sure this appears in the documentation
+        '''
+        a[i] returns the ith integer in sorted order (origin 0) from a, an IntRangeSet
 
-            if step == 1:
-                return self & (self[start],self[stop-1])
+        >>> print IntRangeSet('100-200,1000')[0]
+        100
+        >>> print IntRangeSet('100-200,1000')[10]
+        110
+
+        If i is negative, the indexing goes from the end
+        >>> print IntRangeSet('100-200,1000')[-1]
+        1000
+
+        Python's standard slice notation may be used and returns IntRangeSets.
+        (Remember that the Stop number in slice notation is exclusive.)
+
+        >>> print IntRangeSet('100-200,1000')[0:11] # Integers 0 (inclusive) to 11 (exclusive)
+        IntRangeSet('100-110')
+
+        >>> print IntRangeSet('100-200,1000')[0:11:2] # Integers 0 (inclusive) to 11 (exclusive) with step 2
+        IntRangeSet('100,102,104,106,108,110')
+
+        >>> print IntRangeSet('100-200,1000')[-3:] # The last three integers in the IntRangeSet.
+        IntRangeSet('199-200,1000')
+
+        An IntRangeSet can also be accessed with any ranges input.
+        >>> IntRangeSet('100-200,1000')['0-10,20']
+        IntRangeSet('100-110,120')
+        '''
+        if isinstance(key,(int,long)):
+            if key >= 0:
+                for start in self._start_items:
+                    length = self._start_to_length[start]
+                    if key < length:
+                        return start+key
+                    key -= length
+                raise KeyError()
+            else:
+                assert key < 0
+                key = -key-1
+                for start_index in xrange(len(self._start_items)):
+                    start = self._start_items[-1-start_index]
+                    length = self._start_to_length[start]
+                    if key < length:
+                        return start+length-1-key
+                    key -= length
+                raise KeyError()
+        elif isinstance(key, slice):
+            lenx = len(self)
+            start_index,stop_index,step_index = key.start,key.stop,key.step
+            start_index = start_index or 0
+            stop_index = stop_index or lenx
+            step_index = step_index or 1
+
+            if step_index == 1:
+                return self & (self[start_index],self[stop_index-1])
             else:
                 logging.info("Slicing with a step other than 1 is implemented slowly") #!!
                 return IntRangeSet(self[index] for index in xrange(*key.indices(lenx)))
-        elif key >= 0:
-            for start in self._start_items:
-                length = self._start_to_length[start]
-                if key < length:
-                    return start+key
-                key -= length
-            raise KeyError()
         else:
-            assert key < 0
-            key = -key-1
-            for start_index in xrange(len(self._start_items)):
-                start = self._start_items[-1-start_index]
-                length = self._start_to_length[start]
-                if key < length:
-                    return start+length-1-key
-                key -= length
-            raise KeyError()
+            #!!!cmk if start_index == last_index only call self[] once
+            start_and_last_generator = ((self[start_index],self[last_index]) for start_index,last_index in IntRangeSet._static_ranges(key))
+            return self.intersection(start_and_last_generator)
+            
 
     #max(s) largest item of s   
-    def max(self, *ranges_args):
-        lo,hi = self._min_and_max(self,*ranges_args)
+    def max(self, *ranges_inputs):
+        '''
+        The largest integer element in the IntRangeSet
+        >>> print IntRangeSet('0-9,12').max()
+        12
+
+        Note: This is more efficient than max(IntRangeSet('0-9,12')) because is computed
+        in constant time rather than in time linear to the number of integer elements.
+        '''
+        lo,hi = self._min_and_max(self,*ranges_inputs)
         return hi
 
     #min(s) smallest item of s   
-    def min(self, *ranges_args):
-        lo,hi = self._min_and_max(self,*ranges_args)
+    def min(self, *ranges_inputs):
+        '''
+        The smallest integer element in the IntRangeSet
+        >>> print IntRangeSet('0-9,12').min()
+        0
+
+        Note: This is more efficient than min(IntRangeSet('0-9,12')) because is computed
+        in constant time rather than in time linear to the number of integer elements.
+        '''
+        lo,hi = self._min_and_max(self,*ranges_inputs)
         return lo
 
     @staticmethod
-    def _min_and_max(*ranges_args):
+    def _min_and_max(*ranges_inputs):
         lo = float("+inf")
         hi = float("-inf")
-        for ranges in ranges_args:
+        for ranges in ranges_inputs:
             if isinstance(ranges,IntRangeSet):
                 lo = min(lo, ranges._start_items[0])
                 start = ranges._start_items[-1]
@@ -575,10 +825,28 @@ class IntRangeSet(object):
             else:
                 yield IntRangeSet(arg)
 
-    #same: a.union(b,...), a+b, a|b, a.concat(b,...), a.or(b,...)
-    def __concat__(*ranges_args):
+    #same: a.union(b,...), a+b, a|b
+    def __concat__(*ranges_inputs):
+        '''
+        Return the union of a IntRangeSet with zero or more ranges inputs. The original IntRangeSet is not changed.
+
+        These are the same:
+        a | b
+        a + b
+        a.union(b)
+
+        For example:
+        >>> print IntRangeSet('0-4,6-10') | 5
+        IntRangeSet('0-10')
+
+        The 'union' method also support unioning multiple ranges inputs,
+        For example:
+        >>> print IntRangeSet('0-4,6-10').union(5,'100-200')
+        IntRangeSet('0-10,100-200')
+        '''
+
         result = IntRangeSet()
-        result.add(*ranges_args)
+        result.add(*ranges_inputs)
         return result
     #s + t the concatenation of s and t (6) 
     __add__ = __concat__ #!!!expand all these out
@@ -592,18 +860,35 @@ class IntRangeSet(object):
 
     #s * n, n * s n shallow copies of s concatenated (2) 
     def __mul__(self, n):
-        return IntRangeSet(self)
+        #!!!cmk be sure this appears in the documentation
+        '''
+        a * n, n * a produces n shallow copies of a unioned, where a is an IntRangeSet.
+        Because a is a set, the result will either be an empty IntRangeSet (n is 0 or less) or a copy of
+        the original IntRangeSet.
+        '''
+        if n<=0:
+            return IntRangeSet()
+        else:
+            return IntRangeSet(self)
 
     #s.index(x) index of the x in s
     def index(self, other):
+        '''
+        a.index(x), index of the integer element x in a, an IntRangeSet. Raises an IndexError is x not in a.
+
+        >>> print IntRangeSet('100-110,1000').index(110)
+        10
+
+        x also can be any ranges input, in which case, an IntRangeSet is returned containing the indexes of all integers in x.
+        >>> print IntRangeSet('100-110,1000').index('110,100-102')
+        IntRangeSet('0-2,10')
+        '''
         if isinstance(other,(int,long)):
             return self._index_element(other)
         else:
-            piece = self & IntRangeSet._min_and_max(other)
-            if piece == other:
-                return self._index_element(piece[0])
-            else:
-                raise IndexError()
+            #If start and last are the same, only call _index_element once
+            start_and_last_index_generator = ((self._index_element(start),self._index_element(last)) for start,last in IntRangeSet._static_ranges(other))
+            return IntRangeSet(start_and_last_index_generator)
 
     def _index_element(self, element):
         index = bisect_left(self._start_items, element)
@@ -665,11 +950,11 @@ class IntRangeSet(object):
     #intersection(other, ...)set & other & ...
     #Return a new set with elements common to the set and all others.
     #Changed in version 2.6: Accepts multiple input iterables.
-    def __and__(*ranges_args):
-        ranges_args = IntRangeSet._make_args_range_set(*ranges_args) #generator to made every ranges a IntRangeSet
-        ranges_args = sorted(ranges_args,key=lambda int_range_set:len(int_range_set._start_items)) #sort so that IntRangeSet with smaller range_count is first
-        result = ranges_args[0] #!!!what if no args, emtpy? The universe?
-        for ranges in ranges_args[1:]: #!!!cmk rename ranges to ranges
+    def __and__(*ranges_inputs):
+        ranges_inputs = IntRangeSet._make_args_range_set(*ranges_inputs) #generator to made every ranges a IntRangeSet
+        ranges_inputs = sorted(ranges_inputs,key=lambda int_range_set:len(int_range_set._start_items)) #sort so that IntRangeSet with smaller range_count is first
+        result = ranges_inputs[0] #!!!what if no args, emtpy? The universe?
+        for ranges in ranges_inputs[1:]: #!!!cmk rename ranges to ranges
             result = result._binary_intersection(ranges)
         return result
     intersection = __and__
@@ -717,9 +1002,9 @@ class IntRangeSet(object):
     #difference(other, ...)set - other - ...
     #Return a new set with elements in the set that are not in the others.
     #Changed in version 2.6: Accepts multiple input iterables.
-    def __sub__(self, *ranges_args): #!!could be made faster by being more direct instead of using complements
+    def __sub__(self, *ranges_inputs): #!!could be made faster by being more direct instead of using complements
         result = self.copy()
-        result.difference_update(*ranges_args)
+        result.difference_update(*ranges_inputs)
         return result
     difference = __sub__
 
@@ -742,17 +1027,17 @@ class IntRangeSet(object):
     #intersection_update(other, ...)set &= other & ...
     #Update the set, keeping only elements found in it and all others.
     #Changed in version 2.6: Accepts multiple input iterables.
-    def __iand__(*ranges_args):
-        return ranges_args[0]._clone_state(IntRangeSet.intersection(*ranges_args))
+    def __iand__(*ranges_inputs):
+        return ranges_inputs[0]._clone_state(IntRangeSet.intersection(*ranges_inputs))
     intersection_update = __iand__
 
     #same a-=b, a.difference_update(b,...), a.discard(b,...), a.remove(b,...). Note that "remove" is the only one that raises an error if the b,... aren't in a.
     #difference_update(other, ...)set -= other | ...
     #Update the set, removing elements found in others.
     #Changed in version 2.6: Accepts multiple input iterables.
-    def __isub__(self, *ranges_args):
+    def __isub__(self, *ranges_inputs):
         #!!consider special casing the add of a single int. Anything else?
-        for start,last in IntRangeSet._static_ranges(*ranges_args):
+        for start,last in IntRangeSet._static_ranges(*ranges_inputs):
             self._internal_isub(start, last-start+1)
         return self
     difference_update = __isub__
@@ -760,17 +1045,17 @@ class IntRangeSet(object):
     #remove(elem)
     #Remove element elem from the set. Raises KeyError if elem is not contained in the set.
     #!!could implement more efficiently like add/_internal_add
-    def remove(self, *ranges_args):
-        if not self.__contains__(*ranges_args):
+    def remove(self, *ranges_inputs):
+        if not self.__contains__(*ranges_inputs):
             raise KeyError()
-        self.difference_update(*ranges_args)
+        self.difference_update(*ranges_inputs)
 
 
     #discard(elem)
     #Remove element elem from the set if it is present.
     #!!could implement more efficiently like add/_internal_add
-    def discard(self, *ranges_args):
-        self.difference_update(*ranges_args)
+    def discard(self, *ranges_inputs):
+        self.difference_update(*ranges_inputs)
 
 
 
@@ -881,8 +1166,8 @@ class IntRangeSet(object):
                 pass
             elif isinstance(iterable,str):
             # Parses strings of the form -10--5,-2-10,12-12. Spaces are allowed, no other characters are.
-            # "empty" will return an empty range
-                if iterable == "empty": #!!const #!! is "empty" the best way to print an empty set?
+            #  will return an empty range
+                if iterable == "":
                     pass
                 else:
                     for range_string in iterable.split(","):
@@ -1037,6 +1322,22 @@ class IntRangeSet(object):
         assert len(self._start_items) == len(self._start_to_length)
 
 
+class TestLoader(unittest.TestCase):     
+
+    def test_int_range_set(self):
+        IntRangeSet._test()
+
+    def test_doc(self):
+        doctest.testmod()
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    IntRangeSet._test()
+
+    test_suite = unittest.TestSuite([])
+    test_suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestLoader))
+    if False: #!!!cmk
+        r = unittest.TextTestRunner(failfast=False)
+        r.run(test_suite)
+    else:
+        IntRangeSet._test()
+        doctest.testmod()

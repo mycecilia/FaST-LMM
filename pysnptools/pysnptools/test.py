@@ -378,6 +378,8 @@ def getTestSuite():
     test_suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestDocStrings))
     test_suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestLoader))
     test_suite.addTests(NaNCNCTestCases.factory_iterator())
+    from pysnptools.pysnptools.util.intrangeset import TestLoader as IntRangeSetTestLoader
+    test_suite.addTests(unittest.TestLoader().loadTestsFromTestCase(IntRangeSetTestLoader))
 
     return test_suite
 
