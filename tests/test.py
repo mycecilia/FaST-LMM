@@ -41,28 +41,33 @@ class WidgetTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self)
 
         self._infile = infile
-        if not self._existExpectedOutput():
-            self._generateExpectedOutput()
+        #if not self._existExpectedOutput():
+        #    self._generateExpectedOutput()
 
     def _tmpOutfile(self):
         outfile = os.path.splitext(self._infile)[0]
         return 'tmp/'+outfile+'.txt'
     
     def _referenceOutfile(self):
+        #!!similar code elsewhere
         import platform;
         os_string=platform.platform()
-        if "Windows" in os_string:
-            outfile = os.path.splitext(self._infile)[0]
-            return 'expected-Windows/'+outfile+'.txt'
-        elif "debian" in os_string:                   
-            outfile = os.path.splitext(self._infile)[0]
-            return 'expected-debian/'+outfile  +'.txt'
-        elif "Linux" in os_string:                   
-            logging.warning("comparing to Debian output even though found: %s" % os_string)
-            outfile = os.path.splitext(self._infile)[0]
-            return 'expected-debian/'+outfile  +'.txt'
+        outfile = os.path.splitext(self._infile)[0]
+
+        windows_fn = 'expected-Windows/'+outfile+'.txt'
+        assert os.path.exists(windows_fn)
+        debian_fn = 'expected-debian/'+outfile  +'.txt'
+        if not os.path.exists(debian_fn): #If reference file is not in debian folder, look in windows folder
+            debian_fn = windows_fn
+
+        if "debian" in os_string or "Linux" in os_string:
+            if "Linux" in os_string:
+                logging.warning("comparing to Debian output even though found: %s" % os_string)
+            return debian_fn
         else:
-            raise Exception("do not have regression tests for this OS:%s" % os_string)
+            if "Windows" not in os_string:
+                logging.warning("comparing to Windows output even though found: %s" % os_string)
+            return windows_fn 
 
 
     def runTest(self):
@@ -77,19 +82,19 @@ class WidgetTestCase(unittest.TestCase):
         runner.run(distributable)                               
                 
         out,msg=ut.compare_files(tmpOutfile, referenceOutfile, tolerance)                
-        self.assertTrue(out,msg)#msg='Files %s and %s are different.' % (tmpOutfile, referenceOutfile))
+        self.assertTrue(out, "msg='{0}', ref='{1}', tmp='{2}'".format(msg, referenceOutfile, tmpOutfile))
 
-    def _generateExpectedOutput(self):
-        tmpOutfile = self._tmpOutfile()
-        referenceOutfile = self._referenceOutfile()
-        with open('inputs/'+self._infile) as f:
-            filecontent = f.read()
+    #def _generateExpectedOutput(self):
+    #    tmpOutfile = self._tmpOutfile()
+    #    referenceOutfile = self._referenceOutfile()
+    #    with open('inputs/'+self._infile) as f:
+    #        filecontent = f.read()
 
-        runner = Local()
-        exec(filecontent)
-        runner.run(distributable)
+    #    runner = Local()
+    #    exec(filecontent)
+    #    runner.run(distributable)
 
-        shutil.copyfile(self._tmpOutfile(), self._referenceOutfile())
+    #    shutil.copyfile(self._tmpOutfile(), self._referenceOutfile())
 
     def _existExpectedOutput(self):
         return os.path.isfile(self._referenceOutfile())
@@ -148,7 +153,7 @@ if __name__ == '__main__':
                                     ])
     suites.debug
 
-    if True: #Standard test run #!!!cmk make this True before check in
+    if True: #Standard test run
         r = unittest.TextTestRunner(failfast=False)
         r.run(suites)
     else: #Cluster test run
@@ -158,12 +163,16 @@ if __name__ == '__main__':
                      update_remote_python_parent=True,
                      min=150,
                      priority="AboveNormal",mkl_num_threads=1)
-        #runner = Local()
-        runner = LocalMultiProc(taskcount=20,mkl_num_threads=5)
+        runner = Local()
+        #runner = LocalMultiProc(taskcount=20,mkl_num_threads=5)
         #runner = LocalInParts(1,2,mkl_num_threads=1) # For debugging the cluster runs
         #runner = Hadoop2(100, mapmemory=8*1024, reducememory=8*1024, mkl_num_threads=1, queue="default")
         distributable_test = DistributableTest(suites,"temp_test")
         print runner.run(distributable_test)
+
+    debian_count = len(os.listdir('expected-debian'))
+    if debian_count > 0:
+        logging.warn("The tests contain {0} expected-results files that differ between Windows and Debian".format(debian_count))
 
 
     logging.info("done with testing")

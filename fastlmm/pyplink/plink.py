@@ -224,7 +224,7 @@ def readBED(basefilename, snp_set = AllSnps(), order = 'F'):
 
 def nSnpFromBim(basefilename):
     bim = basefilename+'.bim'
-    bimx = SP.loadtxt(bim,delimiter = '\t',dtype = 'str',usecols = (0,1,2,3),comments=None)
+    bimx = SP.loadtxt(bim,dtype = 'str',usecols = (0,1,2,3),comments=None)
     S = bimx.shape[0]
     return S
 

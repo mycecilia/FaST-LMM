@@ -215,7 +215,7 @@ class TestSingleSnp(unittest.TestCase):
         #for index, sid in enumerate(sid_list):
         #    sid_to_pvalue[sid] = pvalue_list[index]
 
-        reference=pd.read_csv(reffile,delimiter='\t',comment=None)
+        reference=pd.read_csv(reffile,delimiter='\s',comment=None)
         assert len(frame) == len(reference), "# of pairs differs from file '{0}'".format(reffile)
         for _, row in reference.iterrows():
             sid = row.SNP
@@ -290,7 +290,7 @@ class TestSingleSnpLeaveOutOneChrom(unittest.TestCase):
         #for index, sid in enumerate(sid_list):
         #    sid_to_pvalue[sid] = pvalue_list[index]
 
-        reference=pd.read_csv(reffile,delimiter='\t',comment=None)
+        reference=pd.read_csv(reffile,delimiter='\s',comment=None)
         assert len(frame) == len(reference), "# of pairs differs from file '{0}'".format(reffile)
         for _, row in reference.iterrows():
             sid = row.SNP

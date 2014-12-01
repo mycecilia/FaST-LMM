@@ -153,7 +153,7 @@ def snp_set(
         )
     result = Local().run(fast_lmm_set)
 
-    dataframe=pd.read_csv(output_file_name,delimiter='\t',comment=None)
+    dataframe=pd.read_csv(output_file_name,delimiter='\t',comment=None) #Need \t instead of \s because the output has tabs by design and spaces in column names(?)
 
     if is_temp:
         fptr.close()

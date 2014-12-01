@@ -44,11 +44,11 @@ class Dat(object):
 
         #!!similar code in BED reader
         logging.info("Loading fam file {0}".format(famfile))
-        self._original_iids = SP.loadtxt(famfile,delimiter = ' ',dtype = 'str',usecols=(0,1),comments=None)
+        self._original_iids = SP.loadtxt(famfile,dtype = 'str',usecols=(0,1),comments=None)
 
         #!!similar code in BED reader
         logging.info("Loading map file {0}".format(mapfile))
-        self.bimfields = pd.read_csv(mapfile,delimiter = '\t',usecols = (0,1,2,3),header=None,index_col=False)
+        self.bimfields = pd.read_csv(mapfile,delimiter = '\s',usecols = (0,1,2,3),header=None,index_col=False)
         self.rs = SP.array(self.bimfields[1].tolist(),dtype='str')
         self.pos = self.bimfields.as_matrix([0,2,3])
         self.snp_to_index = {}
@@ -59,7 +59,7 @@ class Dat(object):
             self.snp_to_index[snp]=i
 
         #!!could change to just create/find an index to the file position of each row. Instead, reading all into memory
-        datfields = pd.read_csv(self.dat_filename,delimiter = '\t',header=None,index_col=False)
+        datfields = pd.read_csv(self.dat_filename,delimiter = '\s',header=None,index_col=False)
         if not sp.array_equal(sp.array(datfields[0],dtype="string"), self.rs) : raise Exception("Expect snp list in map file to exactly match snp list in dat file")
         self.start_column = 3
         if len(self._original_iids) != datfields.shape[1]-self.start_column : raise Exception("Expect # iids in fam file to match dat file")

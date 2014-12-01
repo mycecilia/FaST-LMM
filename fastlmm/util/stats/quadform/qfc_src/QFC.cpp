@@ -37,7 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <malloc.h>
 #include <setjmp.h>
 
 #include "QFC.h"

@@ -144,7 +144,7 @@ class NearBronze:
                 if bimindex % 10000 == 0 :
                     logging.info("First time reading bim line {0}".format(bimindex))
                 linestriped = line.strip()
-                row = linestriped.split("\t")  # e.g. ['1', 'rs3094315', '0.830874', '752566', '2', '1']
+                row = linestriped.split()  # e.g. ['1', 'rs3094315', '0.830874', '752566', '2', '1']
                 chrom = row[0]
                 snp = row[1]
                 value = float(row[distance_index])
@@ -178,7 +178,7 @@ class NearBronze:
                     if bimindex % 10000 == 0 :
                         logging.info("Writing bim line {0}".format(bimindex))
                     linestriped = line.strip()
-                    row = linestriped.split("\t")  # e.g. ['1', 'rs3094315', '0.830874', '752566', '2', '1']
+                    row = linestriped.split()  # e.g. ['1', 'rs3094315', '0.830874', '752566', '2', '1']
                     chrom = row[0]
                     snp = row[1]
                     value = float(row[distance_index])

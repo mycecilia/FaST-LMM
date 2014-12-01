@@ -45,13 +45,13 @@ class Dense(SnpReader):
         bim_list = []
         with open(self.filename,"r") as fp:
             header = fp.readline()
-            iid_string_list = header.strip().split("\t")[1:]
+            iid_string_list = header.strip().split()[1:]
             self._original_iid = SP.array([self.extract_iid_function(iid_string) for iid_string in iid_string_list],dtype="string")
             val_list = []
             for line_index,line in enumerate(fp):
                 if line_index % 1000 == 0:
                     logging.info("reading sid and iid info from line {0} of file '{1}'".format(line_index, self.filename))
-                sid_string, rest = line.strip().split("\t")
+                sid_string, rest = line.strip().split()
                 bim_list.append(self.extract_bim_function(sid_string))
                 assert len(rest) == len(self._original_iid)
 
@@ -102,7 +102,7 @@ class Dense(SnpReader):
                 for line_index,line in enumerate(fp):
                     if line_index % 1000 == 0:
                         logging.info("reading values from line {0} of file '{1}'".format(line_index, self.filename))
-                    sid_string, rest = line.strip().split("\t")
+                    sid_string, rest = line.strip().split()
                     assert len(rest) == len(self._original_iid)
                     val_list = [int(val) for val in rest]
                     val_list_list.append(val_list)

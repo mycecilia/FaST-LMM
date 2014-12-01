@@ -54,10 +54,10 @@ class Bed(object):
         bimfile = self.basefilename+'.bim'
 
         logging.info("Loading fam file {0}".format(famfile))
-        self._original_iids = SP.loadtxt(famfile,delimiter = ' ',dtype = 'str',usecols=(0,1),comments=None)
+        self._original_iids = SP.loadtxt(famfile,dtype = 'str',usecols=(0,1),comments=None)
         logging.info("Loading bim file {0}".format(bimfile))
 
-        self.bimfields = pd.read_csv(bimfile,delimiter = '\t',usecols = (0,1,2,3),header=None,index_col=False)
+        self.bimfields = pd.read_csv(bimfile,delimiter = '\s',usecols = (0,1,2,3),header=None,index_col=False)
         self.rs = SP.array(self.bimfields[1].tolist(),dtype='str')
         self.pos = self.bimfields.as_matrix([0,2,3])
         self.snp_to_index = {}

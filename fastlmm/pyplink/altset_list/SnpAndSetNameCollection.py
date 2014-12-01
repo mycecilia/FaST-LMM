@@ -14,7 +14,7 @@ class SnpAndSetNameCollection(object):  # implements ISnpSetList
         self.filename = filename
         logging.info("Reading {0}".format(filename))
         import pandas as pd
-        snp_and_setname_sequence = pd.read_csv(filename,delimiter = '\t',index_col=False)
+        snp_and_setname_sequence = pd.read_csv(filename,delimiter = '\s',index_col=False)
 
         from collections import defaultdict
         setname_to_snp_list = defaultdict(list)
