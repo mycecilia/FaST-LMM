@@ -51,7 +51,7 @@ class CleanCommand(Clean):
                         os.unlink(tmp_fn)
 
 # set up macro
-if "win" in platform.system().lower():
+if not platform.system() == "Darwin" and "win" in platform.system().lower():
     macros = [("_WIN32", "1")]
 else:
     macros = [("_UNIX", "1")]
