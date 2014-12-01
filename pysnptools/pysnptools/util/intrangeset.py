@@ -18,7 +18,7 @@ class IntRangeSet(object):
     _rangeExpression = re.compile(r"^(?P<start>-?\d+)(-(?P<last>-?\d+))?$")
 
     def __init__(self, *ranges_inputs):
-        #!!!cmk confirm that this appears in docs
+        #!!! confirm that this appears in docs
         '''
         Create a IntRangeSet from zero or more ranges input.
        
@@ -157,7 +157,7 @@ class IntRangeSet(object):
             yield item, last
 
     def __iter__(self):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         Iterate, in order from smallest to largest, the integer elements of the IntRangeSet
 
@@ -189,7 +189,7 @@ class IntRangeSet(object):
         self._start_to_length.clear()
 
     def __len__(self):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         The number of integer elements in the IntRangeSet
 
@@ -231,7 +231,7 @@ class IntRangeSet(object):
         return result
 
     def __eq__(self, other):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         True exacty when the IntRangeSet on the left is set equivalent to the ranges input on the right.
 
@@ -253,7 +253,7 @@ class IntRangeSet(object):
         return True
 
     def __ne__(self, other):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         a != b
         is the same as
@@ -265,7 +265,7 @@ class IntRangeSet(object):
     #Same: a >= b, a.issuperset(b,...), b in a
     #Returns True iff item is within the ranges of this IntRangeSet.
     def __contains__(self, *ranges_inputs):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         True exactly when all the ranges input is a subset of the IntRangeSet.
 
@@ -306,7 +306,7 @@ class IntRangeSet(object):
     #Test whether every element in other is in the set.
     def __ge__(self,other):
         return other in self
-    #!!!cmk check that the documentation for all of these is OK
+    #!!! check that the documentation for all of these is OK
     issuperset = __contains__
 
     
@@ -323,7 +323,7 @@ class IntRangeSet(object):
         return len(self._start_items) == 0
 
     def __str__(self):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         Use the standard str(a) function to create a string representation of a, an IntRangeSet.
 
@@ -334,7 +334,7 @@ class IntRangeSet(object):
 
 
     def __repr__(self):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         Use the standard repr(a) function to create a string representation of a, an IntRangeSet.
 
@@ -755,7 +755,7 @@ class IntRangeSet(object):
     #s[i:j] slice of s from i to j (3)(4) 
     #s[i:j:k] slice of s from i to j with step k (3)(5) 
     def __getitem__(self, key):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         ``a[i]`` returns the ith integer in sorted order (origin 0) from a, an IntRangeSet
 
@@ -897,7 +897,7 @@ class IntRangeSet(object):
 
     #s * n, n shallow copies of s concatenated (2) 
     def __mul__(self, n):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         ``a * n``, produces n shallow copies of a unioned, where a is an IntRangeSet.
         Because a is a set, the result will either be an empty IntRangeSet (n is 0 or less) or a copy of
@@ -984,7 +984,7 @@ class IntRangeSet(object):
     #issubset(other)set <= other
     #Test whether every element in the set is in other.
     def __le__(self, ranges):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         True exactly when the IntRangeSet is a subset of the ranges.
 
@@ -1007,7 +1007,7 @@ class IntRangeSet(object):
     #set < other
     #Test whether the set is a proper subset of other, that is, set <= other and set != other.
     def __lt__(self, ranges):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         True exactly when the IntRangeSet is a proper subset of the ranges.
 
@@ -1024,7 +1024,7 @@ class IntRangeSet(object):
     #set > other
     #Test whether the set is a proper superset of other, that is, set >= other and set != other.
     def __gt__(self, other):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         True exactly when the IntRangeSet is a proper superset of the ranges.
 
@@ -1044,7 +1044,7 @@ class IntRangeSet(object):
     #Return a new set with elements common to the set and all others.
     #Changed in version 2.6: Accepts multiple input iterables.
     def __and__(*ranges_inputs):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         Return the intersection of a IntRangeSet and zero or more ranges inputs. The original IntRangeSet is not changed.
 
@@ -1117,7 +1117,7 @@ class IntRangeSet(object):
     #Return a new set with elements in the set that are not in the others.
     #Changed in version 2.6: Accepts multiple input iterables.
     def __sub__(self, *ranges_inputs): #!!could be made faster by being more direct instead of using complements
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         Return the set difference of a IntRangeSet with zero or more ranges inputs. The original IntRangeSet is not changed.
 
@@ -1149,7 +1149,7 @@ class IntRangeSet(object):
     #symmetric_difference(other)set ^ other
     #Return a new set with elements in either the set or other but not both.
     def __xor__(self, ranges):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         Returns a new IntRangeSet set with elements in either the input IntRangeSet or the input range but not both.
 
@@ -1180,7 +1180,7 @@ class IntRangeSet(object):
     #Update the set, keeping only elements found in it and all others.
     #Changed in version 2.6: Accepts multiple input iterables.
     def __iand__(*ranges_inputs):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         Set the IntRangeSet to itself intersected with a input range
 
@@ -1205,7 +1205,7 @@ class IntRangeSet(object):
     #Update the set, removing elements found in others.
     #Changed in version 2.6: Accepts multiple input iterables.
     def __isub__(self, *ranges_inputs):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         Remove the elements of the range inputs from the IntRangeSet
 
@@ -1260,7 +1260,7 @@ class IntRangeSet(object):
     #symmetric_difference_update(other)set ^= other
     #Update the set, keeping only elements found in either set, but not in both.
     def __ixor__(self, ranges):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         Set the IntRangeSet to contains exactly those elements that appear in either itself or the input ranges but not both
 
@@ -1307,7 +1307,7 @@ class IntRangeSet(object):
 
 
     def __delitem__(self,key):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         Remove elements from the IntRangeSet by position index. Position index can be specified by an integer with
         negative integers counting from the end. Position indexes can also be specified with slices and a ranges input.
@@ -1385,7 +1385,7 @@ class IntRangeSet(object):
         return start,last
 
     def __reversed__(self):
-        #!!!cmk be sure this appears in the documentation
+        #!!! be sure this appears in the documentation
         '''
         reversed(a) is a generator that produces the integer elements of a in order from largest to smallest.
 

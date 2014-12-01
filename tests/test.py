@@ -163,8 +163,8 @@ if __name__ == '__main__':
                      update_remote_python_parent=True,
                      min=150,
                      priority="AboveNormal",mkl_num_threads=1)
-        runner = Local()
-        #runner = LocalMultiProc(taskcount=20,mkl_num_threads=5)
+        #runner = Local()
+        runner = LocalMultiProc(taskcount=20,mkl_num_threads=5)
         #runner = LocalInParts(1,2,mkl_num_threads=1) # For debugging the cluster runs
         #runner = Hadoop2(100, mapmemory=8*1024, reducememory=8*1024, mkl_num_threads=1, queue="default")
         distributable_test = DistributableTest(suites,"temp_test")
