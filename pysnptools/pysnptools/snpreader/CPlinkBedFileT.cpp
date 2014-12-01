@@ -162,6 +162,8 @@ size_t SUFFIX(CBedFile)::ReadLine( BYTE *pb, size_t idx )
 	long long fpos = cbHeader + (idx*cbStride);
 #ifdef _WIN32
 	long long fposCur = _ftelli64( pFile );
+#elif __APPLE__
+    long long fposCur = ftello( pFile );
 #else
 	long long fposCur = ftello64( pFile );
 #endif
@@ -169,6 +171,8 @@ size_t SUFFIX(CBedFile)::ReadLine( BYTE *pb, size_t idx )
 	{
 #ifdef _WIN32
 		_fseeki64( pFile, fpos, SEEK_SET );
+#elif __APPLE__
+        fseeko( pFile, fpos, SEEK_SET );
 #else
 		fseeko64( pFile, fpos, SEEK_SET );
 #endif

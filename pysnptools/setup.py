@@ -43,10 +43,10 @@ class CleanCommand(Clean):
                     os.unlink(os.path.join(dirpath, filename))
 
 # set up macro
-if not platform.system() == "Darwin" and "win" in platform.system().lower():
+if platform.system() == "Darwin":
+    macros = [("__APPLE__", "1")]
+elif "win" in platform.system().lower():
     macros = [("_WIN32", "1")]
-else:
-    macros = [("_UNIX", "1")]
 
 ext = [Extension("pysnptools.snpreader.wrap_plink_parser", ["pysnptools/snpreader/wrap_plink_parser.pyx", "pysnptools/snpreader/CPlinkBedFile.cpp"], language="c++", define_macros=macros)]
 
