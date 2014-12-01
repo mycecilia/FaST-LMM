@@ -98,6 +98,14 @@
     :undoc-members:
 	:show-inheritance:
 
+:mod:`util.intrangeset`
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+.. automodule:: pysnptools.pysnptools.util.intrangeset
+    :members:
+    :undoc-members:
+	:show-inheritance:
+
+
 ****************************
 :mod:`standardizer` Module
 ****************************

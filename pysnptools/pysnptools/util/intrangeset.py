@@ -1,5 +1,3 @@
-#!!!cmk see email todo
-
 import re
 from bisect import bisect_left
 import logging
@@ -9,7 +7,7 @@ import doctest
 
 class IntRangeSet(object):
     '''
-    This is a class for manipulating ranges of integers (including longs) as sets. For example,
+    IntRangeSet is a class for manipulating ranges of integers (including longs) as sets. For example,
     here we take the union of two IntRangeSets:
 
     >>> print IntRangeSet("100-499,500-1000") | IntRangeSet("-20,400-600")
@@ -22,7 +20,9 @@ class IntRangeSet(object):
     def __init__(self, *ranges_inputs):
         #!!!cmk confirm that this appears in docs
         '''
-        Create a IntRangeSet from zero or more ranges input. For example:
+        Create a IntRangeSet from zero or more ranges input.
+       
+        :Example:
 
         >>> print IntRangeSet() #create from zero ranges input
         IntRangeSet('')
@@ -34,41 +34,50 @@ class IntRangeSet(object):
         IntRangeSet('-10-100,150,200-500')
 
         A ranges input can be an integer. Here we have four integer inputs:
+
         >>> print IntRangeSet(5,6,3+4,-10)
         IntRangeSet('-10,5-7')
 
         A ranges input can be a string.
+
         >>> print IntRangeSet('-10--3,5,-30--9')
         IntRangeSet('-30--3,5')
 
         A ranges input can be an iteration of ranges inputs.
+
         >>> print IntRangeSet([3,4,5,7,'-10--3'])
         IntRangeSet('-10--3,3-5,7')
+
         >>> print IntRangeSet(xrange(0,100))
         IntRangeSet('0-99')
 
         A ranges input can be a tuple of exactly two items: a start integer and a last integer.
         Note that the LAST integer is INCLUSIVE. This differs from the STOP value common in other
         Python libraries that are exclusive.
+
         >>> print IntRangeSet((-10,-3)) #Go from -10 (inclusive) to -3 (inclusive)
         IntRangeSet('-10--3')
         >>> print IntRangeSet([(-10,-3),(2,5)]) # A list of tuples.
         IntRangeSet('-10--3,2-5')
 
         A ranges input can be a IntRangeSet (or anything with a .ranges() iterator):
+
         >>> print IntRangeSet(IntRangeSet("3-10"))
         IntRangeSet('3-10')
 
         A ranges input can be a slice:
+
         >>> import numpy as np
         >>> print IntRangeSet(np.s_[0:100],np.s_[75:500:100]) #Two ranges ranges, each one a slice
         IntRangeSet('0-99,175,275,375,475')
 
         The parts of a ranges input can be in any order and may overlap
+
         >>> print IntRangeSet('12-15,11-12,5')
         IntRangeSet('5,11-15')
 
         Negatives integers and large integers are fine
+
         >>> print IntRangeSet('-16000000000-20000000000,-17000000001')
         IntRangeSet('-17000000001,-16000000000-20000000000')
         '''
@@ -86,12 +95,14 @@ class IntRangeSet(object):
         Union zero or more ranges inputs into the current IntRangeSet.
 
         These are the same:
-        a |= b
-        a += b
-        a.add(b)
-        a.update(b)
+        
+        * ``a |= b``
+        * ``a += b``
+        * ``a.add(b)``
+        * ``a.update(b)``
 
-        For example:
+        :Example:
+
         >>> a = IntRangeSet('0-4,6-10')
         >>> a |= 5
         >>> print a
@@ -99,7 +110,9 @@ class IntRangeSet(object):
 
 
         The 'add' and 'update' methods also support unioning multiple ranges inputs,
-        For example:
+
+        :Example:
+
         >>> a = IntRangeSet('0-4,6-10')
         >>> a.add('5','100-200')
         >>> print a
@@ -130,7 +143,9 @@ class IntRangeSet(object):
     def ranges(self):
         '''
         Iterate, in order, the ranges of a IntRangeSet as (start,last) tuples.
-        For example:
+
+        :Example:
+
         >>> for start,last in IntRangeSet('0-10,100-200').ranges():
         ...       print "start is {0}, last is {1}".format(start,last)
         start is 0, last is 10
@@ -145,7 +160,9 @@ class IntRangeSet(object):
         #!!!cmk be sure this appears in the documentation
         '''
         Iterate, in order from smallest to largest, the integer elements of the IntRangeSet
-        For example:
+
+        :Example:
+
         >>> for i in IntRangeSet('1-3,10'):
         ...    print i
         1
@@ -175,6 +192,7 @@ class IntRangeSet(object):
         #!!!cmk be sure this appears in the documentation
         '''
         The number of integer elements in the IntRangeSet
+
         >>> print len(IntRangeSet('0-9,12'))
         11
 
@@ -183,14 +201,27 @@ class IntRangeSet(object):
         '''
         return sum(self._start_to_length.values())
 
-    #!!!cmk ranges_count propperty???
+
+    @property
+    def ranges_len(self):
+        '''
+        The number of contiguous ranges in the IntRangeSet
+
+        >>> print IntRangeSet('0-9,12').ranges_len
+        2
+
+        '''
+        return len(self._start_items)
+
+
     def sum(self):
         '''
         The sum of the integer elements in the IntRangeSet
+
         >>> print IntRangeSet('0-9,12').sum()
         57
 
-        Note: This is more efficient than sum(IntRangeSet('0-9,12')) because is computed
+        Note: This is more efficient than ``sum(IntRangeSet('0-9,12'))`` because is computed
         in time linear in the number of ranges, rather than integer elements.
         '''
         result = 0
@@ -203,6 +234,7 @@ class IntRangeSet(object):
         #!!!cmk be sure this appears in the documentation
         '''
         True exacty when the IntRangeSet on the left is set equivalent to the ranges input on the right.
+
         >>> print IntRangeSet('0-9,12') == IntRangeSet('0-9,12')
         True
         >>> print IntRangeSet('0-9,12') == IntRangeSet('0-9')
@@ -238,11 +270,13 @@ class IntRangeSet(object):
         True exactly when all the ranges input is a subset of the IntRangeSet.
 
         These are the same:
-        b in a
-        a >= b
-        a.issuperset(b)
 
-        For example:
+        * ``b in a``
+        * ``a >= b``
+        * ``a.issuperset(b)``
+
+        :Example:
+
         >>> print 3 in IntRangeSet('0-4,6-10')
         True
         >>> print IntRangeSet('4-6') in IntRangeSet('0-4,6-10')
@@ -253,7 +287,9 @@ class IntRangeSet(object):
         True
 
         The 'issuperset' method also supports unioning multiple ranges inputs.
-        For example:
+
+        :Example:
+
         >>> print IntRangeSet('0-4,6-10').issuperset(4,7,8)
         True
         >>> print IntRangeSet('0-4,6-10').issuperset(4,7,8,100)
@@ -278,6 +314,7 @@ class IntRangeSet(object):
     def isempty(self):
         '''
         True exactly when the IntRangeSet is empty.
+
         >>> print IntRangeSet().isempty
         True
         >>> print IntRangeSet(4).isempty
@@ -505,6 +542,8 @@ class IntRangeSet(object):
         mult_test1 = mult_test0 * 3
         assert mult_test0 == mult_test1
         assert mult_test0 is not mult_test1
+        assert (mult_test0 * 0).isempty
+        assert (mult_test0 * -1000).isempty
 
         assert IntRangeSet("10-14,55-59").index(10) == 0
         assert IntRangeSet("10-14,55-59").index(11) == 1
@@ -520,10 +559,7 @@ class IntRangeSet(object):
             pass
 
         assert IntRangeSet("10-14,55-59").index("57,56-56") == '6-7' #returns the index of the start of the contiguous place where 57,"56-56" occurs
-        try:
-            IntRangeSet("10-14,55-59").index([10,55]) #Doesn't pass because 10,55 doesn't occur contiguously
-        except IndexError:
-            pass
+        assert IntRangeSet("10-14,55-59").index([10,55]) == '0,5'
         try:
             IntRangeSet("10-14,55-59").index("100-110")
         except IndexError:
@@ -720,9 +756,8 @@ class IntRangeSet(object):
     #s[i:j:k] slice of s from i to j with step k (3)(5) 
     def __getitem__(self, key):
         #!!!cmk be sure this appears in the documentation
-        #!!!cmk does it always raise a KeyError?
         '''
-        a[i] returns the ith integer in sorted order (origin 0) from a, an IntRangeSet
+        ``a[i]`` returns the ith integer in sorted order (origin 0) from a, an IntRangeSet
 
         >>> print IntRangeSet('100-200,1000')[0]
         100
@@ -730,6 +765,7 @@ class IntRangeSet(object):
         110
 
         If i is negative, the indexing goes from the end
+
         >>> print IntRangeSet('100-200,1000')[-1]
         1000
 
@@ -746,6 +782,7 @@ class IntRangeSet(object):
         IntRangeSet('199-200,1000')
 
         An IntRangeSet can also be accessed with any ranges input.
+
         >>> IntRangeSet('100-200,1000')['0-10,20']
         IntRangeSet('100-110,120')
         '''
@@ -779,51 +816,39 @@ class IntRangeSet(object):
             else:
                 return IntRangeSet(self[index] for index in xrange(*key.indices(lenx)))
         else:
-            #!!!cmk if start_index == last_index only call self[] once
-            start_and_last_generator = ((self[start_index],self[last_index]) for start_index,last_index in IntRangeSet._static_ranges(key))
+            start_and_last_generator = (self._two_index(start_index,last_index) for start_index,last_index in IntRangeSet._static_ranges(key))
             return self.intersection(start_and_last_generator)
             
 
     #max(s) largest item of s   
-    def max(self, *ranges_inputs):
+    def max(self):
         '''
         The largest integer element in the IntRangeSet
+
         >>> print IntRangeSet('0-9,12').max()
         12
 
         Note: This is more efficient than max(IntRangeSet('0-9,12')) because is computed
         in constant time rather than in time linear to the number of integer elements.
         '''
-        lo,hi = self._min_and_max(self,*ranges_inputs)
-        return hi
+        start = self._start_items[-1]
+        return start + self._start_to_length[start] - 1
 
     #min(s) smallest item of s   
-    def min(self, *ranges_inputs):
+    def min(self):
         '''
         The smallest integer element in the IntRangeSet
+
+        :Example:
+
         >>> print IntRangeSet('0-9,12').min()
         0
 
-        Note: This is more efficient than min(IntRangeSet('0-9,12')) because is computed
+        Note: This is more efficient than ``min(IntRangeSet('0-9,12'))`` because is computed
         in constant time rather than in time linear to the number of integer elements.
         '''
-        lo,hi = self._min_and_max(self,*ranges_inputs)
-        return lo
+        return self._start_items[0]
 
-    @staticmethod
-    def _min_and_max(*ranges_inputs):
-        lo = float("+inf")
-        hi = float("-inf")
-        for ranges in ranges_inputs:
-            if isinstance(ranges,IntRangeSet):
-                lo = min(lo, ranges._start_items[0])
-                start = ranges._start_items[-1]
-                hi = max(hi, start+ranges._start_to_length[start]-1)
-            else:
-                for start,last in IntRangeSet._static_ranges(ranges):
-                    lo = min(lo,start)
-                    hi = max(hi,last)
-        return lo,hi
 
     def _make_args_range_set(*args):
         for arg in args:
@@ -840,16 +865,20 @@ class IntRangeSet(object):
         Return the union of a IntRangeSet with zero or more ranges inputs. The original IntRangeSet is not changed.
 
         These are the same:
-        a | b
-        a + b
-        a.union(b)
+        
+        * ``a | b``
+        * ``a + b``
+        * ``a.union(b)``
 
-        For example:
+        :Example:
+
         >>> print IntRangeSet('0-4,6-10') | 5
         IntRangeSet('0-10')
 
         The 'union' method also support unioning multiple ranges inputs,
-        For example:
+
+        :Example:
+
         >>> print IntRangeSet('0-4,6-10').union(5,'100-200')
         IntRangeSet('0-10,100-200')
         '''
@@ -866,11 +895,11 @@ class IntRangeSet(object):
     union = __concat__
 
 
-    #s * n, n * s n shallow copies of s concatenated (2) 
+    #s * n, n shallow copies of s concatenated (2) 
     def __mul__(self, n):
         #!!!cmk be sure this appears in the documentation
         '''
-        a * n, n * a produces n shallow copies of a unioned, where a is an IntRangeSet.
+        ``a * n``, produces n shallow copies of a unioned, where a is an IntRangeSet.
         Because a is a set, the result will either be an empty IntRangeSet (n is 0 or less) or a copy of
         the original IntRangeSet.
         '''
@@ -882,12 +911,13 @@ class IntRangeSet(object):
     #s.index(x) index of the x in s
     def index(self, other):
         '''
-        a.index(x), index of the integer element x in a, an IntRangeSet. Raises an IndexError is x not in a.
+        ``a.index(x)``, index of the integer element x in a, an IntRangeSet. Raises an IndexError is x not in a.
 
         >>> print IntRangeSet('100-110,1000').index(110)
         10
 
         x also can be any ranges input, in which case, an IntRangeSet is returned containing the indexes of all integers in x.
+
         >>> print IntRangeSet('100-110,1000').index('110,100-102')
         IntRangeSet('0-2,10')
         '''
@@ -940,6 +970,8 @@ class IntRangeSet(object):
         '''
         True exactly when the two sets have no integer elements in common.
 
+        :Example:
+
         >>> print IntRangeSet('100-110,1000').isdisjoint('900-2000')
         False
         >>> print IntRangeSet('100-110,1000').isdisjoint('1900-2000')
@@ -957,10 +989,12 @@ class IntRangeSet(object):
         True exactly when the IntRangeSet is a subset of the ranges.
 
         These are the same:
-        a <= b
-        a.issubset(b)
+        
+        * ``a <= b``
+        * ``a.issubset(b)``
 
-        For example:
+        :Example:
+
         >>> print IntRangeSet('0-4,6-10') <= '-1-100' # The right-hand can be any ranges input
         True
 
@@ -977,7 +1011,8 @@ class IntRangeSet(object):
         '''
         True exactly when the IntRangeSet is a proper subset of the ranges.
 
-        For example:
+        :Example:
+
         >>> print IntRangeSet('0-4,6-10') < '-1-100' # The right-hand can be any ranges input
         True
 
@@ -993,7 +1028,8 @@ class IntRangeSet(object):
         '''
         True exactly when the IntRangeSet is a proper superset of the ranges.
 
-        For example:
+        :Example:
+
         >>> print IntRangeSet('0-4,6-10') > '7-9' # The right-hand can be any ranges input
         True
 
@@ -1013,22 +1049,26 @@ class IntRangeSet(object):
         Return the intersection of a IntRangeSet and zero or more ranges inputs. The original IntRangeSet is not changed.
 
         These are the same:
-        a & b
-        a.intersection(b)
+        
+        * ``a & b``
+        * ``a.intersection(b)``
 
-        For example:
+        :Example:
+
         >>> print IntRangeSet('0-4,6-10') & '3-7'
         IntRangeSet('3-4,6-7')
 
         The 'intersection' method also support intersecting multiple ranges inputs,
-        For example:
+
+        :Example:
+
         >>> print IntRangeSet('0-4,6-10').intersection('3-7','4-6')
         IntRangeSet('4,6')
         '''
         ranges_inputs = IntRangeSet._make_args_range_set(*ranges_inputs) #generator to made every ranges a IntRangeSet
         ranges_inputs = sorted(ranges_inputs,key=lambda int_range_set:len(int_range_set._start_items)) #sort so that IntRangeSet with smaller range_count is first
         result = ranges_inputs[0] #!!!what if no args, emtpy? The universe?
-        for ranges in ranges_inputs[1:]: #!!!cmk rename ranges to ranges
+        for ranges in ranges_inputs[1:]:
             result = result._binary_intersection(ranges)
         return result
     intersection = __and__
@@ -1082,17 +1122,21 @@ class IntRangeSet(object):
         Return the set difference of a IntRangeSet with zero or more ranges inputs. The original IntRangeSet is not changed.
 
         These are the same:
-        a - b
-        a.difference(b)
 
-        For example:
+        * ``a - b``
+        * ``a.difference(b)``
+
+        :Example:
+
         >>> print IntRangeSet('0-4,6-10') - 1
         IntRangeSet('0,2-4,6-10')
         >>> print IntRangeSet('0-4,6-10') - '3-100'
         IntRangeSet('0-2')
 
         The 'difference' method also supports subtracting multiple input ranges
-        For example:
+
+        :Example:
+
         >>> print IntRangeSet('0-4,6-10').difference('3-100',1)
         IntRangeSet('0,2')
         '''
@@ -1110,10 +1154,12 @@ class IntRangeSet(object):
         Returns a new IntRangeSet set with elements in either the input IntRangeSet or the input range but not both.
 
         These are the same:
-        a ^ b
-        a.symmetric_difference(b)
 
-        For example:
+        * ``a ^ b``
+        * ``a.symmetric_difference(b)``
+
+        :Example:
+
         >>> print IntRangeSet('0-4,6-10') ^ '3-8'
         IntRangeSet('0-2,5,9-10')
         '''
@@ -1139,10 +1185,12 @@ class IntRangeSet(object):
         Set the IntRangeSet to itself intersected with a input range
 
         These are the same:
-        a &= b
-        a.intsersection_update(b)
 
-        For example:
+        * ``a &= b``
+        * ``a.intsersection_update(b)``
+
+        :Example:
+
         >>> a = IntRangeSet('0-4,6-10')
         >>> a &= '3-7'
         >>> print a
@@ -1162,14 +1210,17 @@ class IntRangeSet(object):
         Remove the elements of the range inputs from the IntRangeSet
 
         These are the same:
-        a -= b
-        a.difference_update(b)
-        a.discard(b)
 
-        'remove' is almost the same except that it raises a KeyError if any element of b is not in a.
-        a.remove(b)
+        * ``a -= b``
+        * ``a.difference_update(b)``
+        * ``a.discard(b)``
 
-        For example:
+        remove' is almost the same except that it raises a KeyError if any element of b is not in a.
+
+        * ``a.remove(b)``
+
+        :Example:
+
         >>> a = IntRangeSet('0-4,6-10')
         >>> a -= '3-6'
         >>> print a
@@ -1177,7 +1228,9 @@ class IntRangeSet(object):
 
 
         The 'difference_update', 'discard' and 'remove' methods also support subtracting multiple ranges inputs.
-        For example:
+
+        :Example:
+
         >>> a = IntRangeSet('0-4,6-10')
         >>> a.difference_update('3-6','8-100')
         >>> print a
@@ -1212,10 +1265,12 @@ class IntRangeSet(object):
         Set the IntRangeSet to contains exactly those elements that appear in either itself or the input ranges but not both
 
         These are the same:
-        a ^= b
-        a.symmetric_difference_update(b)
 
-        For example:
+        * ``a ^= b``
+        * ``a.symmetric_difference_update(b)``
+
+        :Example:
+
         >>> a = IntRangeSet('0-4,6-10')
         >>> a ^= '3-7'
         >>> print a
@@ -1230,7 +1285,8 @@ class IntRangeSet(object):
         '''
         Remove and return the largest integer element from the IntRangeSet. Raises KeyError if the IntRangeSet is empty.
 
-        For example:
+        :Example:
+
         >>> a = IntRangeSet('0-4,6-10')
         >>> print a.pop()
         10
@@ -1252,12 +1308,14 @@ class IntRangeSet(object):
 
     def __delitem__(self,key):
         #!!!cmk be sure this appears in the documentation
-        #!!!cmk does it always raise a KeyError?
         '''
         Remove elements from the IntRangeSet by position index. Position index can be specified by an integer with
         negative integers counting from the end. Position indexes can also be specified with slices and a ranges input.
 
-        Example of removing with an integer position index:
+        :Example:
+
+        Removing with an integer position index:
+
         >>> a = IntRangeSet('100-200,1000')
         >>> del a[2]
         >>> print a
@@ -1266,13 +1324,18 @@ class IntRangeSet(object):
         >>> print a
         IntRangeSet('100-101,103-200')
 
-        Example of removing with a slice:
+        :Example:
+       
+        Removing with a slice:
+
         >>> a = IntRangeSet('100-200,1000')
         >>> del a[2:11]
         >>> print a
         IntRangeSet('100-101,111-200,1000')
 
-        Example of removing with a ranges input:
+        :Example:
+        Removing with a ranges input:
+
         >>> a = IntRangeSet('100-200,1000')
         >>> del a['2-10']
         >>> print a
@@ -1306,18 +1369,28 @@ class IntRangeSet(object):
             step = step or 1
 
             if step == 1:
-                self.remove((self[start],self[stop-1])) #'remove' will raise error if not there
+                self -= (self[start],self[stop-1])
             else:
-                self.remove(self[index] for index in xrange(*key.indices(lenx)))
+                self -= (self[index] for index in xrange(*key.indices(lenx)))
         else:
-            #!!!cmk if start_index == last_index only call self[] once
-            start_and_last_generator = ((self[start_index],self[last_index]) for start_index,last_index in IntRangeSet._static_ranges(key))
-            return self.remove(start_and_last_generator)
+            start_and_last_generator = (self._two_index(start_index,last_index) for start_index,last_index in IntRangeSet._static_ranges(key))
+            self -= (start_and_last_generator)
+
+    def _two_index(self,start_index,last_index):
+        start = self[start_index]
+        if last_index == start_index:
+            last = start
+        else:
+            last = self[last_index]
+        return start,last
 
     def __reversed__(self):
         #!!!cmk be sure this appears in the documentation
         '''
         reversed(a) is a generator that produces the integer elements of a in order from largest to smallest.
+
+        :Example:
+        
         >>> for i in reversed(IntRangeSet('1-3,10')):
         ...     print i
         10

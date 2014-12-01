@@ -46,7 +46,6 @@
             
   <div class="section" id="module-pysnptools.pysnptools">
 <span id="pysnptools-documentation"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">pysnptools</span></tt> Documentation<a class="headerlink" href="#module-pysnptools.pysnptools" title="Permalink to this headline">¶</a></h1>
-<p>A library for reading SNP files, manipulating them in memory, and performing operations on them such as kernel creation</p>
 <div class="section" id="module-pysnptools.pysnptools.snpreader">
 <span id="snpreader-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">snpreader</span></tt> Module<a class="headerlink" href="#module-pysnptools.pysnptools.snpreader" title="Permalink to this headline">¶</a></h2>
 <p>Tools for reading SNP files</p>
@@ -60,38 +59,38 @@
 <ul>
 <li><p class="first">A class such as <a class="reference internal" href="#pysnptools.pysnptools.snpreader.bed.Bed" title="pysnptools.pysnptools.snpreader.bed.Bed"><tt class="xref py py-class docutils literal"><span class="pre">Bed</span></tt></a> for you to specify data in file. For example,</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span> <span class="c"># prints specification for reading from file</span>
-<span class="go">Bed(&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;)</span>
+<span class="go">Bed(&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span><span class="o">.</span><span class="n">sid_count</span> <span class="c"># prints the number of SNPS (but doesn&#39;t read any SNP values)</span>
 <span class="go">1015</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first">A <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData" title="pysnptools.pysnptools.snpreader.snpdata.SnpData"><tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt></a> class that holds SNP data in memory, typically after a read:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c">#reads the SNP values</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># The val property is an ndarray of SNP values</span>
 <span class="go">&lt;type &#39;numpy.ndarray&#39;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata1</span> <span class="c"># prints the specification of the in-memory SNP information</span>
-<span class="go">SnpData(Bed(&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;))</span>
+<span class="go">SnpData(Bed(&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span><span class="o">.</span><span class="n">iid_count</span> <span class="c">#prints the number of iids (number of individuals) in this in-memory data</span>
 <span class="go">300</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first">A subset of any SnpReader, specified with &#8220;[ <em>iid_index</em> , <em>sid_index</em> ]&#8221;, to read only some SNP values.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">subset_on_disk</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="p">[[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],::</span><span class="mi">2</span><span class="p">]</span> <span class="c"># specification for a subset of the data on disk. No SNP values are read yet.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">subset_on_disk</span><span class="o">.</span><span class="n">sid_count</span> <span class="c"># prints the number of sids in this subset (but still doesn&#39;t read any SNP values)</span>
 <span class="go">508</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">subset_on_disk</span> <span class="c">#prints a specification of &#39;subset_on_disk&#39;</span>
-<span class="go">Bed(&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;)[[3,4],::2]</span>
+<span class="go">Bed(&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;)[[3,4],::2]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata_subset</span> <span class="o">=</span> <span class="n">subset_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># efficiently reads the specified subset of values from the disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata_subset</span> <span class="c"># prints the specification of the in-memory SNP information</span>
-<span class="go">SnpData(Bed(&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;)[[3,4],::2])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata_subset</span><span class="o">.</span><span class="n">val</span><span class="o">.</span><span class="n">shape</span> <span class="c"># The dimensions of the ndarray of SNP values</span>
-<span class="go">(2L, 508L)</span>
+<span class="go">SnpData(Bed(&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;)[[3,4],::2])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">snpdata_subset</span><span class="o">.</span><span class="n">val</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">int</span><span class="p">(</span><span class="n">snpdata_subset</span><span class="o">.</span><span class="n">val</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="c"># The dimensions of the ndarray of SNP values</span>
+<span class="go">(2, 508)</span>
 </pre></div>
 </div>
 </li>
@@ -107,7 +106,7 @@ See below for details.</p>
 <blockquote>
 <div><p>Individual are identified with an iid, which is a ndarray of two strings: a family ID and a case ID. SNP locations 
 are identified with sid string. For example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">iid</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="c"># print the first three iids</span>
 <span class="go">[[&#39;POP1&#39; &#39;0&#39;]</span>
 <span class="go"> [&#39;POP1&#39; &#39;12&#39;]</span>
@@ -124,18 +123,18 @@ are identified with sid string. For example:</p>
 <div><p>SNP data can be enormous so generally avoid reading it to the degree practical. Specifically,</p>
 <ul>
 <li><p class="first">Constructing and printing a SnpReader causes no file reading. For example, these commands read no data:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span> <span class="c"># Print the Bed SnpReader specification. No data is read.</span>
-<span class="go">Bed(&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;)</span>
+<span class="go">Bed(&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">subset_on_disk</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="p">[[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],::</span><span class="mi">2</span><span class="p">]</span> <span class="c"># Construct a subsetting SnpReader. No data is read.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">subset_on_disk</span> <span class="c"># print the subset SnpReader. No data is read.</span>
-<span class="go">Bed(&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;)[[3,4],::2]</span>
+<span class="go">Bed(&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;)[[3,4],::2]</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first">Properties and methods related to the iids and sids (to the degree practical) read only iid and sid data from the disk,
 not SNP value data. Moreover, the iid and sid data is read from file only once. Consider these commands:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">sid</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span> <span class="c"># without reading any SNP values data from disk, read the sid and iid data from disk, cache it, and then print the first ten sids.</span>
 <span class="go">[&#39;1_12&#39; &#39;1_34&#39; &#39;1_10&#39; &#39;1_35&#39; &#39;1_28&#39; &#39;1_25&#39; &#39;1_36&#39; &#39;1_39&#39; &#39;1_4&#39; &#39;1_13&#39;]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">sid_to_index</span><span class="p">([</span><span class="s">&#39;1_10&#39;</span><span class="p">,</span><span class="s">&#39;1_13&#39;</span><span class="p">])</span> <span class="c">#use the cached sid information to find the indexes of &#39;1_10&#39; and &#39;1_13&#39;. (No data is read from disk.)</span>
@@ -144,7 +143,7 @@ not SNP value data. Moreover, the iid and sid data is read from file only once. 
 </div>
 </li>
 <li><p class="first">The only methods that read SNP values from file are <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpreader.SnpReader.read" title="pysnptools.pysnptools.snpreader.snpreader.SnpReader.read"><tt class="xref py py-meth docutils literal"><span class="pre">read()</span></tt></a> and <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpreader.SnpReader.kernel" title="pysnptools.pysnptools.snpreader.snpreader.SnpReader.kernel"><tt class="xref py py-meth docutils literal"><span class="pre">kernel()</span></tt></a> (to the degree practical). For example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c">#read all the SNP values from disk, creating a new SnpData instance that keeps these values in memory</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="c"># print the SNP value for the iid with index 0 and the sid with index 2. (No data is read from disk.)</span>
 <span class="go">1.0</span>
@@ -153,7 +152,7 @@ not SNP value data. Moreover, the iid and sid data is read from file only once. 
 </li>
 <li><p class="first">If you request the values for only a subset of the sids or iids, (to the degree practical) only that subset will be read from disk.
 for example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">subset_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)[[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],::</span><span class="mi">2</span><span class="p">]</span> <span class="c"># Construct a subsetting SnpReader. No data is read.</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">subset_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)[[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],::</span><span class="mi">2</span><span class="p">]</span> <span class="c"># Construct a subsetting SnpReader. No data is read.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata_subset</span> <span class="o">=</span> <span class="n">subset_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># from disk, read the SNP values for the iids with index 3 and 4 AND sids with even numbered indexes.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata_subset</span><span class="o">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="c"># print the SNP value with subset iid index 0 and sid index 2 (corresponding to iid index 3 and sid index 4 in the full data). No data is read from disk.</span>
 <span class="go">2.0</span>
@@ -168,7 +167,7 @@ for example:</p>
 (with <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a> property containing a new ndarray of the SNP values). Likewise, when you call the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpreader.SnpReader.kernel" title="pysnptools.pysnptools.snpreader.snpreader.SnpReader.kernel"><tt class="xref py py-meth docutils literal"><span class="pre">kernel()</span></tt></a> method, the SnpReader re-reads
 the data and returns a new kernel ndarray.</p>
 <p>Here is an example of what not to do, because it causes all the SNP value data to be read twice.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c"># Not recommended because it inefficiently reads all the SNP values twice.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="c"># read all values into a new SnpData, print a SNP value</span>
 <span class="go">1.0</span>
@@ -178,7 +177,7 @@ the data and returns a new kernel ndarray.</p>
 </div>
 <p>Here are two efficient alternatives. First, if all SNP values can all fit in memory, read them once into a <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt> and then
 access that <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt> multiple times.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># read all values into a new SnpData</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="c"># print a SNP value from snpdata1&#39;s in-memory ndarray</span>
 <span class="go">1.0</span>
@@ -187,7 +186,7 @@ access that <tt class="xref py py-class docutils literal"><span class="pre">SnpD
 </pre></div>
 </div>
 <p>Second, if the SNP value data is too large to fit in memory, use subsetting to read only the SNP values of interest from disk.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="c">#Define the subset of data and read only that subset from disk.</span>
 <span class="go">1.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="c">#Define a second subset of data and read only that subset from disk.</span>
@@ -196,7 +195,7 @@ access that <tt class="xref py py-class docutils literal"><span class="pre">SnpD
 </div>
 <p>Because the in-memory <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData" title="pysnptools.pysnptools.snpreader.snpdata.SnpData"><tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt></a> class is a kind of SnpReader, you may read from it, too.
 Doing so create a new <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData" title="pysnptools.pysnptools.snpreader.snpdata.SnpData"><tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt></a> instance containing a copy of the SNP values in a new ndarray.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># read all SNP values from disk into a new SnpData</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span> <span class="ow">is</span> <span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span> <span class="c"># Do the in-memory SNP values use the same memory as themselves? Yes</span>
 <span class="go">True</span>
@@ -215,12 +214,11 @@ the defaults of &#8220;view_ok=False,order=&#8217;F&#8217;&#8221; with &#8220;vi
 Use these parameters with care because any change to either ndarray (for example, via <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize"><tt class="xref py py-meth docutils literal"><span class="pre">SnpData.standardize()</span></tt></a>) will effect
 the others. Also keep in mind that <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpreader.SnpReader.read" title="pysnptools.pysnptools.snpreader.snpreader.SnpReader.read"><tt class="xref py py-meth docutils literal"><span class="pre">read()</span></tt></a> relies on ndarray&#8217;s mechanisms to decide whether to actually
 share memory and so it may ignore your suggestion and allocate a new ndarray anyway.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Construct a Bed SnpReader. No data is read.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># read all data from disk into a SnpData with a new ndarray</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">column01</span> <span class="o">=</span> <span class="n">snpdata1</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">view_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s">&#39;A&#39;</span><span class="p">)</span> <span class="c">#create SnpData with the data from just the first two SNPs. Sharing memory is OK. The memory may be laid out in any order (that is sid-major and iid-major are both OK).</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">SP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">SP</span><span class="o">.</span><span class="n">may_share_memory</span><span class="p">(</span><span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="n">column01</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># Do the two ndarray&#39;s share memory? Yes</span>
-<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c">#print SP.may_share_memory(snpdata1.val, column01.val) # Do the two ndarray&#39;s share memory? They could (but currently they won&#39;t)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">column201</span> <span class="o">=</span> <span class="n">snpdata1</span><span class="p">[:,[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">view_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s">&#39;A&#39;</span><span class="p">)</span> <span class="c">#create SnpData with the data from three SNPs, permuted. Sharing memory is OK.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">SP</span><span class="o">.</span><span class="n">may_share_memory</span><span class="p">(</span><span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="n">column201</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># Do the two ndarray&#39;s share memory? No, ndarray decided that this indexing was too complex for sharing.</span>
 <span class="go">False</span>
@@ -233,7 +231,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 will read only the SNP values of interest.</p>
 <p>SnpReaders support the indexing formats supported by ndarray plus two generalizations. Here are examples of indexing with an array
 of indexes, with slicing, and with an array of Booleans.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">subset_snpreader_1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="p">[[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],:]</span> <span class="c">#index with an array of indexes</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">subset_snpreader_1</span><span class="o">.</span><span class="n">iid_count</span><span class="p">,</span> <span class="n">subset_snpreader_1</span><span class="o">.</span><span class="n">sid_count</span>
 <span class="go">2 1015</span>
@@ -249,14 +247,14 @@ of indexes, with slicing, and with an array of Booleans.</p>
 </div>
 <p>The first generalization over with ndarray offers is full indexing on both the iid dimension and the sid dimension, in other words,
 full multidimensional indexing. For example,</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">subset_snpreader_4</span><span class="o">=</span> <span class="n">snp_on_disk</span><span class="p">[[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],:</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="c"># index on two dimensions at once</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">subset_snpreader_4</span><span class="o">.</span><span class="n">iid_count</span><span class="p">,</span> <span class="n">subset_snpreader_4</span><span class="o">.</span><span class="n">sid_count</span>
 <span class="go">2 507</span>
 </pre></div>
 </div>
 <p>The second generalization is indexing on a single integer index.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">subset_snpreader_5</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="p">[</span><span class="mi">5</span><span class="p">,:]</span> <span class="c">#index with single integer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">subset_snpreader_5</span><span class="o">.</span><span class="n">iid_count</span><span class="p">,</span> <span class="n">subset_snpreader_5</span><span class="o">.</span><span class="n">sid_count</span>
 <span class="go">1 1015</span>
@@ -265,7 +263,7 @@ full multidimensional indexing. For example,</p>
 <p>Indexing is also useful when you have SNP values in memory via a <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt> index and want to copy a subset of those values.
 While you could instead index directly on the <cite>.SnpData.val</cite> ndarray, by indexing on the <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt> instance you
 also get iid and cid information.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># read all SNP values into memory</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata1</span><span class="o">.</span><span class="n">sid</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span> <span class="c"># print the first 10 sids</span>
 <span class="go">[&#39;1_12&#39; &#39;1_34&#39; &#39;1_10&#39; &#39;1_35&#39; &#39;1_28&#39; &#39;1_25&#39; &#39;1_36&#39; &#39;1_39&#39; &#39;1_4&#39; &#39;1_13&#39;]</span>
@@ -277,12 +275,12 @@ also get iid and cid information.</p>
 <p>You can apply indexing on top of indexing to specify subsets of subsets of data to read. In this example, 
 only the SNP values for every 16th sid is actually read from the disk.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="c"># These are just SnpReaders, nothing is read from disk yet</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">half_snpreader</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="p">[:,::</span><span class="mi">2</span><span class="p">]</span> <span class="c"># a reader for half the sids</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">quarter_snpreader</span> <span class="o">=</span> <span class="n">half_snpreader</span><span class="p">[:,::</span><span class="mi">2</span><span class="p">]</span> <span class="c"># a reader for half of half the sids</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sixteenth_snpreader</span> <span class="o">=</span> <span class="n">quarter_snpreader</span><span class="p">[:,::</span><span class="mi">2</span><span class="p">][:,::</span><span class="mi">2</span><span class="p">]</span> <span class="c"># a reader for half of half of half of half the sids</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">sixteenth_snpreader</span> <span class="c">#Print the specification of this reader</span>
-<span class="go">Bed(&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;)[:,::2][:,::2][:,::2][:,::2]</span>
+<span class="go">Bed(&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;)[:,::2][:,::2][:,::2][:,::2]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c"># Now we read from disk. Only values for one sid in every 16 will be read.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata_sixteenth</span> <span class="o">=</span> <span class="n">sixteenth_snpreader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata_sixteenth</span><span class="o">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
@@ -300,14 +298,14 @@ ask for scipy.float32 or for C-contiguous order or any order. See <a class="refe
 SNP data. By default, it applies &#8216;Unit&#8217; standardization, that is: the values for each SNP will have mean zero and standard deviation 1.0.
 Note that, for efficiently, this method works in-place, actually changing values in the ndarray. Although it works in place, for convenience
 it also returns itself. See <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize"><tt class="xref py py-meth docutils literal"><span class="pre">SnpData.standardize()</span></tt></a> for options and details.</p>
-<div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
+<div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># read all SNP values into memory</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata1</span> <span class="c"># Prints the specification for this SnpData</span>
-<span class="go">SnpData(Bed(&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;))</span>
+<span class="go">SnpData(Bed(&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">2.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span><span class="o">.</span><span class="n">standardize</span><span class="p">()</span> <span class="c"># standardize changes the values in snpdata1.val and changes the specification.</span>
-<span class="go">SnpData(Bed(&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;),Unit())</span>
+<span class="go">SnpData(Bed(&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;),Unit())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">0.229415733871</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata2</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">standardize</span><span class="p">()</span> <span class="c"># Read and standardize in one expression with only one ndarray allocated.</span>
@@ -344,7 +342,7 @@ the method can save memory by reading (and standardizing) the data in blocks. Se
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">iid</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="c"># print the first three iids</span>
 <span class="go">[[&#39;POP1&#39; &#39;0&#39;]</span>
 <span class="go"> [&#39;POP1&#39; &#39;12&#39;]</span>
@@ -392,7 +390,7 @@ the method can save memory by reading (and standardizing) the data in blocks. Se
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">iid_to_index</span><span class="p">([[</span><span class="s">&#39;POP1&#39;</span><span class="p">,</span><span class="s">&#39;44&#39;</span><span class="p">],[</span><span class="s">&#39;POP1&#39;</span><span class="p">,</span><span class="s">&#39;12&#39;</span><span class="p">]])</span> <span class="c">#Find the indexes for two iids.</span>
 <span class="go">[2 1]</span>
 </pre></div>
@@ -432,10 +430,10 @@ the method can save memory by reading (and standardizing) the data in blocks. Se
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.standardizer.unit</span> <span class="kn">import</span> <span class="n">Unit</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">kernel</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">Unit</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">kernel</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-<span class="go">(300L, 300L) 901.421835903</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">int</span><span class="p">(</span><span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="n">kernel</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">(300, 300) 901.421835903</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -462,7 +460,7 @@ the method can save memory by reading (and standardizing) the data in blocks. Se
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">pos</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="c"># print position information for the first three sids:</span>
 <span class="go">[[ 1.          0.00800801  0.        ]</span>
 <span class="go"> [ 1.          0.023023    1.        ]</span>
@@ -480,14 +478,18 @@ the method can save memory by reading (and standardizing) the data in blocks. Se
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>order</strong> (<em>string or None</em>) &#8211; {&#8216;F&#8217; (default), &#8216;C&#8217;, &#8216;A&#8217;}, optional &#8211; Specify the order of the ndarray. If order is &#8216;F&#8217; (default), then the array will be in F-contiguous order (iid-index varies the fastest).
-If order is &#8216;C&#8217;, then the returned array will be in C-contiguous order (sid-index varies the fastest). If order is &#8216;A&#8217;, then the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>
+<li><strong>order</strong> (<em>string or None</em>) &#8211; {&#8216;F&#8217; (default), &#8216;C&#8217;, &#8216;A&#8217;}, optional &#8211; Specify the order of the ndarray. If order is &#8216;F&#8217; (default),
+then the array will be in F-contiguous order (iid-index varies the fastest).
+If order is &#8216;C&#8217;, then the returned array will be in C-contiguous order (sid-index varies the fastest).
+If order is &#8216;A&#8217;, then the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>
 ndarray may be in any order (either C-, Fortran-contiguous, or even discontiguous).</li>
 <li><strong>dtype</strong> (<em>data-type</em>) &#8211; {scipy.float64 (default), scipy.float32}, optional &#8211; The data-type for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a> ndarray.</li>
-<li><strong>force_python_only</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), may use outside library code. If True, requests that the read be done without outside library code.</li>
-<li><strong>view_ok</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), allocates new memory for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>&#8216;s ndarray. If True, if practical and reading from a <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>, will return a new 
+<li><strong>force_python_only</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), may use outside library code. If True, requests that the read
+be done without outside library code.</li>
+<li><strong>view_ok</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), allocates new memory for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>&#8216;s ndarray. If True,
+if practical and reading from a <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>, will return a new 
 <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt> with a ndarray shares memory with the original <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>.
-Typicality, you&#8217;ll also wish to use &#8220;order=&#8217;A&#8217;&#8221; to increase the chance that sharing will be possible.
+Typically, you&#8217;ll also wish to use &#8220;order=&#8217;A&#8217;&#8221; to increase the chance that sharing will be possible.
 Use these parameters with care because any change to either ndarray (for example, via <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize"><tt class="xref py py-meth docutils literal"><span class="pre">SnpData.standardize()</span></tt></a>) will effect
 the others. Also keep in mind that <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpreader.SnpReader.read" title="pysnptools.pysnptools.snpreader.snpreader.SnpReader.read"><tt class="xref py py-meth docutils literal"><span class="pre">read()</span></tt></a> relies on ndarray&#8217;s mechanisms to decide whether to actually
 share memory and so it may ignore your suggestion and allocate a new ndarray anyway.</li>
@@ -510,7 +512,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># Read all the SNP data returning a SnpData instance</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="nb">type</span><span class="p">(</span><span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># The SnpData instance contains a ndarray of the data.</span>
 <span class="go">&lt;type &#39;numpy.ndarray&#39;&gt;</span>
@@ -519,8 +521,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 <span class="go">2.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">subsub_snpdata</span> <span class="o">=</span> <span class="n">subset_snpdata</span><span class="p">[:</span><span class="mi">10</span><span class="p">,:]</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s">&#39;A&#39;</span><span class="p">,</span><span class="n">view_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="c"># Create an in-memory subset of the subset with SNP values for the first ten iids. Share memory if practical.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">SP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">SP</span><span class="o">.</span><span class="n">may_share_memory</span><span class="p">(</span><span class="n">subset_snpdata</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="n">subsub_snpdata</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># Do the two ndarray&#39;s share memory? Yes</span>
-<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># print SP.may_share_memory(subset_snpdata.val, subsub_snpdata.val) # Do the two ndarray&#39;s share memory? They could. Currently they won&#39;t.       </span>
 </pre></div>
 </div>
 </dd></dl>
@@ -547,7 +548,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">sid</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span> <span class="c"># print the first ten sids</span>
 <span class="go">[&#39;1_12&#39; &#39;1_34&#39; &#39;1_10&#39; &#39;1_35&#39; &#39;1_28&#39; &#39;1_25&#39; &#39;1_36&#39; &#39;1_39&#39; &#39;1_4&#39; &#39;1_13&#39;]</span>
 </pre></div>
@@ -593,7 +594,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">sid_to_index</span><span class="p">([</span><span class="s">&#39;1_10&#39;</span><span class="p">,</span><span class="s">&#39;1_13&#39;</span><span class="p">])</span> <span class="c">#Find the indexes for two sids.</span>
 <span class="go">[2 9]</span>
 </pre></div>
@@ -663,7 +664,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">iid_to_index</span><span class="p">([[</span><span class="s">&#39;POP1&#39;</span><span class="p">,</span><span class="s">&#39;44&#39;</span><span class="p">],[</span><span class="s">&#39;POP1&#39;</span><span class="p">,</span><span class="s">&#39;12&#39;</span><span class="p">]])</span> <span class="c">#Find the indexes for two iids.</span>
 <span class="go">[2 1]</span>
 </pre></div>
@@ -703,10 +704,10 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.standardizer.unit</span> <span class="kn">import</span> <span class="n">Unit</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">kernel</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">Unit</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">kernel</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-<span class="go">(300L, 300L) 901.421835903</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">int</span><span class="p">(</span><span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="n">kernel</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">(300, 300) 901.421835903</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -726,14 +727,18 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>order</strong> (<em>string or None</em>) &#8211; {&#8216;F&#8217; (default), &#8216;C&#8217;, &#8216;A&#8217;}, optional &#8211; Specify the order of the ndarray. If order is &#8216;F&#8217; (default), then the array will be in F-contiguous order (iid-index varies the fastest).
-If order is &#8216;C&#8217;, then the returned array will be in C-contiguous order (sid-index varies the fastest). If order is &#8216;A&#8217;, then the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>
+<li><strong>order</strong> (<em>string or None</em>) &#8211; {&#8216;F&#8217; (default), &#8216;C&#8217;, &#8216;A&#8217;}, optional &#8211; Specify the order of the ndarray. If order is &#8216;F&#8217; (default),
+then the array will be in F-contiguous order (iid-index varies the fastest).
+If order is &#8216;C&#8217;, then the returned array will be in C-contiguous order (sid-index varies the fastest).
+If order is &#8216;A&#8217;, then the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>
 ndarray may be in any order (either C-, Fortran-contiguous, or even discontiguous).</li>
 <li><strong>dtype</strong> (<em>data-type</em>) &#8211; {scipy.float64 (default), scipy.float32}, optional &#8211; The data-type for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a> ndarray.</li>
-<li><strong>force_python_only</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), may use outside library code. If True, requests that the read be done without outside library code.</li>
-<li><strong>view_ok</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), allocates new memory for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>&#8216;s ndarray. If True, if practical and reading from a <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>, will return a new 
+<li><strong>force_python_only</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), may use outside library code. If True, requests that the read
+be done without outside library code.</li>
+<li><strong>view_ok</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), allocates new memory for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>&#8216;s ndarray. If True,
+if practical and reading from a <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>, will return a new 
 <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt> with a ndarray shares memory with the original <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>.
-Typicality, you&#8217;ll also wish to use &#8220;order=&#8217;A&#8217;&#8221; to increase the chance that sharing will be possible.
+Typically, you&#8217;ll also wish to use &#8220;order=&#8217;A&#8217;&#8221; to increase the chance that sharing will be possible.
 Use these parameters with care because any change to either ndarray (for example, via <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize"><tt class="xref py py-meth docutils literal"><span class="pre">SnpData.standardize()</span></tt></a>) will effect
 the others. Also keep in mind that <a class="reference internal" href="#pysnptools.pysnptools.snpreader.bed.Bed.read" title="pysnptools.pysnptools.snpreader.bed.Bed.read"><tt class="xref py py-meth docutils literal"><span class="pre">read()</span></tt></a> relies on ndarray&#8217;s mechanisms to decide whether to actually
 share memory and so it may ignore your suggestion and allocate a new ndarray anyway.</li>
@@ -756,7 +761,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># Read all the SNP data returning a SnpData instance</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="nb">type</span><span class="p">(</span><span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># The SnpData instance contains a ndarray of the data.</span>
 <span class="go">&lt;type &#39;numpy.ndarray&#39;&gt;</span>
@@ -765,8 +770,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 <span class="go">2.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">subsub_snpdata</span> <span class="o">=</span> <span class="n">subset_snpdata</span><span class="p">[:</span><span class="mi">10</span><span class="p">,:]</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s">&#39;A&#39;</span><span class="p">,</span><span class="n">view_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="c"># Create an in-memory subset of the subset with SNP values for the first ten iids. Share memory if practical.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">SP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">SP</span><span class="o">.</span><span class="n">may_share_memory</span><span class="p">(</span><span class="n">subset_snpdata</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="n">subsub_snpdata</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># Do the two ndarray&#39;s share memory? Yes</span>
-<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># print SP.may_share_memory(subset_snpdata.val, subsub_snpdata.val) # Do the two ndarray&#39;s share memory? They could. Currently they won&#39;t.       </span>
 </pre></div>
 </div>
 </dd></dl>
@@ -816,7 +820,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">sid_to_index</span><span class="p">([</span><span class="s">&#39;1_10&#39;</span><span class="p">,</span><span class="s">&#39;1_13&#39;</span><span class="p">])</span> <span class="c">#Find the indexes for two sids.</span>
 <span class="go">[2 9]</span>
 </pre></div>
@@ -830,7 +834,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 <span id="snpreader-snpdata"></span><h3><tt class="xref py py-mod docutils literal"><span class="pre">snpreader.snpdata</span></tt><a class="headerlink" href="#module-pysnptools.pysnptools.snpreader.snpdata" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="pysnptools.pysnptools.snpreader.snpdata.SnpData">
-<em class="property">class </em><tt class="descclassname">pysnptools.pysnptools.snpreader.snpdata.</tt><tt class="descname">SnpData</tt><big>(</big><em>parent</em>, <em>val</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pysnptools.pysnptools.snpreader.snpdata.</tt><tt class="descname">SnpData</tt><big>(</big><em>iid</em>, <em>sid</em>, <em>pos</em>, <em>val</em>, <em>parent_string=''</em>, <em>copyinputs_function=None</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is a class hold SNP values in-memory along with related iid and sid information.
 It is created by calling the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpreader.SnpReader.read" title="pysnptools.pysnptools.snpreader.snpreader.SnpReader.read"><tt class="xref py py-meth docutils literal"><span class="pre">SnpReader.read()</span></tt></a> method on another <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpreader.SnpReader" title="pysnptools.pysnptools.snpreader.snpreader.SnpReader"><tt class="xref py py-class docutils literal"><span class="pre">SnpReader</span></tt></a>, for example, <a class="reference internal" href="#pysnptools.pysnptools.snpreader.bed.Bed" title="pysnptools.pysnptools.snpreader.bed.Bed"><tt class="xref py py-class docutils literal"><span class="pre">Bed</span></tt></a>.</p>
 <p>See <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpreader.SnpReader" title="pysnptools.pysnptools.snpreader.snpreader.SnpReader"><tt class="xref py py-class docutils literal"><span class="pre">SnpReader</span></tt></a> for details and examples.</p>
@@ -880,7 +884,7 @@ It is created by calling the <a class="reference internal" href="#pysnptools.pys
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">iid_to_index</span><span class="p">([[</span><span class="s">&#39;POP1&#39;</span><span class="p">,</span><span class="s">&#39;44&#39;</span><span class="p">],[</span><span class="s">&#39;POP1&#39;</span><span class="p">,</span><span class="s">&#39;12&#39;</span><span class="p">]])</span> <span class="c">#Find the indexes for two iids.</span>
 <span class="go">[2 1]</span>
 </pre></div>
@@ -909,14 +913,18 @@ It is created by calling the <a class="reference internal" href="#pysnptools.pys
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>order</strong> (<em>string or None</em>) &#8211; {&#8216;F&#8217; (default), &#8216;C&#8217;, &#8216;A&#8217;}, optional &#8211; Specify the order of the ndarray. If order is &#8216;F&#8217; (default), then the array will be in F-contiguous order (iid-index varies the fastest).
-If order is &#8216;C&#8217;, then the returned array will be in C-contiguous order (sid-index varies the fastest). If order is &#8216;A&#8217;, then the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>
+<li><strong>order</strong> (<em>string or None</em>) &#8211; {&#8216;F&#8217; (default), &#8216;C&#8217;, &#8216;A&#8217;}, optional &#8211; Specify the order of the ndarray. If order is &#8216;F&#8217; (default),
+then the array will be in F-contiguous order (iid-index varies the fastest).
+If order is &#8216;C&#8217;, then the returned array will be in C-contiguous order (sid-index varies the fastest).
+If order is &#8216;A&#8217;, then the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>
 ndarray may be in any order (either C-, Fortran-contiguous, or even discontiguous).</li>
 <li><strong>dtype</strong> (<em>data-type</em>) &#8211; {scipy.float64 (default), scipy.float32}, optional &#8211; The data-type for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a> ndarray.</li>
-<li><strong>force_python_only</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), may use outside library code. If True, requests that the read be done without outside library code.</li>
-<li><strong>view_ok</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), allocates new memory for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>&#8216;s ndarray. If True, if practical and reading from a <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData" title="pysnptools.pysnptools.snpreader.snpdata.SnpData"><tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt></a>, will return a new 
+<li><strong>force_python_only</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), may use outside library code. If True, requests that the read
+be done without outside library code.</li>
+<li><strong>view_ok</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), allocates new memory for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>&#8216;s ndarray. If True,
+if practical and reading from a <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData" title="pysnptools.pysnptools.snpreader.snpdata.SnpData"><tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt></a>, will return a new 
 <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData" title="pysnptools.pysnptools.snpreader.snpdata.SnpData"><tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt></a> with a ndarray shares memory with the original <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData" title="pysnptools.pysnptools.snpreader.snpdata.SnpData"><tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt></a>.
-Typicality, you&#8217;ll also wish to use &#8220;order=&#8217;A&#8217;&#8221; to increase the chance that sharing will be possible.
+Typically, you&#8217;ll also wish to use &#8220;order=&#8217;A&#8217;&#8221; to increase the chance that sharing will be possible.
 Use these parameters with care because any change to either ndarray (for example, via <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize"><tt class="xref py py-meth docutils literal"><span class="pre">SnpData.standardize()</span></tt></a>) will effect
 the others. Also keep in mind that <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.read" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.read"><tt class="xref py py-meth docutils literal"><span class="pre">read()</span></tt></a> relies on ndarray&#8217;s mechanisms to decide whether to actually
 share memory and so it may ignore your suggestion and allocate a new ndarray anyway.</li>
@@ -939,7 +947,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># Read all the SNP data returning a SnpData instance</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="nb">type</span><span class="p">(</span><span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># The SnpData instance contains a ndarray of the data.</span>
 <span class="go">&lt;type &#39;numpy.ndarray&#39;&gt;</span>
@@ -948,8 +956,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 <span class="go">2.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">subsub_snpdata</span> <span class="o">=</span> <span class="n">subset_snpdata</span><span class="p">[:</span><span class="mi">10</span><span class="p">,:]</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s">&#39;A&#39;</span><span class="p">,</span><span class="n">view_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="c"># Create an in-memory subset of the subset with SNP values for the first ten iids. Share memory if practical.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">SP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">SP</span><span class="o">.</span><span class="n">may_share_memory</span><span class="p">(</span><span class="n">subset_snpdata</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="n">subsub_snpdata</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># Do the two ndarray&#39;s share memory? Yes</span>
-<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># print SP.may_share_memory(subset_snpdata.val, subsub_snpdata.val) # Do the two ndarray&#39;s share memory? They could. Currently they won&#39;t.       </span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1000,7 +1007,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">sid_to_index</span><span class="p">([</span><span class="s">&#39;1_10&#39;</span><span class="p">,</span><span class="s">&#39;1_13&#39;</span><span class="p">])</span> <span class="c">#Find the indexes for two sids.</span>
 <span class="go">[2 9]</span>
 </pre></div>
@@ -1032,14 +1039,14 @@ standard deviation 1.0), <a class="reference internal" href="#pysnptools.pysnpto
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify some data on disk in Bed format</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># read all SNP values into memory</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata1</span> <span class="c"># Prints the specification for this SnpData</span>
-<span class="go">SnpData(Bed(&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;))</span>
+<span class="go">SnpData(Bed(&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">2.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span><span class="o">.</span><span class="n">standardize</span><span class="p">()</span> <span class="c"># standardize changes the values in snpdata1.val and changes the specification.</span>
-<span class="go">SnpData(Bed(&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;),Unit())</span>
+<span class="go">SnpData(Bed(&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;),Unit())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">0.229415733871</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata2</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">standardize</span><span class="p">()</span> <span class="c"># Read and standardize in one expression with only one ndarray allocated.</span>
@@ -1064,7 +1071,7 @@ standard deviation 1.0), <a class="reference internal" href="#pysnptools.pysnpto
 <dl class="class">
 <dt id="pysnptools.pysnptools.snpreader.ped.Ped">
 <em class="property">class </em><tt class="descclassname">pysnptools.pysnptools.snpreader.ped.</tt><tt class="descname">Ped</tt><big>(</big><em>basefilename</em>, <em>missing='0'</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.snpreader.ped.Ped" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is a class that does a Ped file. For examples of its use see its &#8216;read&#8217; method. #!!!cmk05192014 LATER update comments</p>
+<dd><p>This is a class that does a Ped file. For examples of its use see its &#8216;read&#8217; method. #!!LATER update comments</p>
 <dl class="attribute">
 <dt id="pysnptools.pysnptools.snpreader.ped.Ped.iid">
 <tt class="descname">iid</tt><a class="headerlink" href="#pysnptools.pysnptools.snpreader.ped.Ped.iid" title="Permalink to this definition">¶</a></dt>
@@ -1109,7 +1116,7 @@ standard deviation 1.0), <a class="reference internal" href="#pysnptools.pysnpto
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">iid_to_index</span><span class="p">([[</span><span class="s">&#39;POP1&#39;</span><span class="p">,</span><span class="s">&#39;44&#39;</span><span class="p">],[</span><span class="s">&#39;POP1&#39;</span><span class="p">,</span><span class="s">&#39;12&#39;</span><span class="p">]])</span> <span class="c">#Find the indexes for two iids.</span>
 <span class="go">[2 1]</span>
 </pre></div>
@@ -1149,10 +1156,10 @@ standard deviation 1.0), <a class="reference internal" href="#pysnptools.pysnpto
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.standardizer.unit</span> <span class="kn">import</span> <span class="n">Unit</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">kernel</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">Unit</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">kernel</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-<span class="go">(300L, 300L) 901.421835903</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">int</span><span class="p">(</span><span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="n">kernel</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">(300, 300) 901.421835903</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1171,14 +1178,18 @@ standard deviation 1.0), <a class="reference internal" href="#pysnptools.pysnpto
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>order</strong> (<em>string or None</em>) &#8211; {&#8216;F&#8217; (default), &#8216;C&#8217;, &#8216;A&#8217;}, optional &#8211; Specify the order of the ndarray. If order is &#8216;F&#8217; (default), then the array will be in F-contiguous order (iid-index varies the fastest).
-If order is &#8216;C&#8217;, then the returned array will be in C-contiguous order (sid-index varies the fastest). If order is &#8216;A&#8217;, then the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>
+<li><strong>order</strong> (<em>string or None</em>) &#8211; {&#8216;F&#8217; (default), &#8216;C&#8217;, &#8216;A&#8217;}, optional &#8211; Specify the order of the ndarray. If order is &#8216;F&#8217; (default),
+then the array will be in F-contiguous order (iid-index varies the fastest).
+If order is &#8216;C&#8217;, then the returned array will be in C-contiguous order (sid-index varies the fastest).
+If order is &#8216;A&#8217;, then the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>
 ndarray may be in any order (either C-, Fortran-contiguous, or even discontiguous).</li>
 <li><strong>dtype</strong> (<em>data-type</em>) &#8211; {scipy.float64 (default), scipy.float32}, optional &#8211; The data-type for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a> ndarray.</li>
-<li><strong>force_python_only</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), may use outside library code. If True, requests that the read be done without outside library code.</li>
-<li><strong>view_ok</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), allocates new memory for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>&#8216;s ndarray. If True, if practical and reading from a <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>, will return a new 
+<li><strong>force_python_only</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), may use outside library code. If True, requests that the read
+be done without outside library code.</li>
+<li><strong>view_ok</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), allocates new memory for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>&#8216;s ndarray. If True,
+if practical and reading from a <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>, will return a new 
 <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt> with a ndarray shares memory with the original <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>.
-Typicality, you&#8217;ll also wish to use &#8220;order=&#8217;A&#8217;&#8221; to increase the chance that sharing will be possible.
+Typically, you&#8217;ll also wish to use &#8220;order=&#8217;A&#8217;&#8221; to increase the chance that sharing will be possible.
 Use these parameters with care because any change to either ndarray (for example, via <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize"><tt class="xref py py-meth docutils literal"><span class="pre">SnpData.standardize()</span></tt></a>) will effect
 the others. Also keep in mind that <a class="reference internal" href="#pysnptools.pysnptools.snpreader.ped.Ped.read" title="pysnptools.pysnptools.snpreader.ped.Ped.read"><tt class="xref py py-meth docutils literal"><span class="pre">read()</span></tt></a> relies on ndarray&#8217;s mechanisms to decide whether to actually
 share memory and so it may ignore your suggestion and allocate a new ndarray anyway.</li>
@@ -1201,7 +1212,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># Read all the SNP data returning a SnpData instance</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="nb">type</span><span class="p">(</span><span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># The SnpData instance contains a ndarray of the data.</span>
 <span class="go">&lt;type &#39;numpy.ndarray&#39;&gt;</span>
@@ -1210,8 +1221,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 <span class="go">2.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">subsub_snpdata</span> <span class="o">=</span> <span class="n">subset_snpdata</span><span class="p">[:</span><span class="mi">10</span><span class="p">,:]</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s">&#39;A&#39;</span><span class="p">,</span><span class="n">view_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="c"># Create an in-memory subset of the subset with SNP values for the first ten iids. Share memory if practical.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">SP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">SP</span><span class="o">.</span><span class="n">may_share_memory</span><span class="p">(</span><span class="n">subset_snpdata</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="n">subsub_snpdata</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># Do the two ndarray&#39;s share memory? Yes</span>
-<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># print SP.may_share_memory(subset_snpdata.val, subsub_snpdata.val) # Do the two ndarray&#39;s share memory? They could. Currently they won&#39;t.       </span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1265,7 +1275,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">sid_to_index</span><span class="p">([</span><span class="s">&#39;1_10&#39;</span><span class="p">,</span><span class="s">&#39;1_13&#39;</span><span class="p">])</span> <span class="c">#Find the indexes for two sids.</span>
 <span class="go">[2 9]</span>
 </pre></div>
@@ -1335,7 +1345,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">iid_to_index</span><span class="p">([[</span><span class="s">&#39;POP1&#39;</span><span class="p">,</span><span class="s">&#39;44&#39;</span><span class="p">],[</span><span class="s">&#39;POP1&#39;</span><span class="p">,</span><span class="s">&#39;12&#39;</span><span class="p">]])</span> <span class="c">#Find the indexes for two iids.</span>
 <span class="go">[2 1]</span>
 </pre></div>
@@ -1375,10 +1385,10 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.standardizer.unit</span> <span class="kn">import</span> <span class="n">Unit</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">kernel</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">Unit</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">kernel</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-<span class="go">(300L, 300L) 901.421835903</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">int</span><span class="p">(</span><span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="n">kernel</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">(300, 300) 901.421835903</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1407,14 +1417,18 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>order</strong> (<em>string or None</em>) &#8211; {&#8216;F&#8217; (default), &#8216;C&#8217;, &#8216;A&#8217;}, optional &#8211; Specify the order of the ndarray. If order is &#8216;F&#8217; (default), then the array will be in F-contiguous order (iid-index varies the fastest).
-If order is &#8216;C&#8217;, then the returned array will be in C-contiguous order (sid-index varies the fastest). If order is &#8216;A&#8217;, then the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>
+<li><strong>order</strong> (<em>string or None</em>) &#8211; {&#8216;F&#8217; (default), &#8216;C&#8217;, &#8216;A&#8217;}, optional &#8211; Specify the order of the ndarray. If order is &#8216;F&#8217; (default),
+then the array will be in F-contiguous order (iid-index varies the fastest).
+If order is &#8216;C&#8217;, then the returned array will be in C-contiguous order (sid-index varies the fastest).
+If order is &#8216;A&#8217;, then the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>
 ndarray may be in any order (either C-, Fortran-contiguous, or even discontiguous).</li>
 <li><strong>dtype</strong> (<em>data-type</em>) &#8211; {scipy.float64 (default), scipy.float32}, optional &#8211; The data-type for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a> ndarray.</li>
-<li><strong>force_python_only</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), may use outside library code. If True, requests that the read be done without outside library code.</li>
-<li><strong>view_ok</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), allocates new memory for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>&#8216;s ndarray. If True, if practical and reading from a <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>, will return a new 
+<li><strong>force_python_only</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), may use outside library code. If True, requests that the read
+be done without outside library code.</li>
+<li><strong>view_ok</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), allocates new memory for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>&#8216;s ndarray. If True,
+if practical and reading from a <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>, will return a new 
 <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt> with a ndarray shares memory with the original <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>.
-Typicality, you&#8217;ll also wish to use &#8220;order=&#8217;A&#8217;&#8221; to increase the chance that sharing will be possible.
+Typically, you&#8217;ll also wish to use &#8220;order=&#8217;A&#8217;&#8221; to increase the chance that sharing will be possible.
 Use these parameters with care because any change to either ndarray (for example, via <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize"><tt class="xref py py-meth docutils literal"><span class="pre">SnpData.standardize()</span></tt></a>) will effect
 the others. Also keep in mind that <a class="reference internal" href="#pysnptools.pysnptools.snpreader.dat.Dat.read" title="pysnptools.pysnptools.snpreader.dat.Dat.read"><tt class="xref py py-meth docutils literal"><span class="pre">read()</span></tt></a> relies on ndarray&#8217;s mechanisms to decide whether to actually
 share memory and so it may ignore your suggestion and allocate a new ndarray anyway.</li>
@@ -1437,7 +1451,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># Read all the SNP data returning a SnpData instance</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="nb">type</span><span class="p">(</span><span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># The SnpData instance contains a ndarray of the data.</span>
 <span class="go">&lt;type &#39;numpy.ndarray&#39;&gt;</span>
@@ -1446,8 +1460,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 <span class="go">2.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">subsub_snpdata</span> <span class="o">=</span> <span class="n">subset_snpdata</span><span class="p">[:</span><span class="mi">10</span><span class="p">,:]</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s">&#39;A&#39;</span><span class="p">,</span><span class="n">view_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="c"># Create an in-memory subset of the subset with SNP values for the first ten iids. Share memory if practical.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">SP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">SP</span><span class="o">.</span><span class="n">may_share_memory</span><span class="p">(</span><span class="n">subset_snpdata</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="n">subsub_snpdata</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># Do the two ndarray&#39;s share memory? Yes</span>
-<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># print SP.may_share_memory(subset_snpdata.val, subsub_snpdata.val) # Do the two ndarray&#39;s share memory? They could. Currently they won&#39;t.       </span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1501,7 +1514,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">sid_to_index</span><span class="p">([</span><span class="s">&#39;1_10&#39;</span><span class="p">,</span><span class="s">&#39;1_13&#39;</span><span class="p">])</span> <span class="c">#Find the indexes for two sids.</span>
 <span class="go">[2 9]</span>
 </pre></div>
@@ -1575,7 +1588,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">iid_to_index</span><span class="p">([[</span><span class="s">&#39;POP1&#39;</span><span class="p">,</span><span class="s">&#39;44&#39;</span><span class="p">],[</span><span class="s">&#39;POP1&#39;</span><span class="p">,</span><span class="s">&#39;12&#39;</span><span class="p">]])</span> <span class="c">#Find the indexes for two iids.</span>
 <span class="go">[2 1]</span>
 </pre></div>
@@ -1620,10 +1633,10 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.standardizer.unit</span> <span class="kn">import</span> <span class="n">Unit</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">kernel</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">Unit</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">kernel</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-<span class="go">(300L, 300L) 901.421835903</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">int</span><span class="p">(</span><span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="n">kernel</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">(300, 300) 901.421835903</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1642,14 +1655,18 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>order</strong> (<em>string or None</em>) &#8211; {&#8216;F&#8217; (default), &#8216;C&#8217;, &#8216;A&#8217;}, optional &#8211; Specify the order of the ndarray. If order is &#8216;F&#8217; (default), then the array will be in F-contiguous order (iid-index varies the fastest).
-If order is &#8216;C&#8217;, then the returned array will be in C-contiguous order (sid-index varies the fastest). If order is &#8216;A&#8217;, then the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>
+<li><strong>order</strong> (<em>string or None</em>) &#8211; {&#8216;F&#8217; (default), &#8216;C&#8217;, &#8216;A&#8217;}, optional &#8211; Specify the order of the ndarray. If order is &#8216;F&#8217; (default),
+then the array will be in F-contiguous order (iid-index varies the fastest).
+If order is &#8216;C&#8217;, then the returned array will be in C-contiguous order (sid-index varies the fastest).
+If order is &#8216;A&#8217;, then the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>
 ndarray may be in any order (either C-, Fortran-contiguous, or even discontiguous).</li>
 <li><strong>dtype</strong> (<em>data-type</em>) &#8211; {scipy.float64 (default), scipy.float32}, optional &#8211; The data-type for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a> ndarray.</li>
-<li><strong>force_python_only</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), may use outside library code. If True, requests that the read be done without outside library code.</li>
-<li><strong>view_ok</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), allocates new memory for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>&#8216;s ndarray. If True, if practical and reading from a <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>, will return a new 
+<li><strong>force_python_only</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), may use outside library code. If True, requests that the read
+be done without outside library code.</li>
+<li><strong>view_ok</strong> (<em>bool</em>) &#8211; optional &#8211; If False (default), allocates new memory for the <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.val" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.val"><tt class="xref py py-attr docutils literal"><span class="pre">SnpData.val</span></tt></a>&#8216;s ndarray. If True,
+if practical and reading from a <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>, will return a new 
 <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt> with a ndarray shares memory with the original <tt class="xref py py-class docutils literal"><span class="pre">SnpData</span></tt>.
-Typicality, you&#8217;ll also wish to use &#8220;order=&#8217;A&#8217;&#8221; to increase the chance that sharing will be possible.
+Typically, you&#8217;ll also wish to use &#8220;order=&#8217;A&#8217;&#8221; to increase the chance that sharing will be possible.
 Use these parameters with care because any change to either ndarray (for example, via <a class="reference internal" href="#pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize" title="pysnptools.pysnptools.snpreader.snpdata.SnpData.standardize"><tt class="xref py py-meth docutils literal"><span class="pre">SnpData.standardize()</span></tt></a>) will effect
 the others. Also keep in mind that <a class="reference internal" href="#pysnptools.pysnptools.snpreader.hdf5.Hdf5.read" title="pysnptools.pysnptools.snpreader.hdf5.Hdf5.read"><tt class="xref py py-meth docutils literal"><span class="pre">read()</span></tt></a> relies on ndarray&#8217;s mechanisms to decide whether to actually
 share memory and so it may ignore your suggestion and allocate a new ndarray anyway.</li>
@@ -1672,7 +1689,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpdata1</span> <span class="o">=</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c"># Read all the SNP data returning a SnpData instance</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="nb">type</span><span class="p">(</span><span class="n">snpdata1</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># The SnpData instance contains a ndarray of the data.</span>
 <span class="go">&lt;type &#39;numpy.ndarray&#39;&gt;</span>
@@ -1681,8 +1698,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 <span class="go">2.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">subsub_snpdata</span> <span class="o">=</span> <span class="n">subset_snpdata</span><span class="p">[:</span><span class="mi">10</span><span class="p">,:]</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s">&#39;A&#39;</span><span class="p">,</span><span class="n">view_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="c"># Create an in-memory subset of the subset with SNP values for the first ten iids. Share memory if practical.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">SP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">SP</span><span class="o">.</span><span class="n">may_share_memory</span><span class="p">(</span><span class="n">subset_snpdata</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="n">subsub_snpdata</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="c"># Do the two ndarray&#39;s share memory? Yes</span>
-<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># print SP.may_share_memory(subset_snpdata.val, subsub_snpdata.val) # Do the two ndarray&#39;s share memory? They could. Currently they won&#39;t.       </span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1741,7 +1757,7 @@ share memory and so it may ignore your suggestion and allocate a new ndarray any
 </tbody>
 </table>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.pysnptools.snpreader.bed</span> <span class="kn">import</span> <span class="n">Bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snp_on_disk</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">)</span> <span class="c"># Specify SNP data on disk</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">snp_on_disk</span><span class="o">.</span><span class="n">sid_to_index</span><span class="p">([</span><span class="s">&#39;1_10&#39;</span><span class="p">,</span><span class="s">&#39;1_13&#39;</span><span class="p">])</span> <span class="c">#Find the indexes for two sids.</span>
 <span class="go">[2 9]</span>
 </pre></div>
@@ -1865,6 +1881,487 @@ Returns: indarr, an array of size N x L, where N is the number of</p>
 contains the index to use (in order) such that all people will be identical and in order
 across all data sets.</div></blockquote>
 <p>If one of the lists=None, it is ignored (but still has values reported in indarr, all equal to -1),</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pysnptools.pysnptools.util.util.sub_matrix">
+<tt class="descclassname">pysnptools.pysnptools.util.util.</tt><tt class="descname">sub_matrix</tt><big>(</big><em>val</em>, <em>iid_index</em>, <em>sid_index</em>, <em>order='F'</em>, <em>dtype=&lt;type 'numpy.float64'&gt;</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.util.sub_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-pysnptools.pysnptools.util.intrangeset">
+<span id="util-intrangeset"></span><h3><tt class="xref py py-mod docutils literal"><span class="pre">util.intrangeset</span></tt><a class="headerlink" href="#module-pysnptools.pysnptools.util.intrangeset" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet">
+<em class="property">class </em><tt class="descclassname">pysnptools.pysnptools.util.intrangeset.</tt><tt class="descname">IntRangeSet</tt><big>(</big><em>*ranges_inputs</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>IntRangeSet is a class for manipulating ranges of integers (including longs) as sets. For example,
+here we take the union of two IntRangeSets:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&quot;100-499,500-1000&quot;</span><span class="p">)</span> <span class="o">|</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&quot;-20,400-600&quot;</span><span class="p">)</span>
+<span class="go">IntRangeSet(&#39;-20,100-1000&#39;)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.add">
+<tt class="descname">add</tt><big>(</big><em>*ranges_inputs</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Union zero or more ranges inputs into the current IntRangeSet.</p>
+<p>These are the same:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">a</span> <span class="pre">|=</span> <span class="pre">b</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">a</span> <span class="pre">+=</span> <span class="pre">b</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">a.add(b)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">a.update(b)</span></tt></li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">|=</span> <span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">a</span>
+<span class="go">IntRangeSet(&#39;0-10&#39;)</span>
+</pre></div>
+</div>
+<p>The &#8216;add&#8217; and &#8216;update&#8217; methods also support unioning multiple ranges inputs,</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&#39;5&#39;</span><span class="p">,</span><span class="s">&#39;100-200&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">a</span>
+<span class="go">IntRangeSet(&#39;0-10,100-200&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all ranges from this IntRangeSet.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-9,12&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">a</span>
+<span class="go">IntRangeSet(&#39;&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a deep copy of a IntRangeSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.count">
+<tt class="descname">count</tt><big>(</big><em>ranges</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of times that the elements of ranges appears in the IntRangeSet. Because IntRangeSet is 
+a set, the number will be either 0 or 1.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;100-110,1000&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&#39;105-107,1000&#39;</span><span class="p">)</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.difference">
+<tt class="descname">difference</tt><big>(</big><em>*ranges_inputs</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.difference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the set difference of a IntRangeSet with zero or more ranges inputs. The original IntRangeSet is not changed.</p>
+<p>These are the same:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">a</span> <span class="pre">-</span> <span class="pre">b</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">a.difference(b)</span></tt></li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="go">IntRangeSet(&#39;0,2-4,6-10&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="s">&#39;3-100&#39;</span>
+<span class="go">IntRangeSet(&#39;0-2&#39;)</span>
+</pre></div>
+</div>
+<p>The &#8216;difference&#8217; method also supports subtracting multiple input ranges</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="s">&#39;3-100&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">IntRangeSet(&#39;0,2&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.difference_update">
+<tt class="descname">difference_update</tt><big>(</big><em>*ranges_inputs</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.difference_update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.discard">
+<tt class="descname">discard</tt><big>(</big><em>*ranges_inputs</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.discard" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.index">
+<tt class="descname">index</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.index" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">a.index(x)</span></tt>, index of the integer element x in a, an IntRangeSet. Raises an IndexError is x not in a.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;100-110,1000&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="mi">110</span><span class="p">)</span>
+<span class="go">10</span>
+</pre></div>
+</div>
+<p>x also can be any ranges input, in which case, an IntRangeSet is returned containing the indexes of all integers in x.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;100-110,1000&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&#39;110,100-102&#39;</span><span class="p">)</span>
+<span class="go">IntRangeSet(&#39;0-2,10&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.intersection">
+<tt class="descname">intersection</tt><big>(</big><em>*ranges_inputs</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.intersection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the intersection of a IntRangeSet and zero or more ranges inputs. The original IntRangeSet is not changed.</p>
+<p>These are the same:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">a</span> <span class="pre">&amp;</span> <span class="pre">b</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">a.intersection(b)</span></tt></li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="s">&#39;3-7&#39;</span>
+<span class="go">IntRangeSet(&#39;3-4,6-7&#39;)</span>
+</pre></div>
+</div>
+<p>The &#8216;intersection&#8217; method also support intersecting multiple ranges inputs,</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="s">&#39;3-7&#39;</span><span class="p">,</span><span class="s">&#39;4-6&#39;</span><span class="p">)</span>
+<span class="go">IntRangeSet(&#39;4,6&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.intersection_update">
+<tt class="descname">intersection_update</tt><big>(</big><em>*ranges_inputs</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.intersection_update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.isdisjoint">
+<tt class="descname">isdisjoint</tt><big>(</big><em>ranges</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.isdisjoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>True exactly when the two sets have no integer elements in common.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;100-110,1000&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">isdisjoint</span><span class="p">(</span><span class="s">&#39;900-2000&#39;</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;100-110,1000&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">isdisjoint</span><span class="p">(</span><span class="s">&#39;1900-2000&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.isempty">
+<tt class="descname">isempty</tt><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.isempty" title="Permalink to this definition">¶</a></dt>
+<dd><p>True exactly when the IntRangeSet is empty.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">()</span><span class="o">.</span><span class="n">isempty</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">isempty</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.issubset">
+<tt class="descname">issubset</tt><big>(</big><em>ranges</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.issubset" title="Permalink to this definition">¶</a></dt>
+<dd><p>True exactly when the IntRangeSet is a subset of the ranges.</p>
+<p>These are the same:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">a</span> <span class="pre">&lt;=</span> <span class="pre">b</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">a.issubset(b)</span></tt></li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="s">&#39;-1-100&#39;</span> <span class="c"># The right-hand can be any ranges input</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Note: By definition, any set is a subset of itself.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.issuperset">
+<tt class="descname">issuperset</tt><big>(</big><em>*ranges_inputs</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.issuperset" title="Permalink to this definition">¶</a></dt>
+<dd><p>True exactly when all the ranges input is a subset of the IntRangeSet.</p>
+<p>These are the same:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">b</span> <span class="pre">in</span> <span class="pre">a</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">a</span> <span class="pre">&gt;=</span> <span class="pre">b</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">a.issuperset(b)</span></tt></li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="mi">3</span> <span class="ow">in</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;4-6&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&#39;6-8&#39;</span> <span class="ow">in</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span> <span class="c"># The left-hand of &#39;in&#39; can be any ranges input</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="s">&#39;6-8&#39;</span> <span class="c"># The right-hand of can be any ranges input</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>The &#8216;issuperset&#8217; method also supports unioning multiple ranges inputs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">issuperset</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">issuperset</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<p>Note: By definition, any set is a superset of itself.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.max">
+<tt class="descname">max</tt><big>(</big><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.max" title="Permalink to this definition">¶</a></dt>
+<dd><p>The largest integer element in the IntRangeSet</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-9,12&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="go">12</span>
+</pre></div>
+</div>
+<p>Note: This is more efficient than max(IntRangeSet(&#8216;0-9,12&#8217;)) because is computed
+in constant time rather than in time linear to the number of integer elements.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.min">
+<tt class="descname">min</tt><big>(</big><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.min" title="Permalink to this definition">¶</a></dt>
+<dd><p>The smallest integer element in the IntRangeSet</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-9,12&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+<p>Note: This is more efficient than <tt class="docutils literal"><span class="pre">min(IntRangeSet('0-9,12'))</span></tt> because is computed
+in constant time rather than in time linear to the number of integer elements.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.pop">
+<tt class="descname">pop</tt><big>(</big><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove and return the largest integer element from the IntRangeSet. Raises KeyError if the IntRangeSet is empty.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">a</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+<span class="go">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">a</span>
+<span class="go">IntRangeSet(&#39;0-4,6-9&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.ranges">
+<tt class="descname">ranges</tt><big>(</big><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.ranges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate, in order, the ranges of a IntRangeSet as (start,last) tuples.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">start</span><span class="p">,</span><span class="n">last</span> <span class="ow">in</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-10,100-200&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ranges</span><span class="p">():</span>
+<span class="gp">... </span>      <span class="k">print</span> <span class="s">&quot;start is {0}, last is {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">last</span><span class="p">)</span>
+<span class="go">start is 0, last is 10</span>
+<span class="go">start is 100, last is 200</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.ranges_len">
+<tt class="descname">ranges_len</tt><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.ranges_len" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of contiguous ranges in the IntRangeSet</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-9,12&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ranges_len</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.remove">
+<tt class="descname">remove</tt><big>(</big><em>*ranges_inputs</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.sum">
+<tt class="descname">sum</tt><big>(</big><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>The sum of the integer elements in the IntRangeSet</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-9,12&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="go">57</span>
+</pre></div>
+</div>
+<p>Note: This is more efficient than <tt class="docutils literal"><span class="pre">sum(IntRangeSet('0-9,12'))</span></tt> because is computed
+in time linear in the number of ranges, rather than integer elements.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.symmetric_difference">
+<tt class="descname">symmetric_difference</tt><big>(</big><em>ranges</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.symmetric_difference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a new IntRangeSet set with elements in either the input IntRangeSet or the input range but not both.</p>
+<p>These are the same:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">a</span> <span class="pre">^</span> <span class="pre">b</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">a.symmetric_difference(b)</span></tt></li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span> <span class="o">^</span> <span class="s">&#39;3-8&#39;</span>
+<span class="go">IntRangeSet(&#39;0-2,5,9-10&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.symmetric_difference_update">
+<tt class="descname">symmetric_difference_update</tt><big>(</big><em>ranges</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.symmetric_difference_update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.union">
+<tt class="descname">union</tt><big>(</big><em>*ranges_inputs</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.union" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the union of a IntRangeSet with zero or more ranges inputs. The original IntRangeSet is not changed.</p>
+<p>These are the same:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">a</span> <span class="pre">|</span> <span class="pre">b</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">a</span> <span class="pre">+</span> <span class="pre">b</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">a.union(b)</span></tt></li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="mi">5</span>
+<span class="go">IntRangeSet(&#39;0-10&#39;)</span>
+</pre></div>
+</div>
+<p>The &#8216;union&#8217; method also support unioning multiple ranges inputs,</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">IntRangeSet</span><span class="p">(</span><span class="s">&#39;0-4,6-10&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="s">&#39;100-200&#39;</span><span class="p">)</span>
+<span class="go">IntRangeSet(&#39;0-10,100-200&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.IntRangeSet.update">
+<tt class="descname">update</tt><big>(</big><em>*ranges_inputs</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.IntRangeSet.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pysnptools.pysnptools.util.intrangeset.TestLoader">
+<em class="property">class </em><tt class="descclassname">pysnptools.pysnptools.util.intrangeset.</tt><tt class="descname">TestLoader</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.TestLoader" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.TestLoader.test_doc">
+<tt class="descname">test_doc</tt><big>(</big><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.TestLoader.test_doc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pysnptools.pysnptools.util.intrangeset.TestLoader.test_int_range_set">
+<tt class="descname">test_int_range_set</tt><big>(</big><big>)</big><a class="headerlink" href="#pysnptools.pysnptools.util.intrangeset.TestLoader.test_int_range_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -2121,6 +2618,7 @@ See __init__.py for specification of interface it implements.</p>
 </li>
 <li><a class="reference internal" href="#module-pysnptools.pysnptools.util"><tt class="docutils literal"><span class="pre">util</span></tt> Module</a><ul>
 <li><a class="reference internal" href="#module-pysnptools.pysnptools.util.util"><tt class="docutils literal"><span class="pre">util.util</span></tt></a></li>
+<li><a class="reference internal" href="#module-pysnptools.pysnptools.util.intrangeset"><tt class="docutils literal"><span class="pre">util.intrangeset</span></tt></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-pysnptools.pysnptools.standardizer"><tt class="docutils literal"><span class="pre">standardizer</span></tt> Module</a><ul>
