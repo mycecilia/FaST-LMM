@@ -16,7 +16,7 @@ class Unit(object):  #IStandardizer
 
 
     def lambdaFactory(self, snps, blocksize=None, force_python_only=False):
-        from pysnptools.pysnptools.snpreader import wrap_plink_parser
+        from pysnptools.snpreader import wrap_plink_parser
         if not force_python_only:
             if snps.dtype == np.float64:
                 if snps.flags['F_CONTIGUOUS'] and (snps.flags["OWNDATA"] or snps.base.nbytes == snps.nbytes):

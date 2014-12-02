@@ -4,7 +4,7 @@ import sys
 import logging
 import time
 from fastlmm.external.pca import PCA
-from pysnptools.pysnptools.snpreader.bed import Bed
+from pysnptools.snpreader.bed import Bed
 
 
 def compute_auto_pcs(snpreader, cutoff=.1, k_values=np.arange(11), output_file_name=None):
@@ -44,7 +44,7 @@ def compute_auto_pcs(snpreader, cutoff=.1, k_values=np.arange(11), output_file_n
 
     #use vertex cut to find just parents
     logging.info("Finding relatedness of all iids")
-    from pysnptools.pysnptools.standardizer.identity import Identity
+    from pysnptools.standardizer.identity import Identity
     rrm = all_std_snpdata.kernel(Identity()) / snpreader.sid_count
     import fastlmm.util.VertexCut as vc
     remove_set = set(vc.VertexCut().work(rrm,cutoff)) #These are the indexes of the IIDs to remove
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     doctest.testmod()
 
     import logging
-    from pysnptools.pysnptools.snpreader.bed import Bed
+    from pysnptools.snpreader.bed import Bed
     from fastlmm.util import compute_auto_pcs
     logging.basicConfig(level=logging.INFO)
     #file_name = "../../tests/datasets/mouse/alldata"

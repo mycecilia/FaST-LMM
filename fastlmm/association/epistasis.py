@@ -1,12 +1,13 @@
 from fastlmm.util.runner import *
 import logging
 import fastlmm.pyplink.plink as plink
-import pysnptools.pysnptools.util.util as srutil
+import pysnptools.util.util as pstutil
+import pysnptools.util.pheno as pstpheno
 import fastlmm.util.util as flutil
 import numpy as np
 from fastlmm.inference import LMM
 import scipy.stats as stats
-from pysnptools.pysnptools.snpreader.bed import Bed
+from pysnptools.snpreader.bed import Bed
 from fastlmm.util.pickle_io import load, save
 import time
 import pandas as pd
@@ -83,7 +84,7 @@ def epistasis(test_snps,pheno,G0, G1=None, mixing=0.0, covar=None,output_file_na
     :Example:
 
     >>> import logging
-    >>> from pysnptools.pysnptools.snpreader.bed import Bed
+    >>> from pysnptools.snpreader.bed import Bed
     >>> from fastlmm.association import epistasis
     >>> logging.basicConfig(level=logging.INFO)
     >>> test_snps = Bed('../../tests/datasets/all_chr.maf0.001.N300')
@@ -146,7 +147,7 @@ class _Epistasis(object) : #implements IDistributable
         self.just_sid_0 = sid_set_0.difference(self.intersect)
         self.just_sid_1 = self.intersect.symmetric_difference(self.sid_list_1)
         self._pair_count = len(self.just_sid_0)*len(self.intersect) + len(self.just_sid_0)*len(self.just_sid_1) + len(self.intersect)*len(self.just_sid_1) + len(self.intersect) * (len(self.intersect)-1)//2
-        self.test_snps, self.pheno, self.covar, self.G0, self.G1_or_none = srutil.intersect_apply([self.test_snps, self.pheno, self.covar, self.G0, self.G1_or_none]) #should put G0 and G1 first
+        self.test_snps, self.pheno, self.covar, self.G0, self.G1_or_none = pstutil.intersect_apply([self.test_snps, self.pheno, self.covar, self.G0, self.G1_or_none]) #should put G0 and G1 first
 
     def _run_once(self):
         if self._ran_once:
@@ -160,10 +161,10 @@ class _Epistasis(object) : #implements IDistributable
             self.G0 = Bed(self.G0)
 
         if isinstance(self.pheno, str):
-            self.pheno = plink.loadOnePhen(self.pheno,vectorize=True) #!! what about missing=-9?
+            self.pheno = pstpheno.loadOnePhen(self.pheno,vectorize=True) #!! what about missing=-9?
 
         if self.covar is not None and isinstance(self.covar, str):
-            self.covar = plink.loadPhen(self.covar)#!! what about missing=-9?
+            self.covar = pstpheno.loadPhen(self.covar)#!! what about missing=-9?
 
         if self.G1_or_none is not None and isinstance(self.G1_or_none, str):
             self.G1_or_none = Bed(self.G1_or_none)
@@ -553,7 +554,7 @@ if __name__ == "__main__":
     #os.chdir("../..")
 
     #from fastlmm.association import epistasis
-    #from pysnptools.pysnptools.snpreader.bed import Bed
+    #from pysnptools.snpreader.bed import Bed
 
     #logging.basicConfig(level=logging.INFO)
 
@@ -571,7 +572,7 @@ if __name__ == "__main__":
     #os.chdir("../..")
 
     #from fastlmm.association import epistasis
-    #from pysnptools.pysnptools.snpreader.bed import Bed
+    #from pysnptools.snpreader.bed import Bed
 
     #logging.basicConfig(level=logging.INFO)
 
@@ -587,7 +588,7 @@ if __name__ == "__main__":
     #logging.basicConfig(level=logging.INFO)
 
     #import logging
-    #from pysnptools.pysnptools.snpreader.bed import Bed
+    #from pysnptools.snpreader.bed import Bed
     #logging.basicConfig(level=logging.INFO)
 
     #os.chdir(r"C:\Source\carlk\july_7_14\fastlmm\feature_selection\examples")
@@ -602,7 +603,7 @@ if __name__ == "__main__":
 
     #logging.basicConfig(level=logging.INFO)
 
-    #from pysnptools.pysnptools.snpreader.bed import Bed
+    #from pysnptools.snpreader.bed import Bed
     #from fastlmm.association.epistasis import epistasis, write
     #from fastlmm.util.runner import Local, Hadoop, Hadoop2, HPC, LocalMultiProc, LocalInParts, LocalFromRanges
 
@@ -649,7 +650,7 @@ if __name__ == "__main__":
     #print sid_0[0],sid_1[0],round(pvalue_list[0],5),len(pvalue_list)
 
 
-    #from pysnptools.pysnptools.snpreader.bed import Bed
+    #from pysnptools.snpreader.bed import Bed
     #logging.basicConfig(level=logging.INFO)
     #test_snps = Bed('../../tests/datasets/all_chr.maf0.001.N300')
     #pheno = r'../../tests/datasets/phenSynthFrom22.23.N300.randcidorder.txt'

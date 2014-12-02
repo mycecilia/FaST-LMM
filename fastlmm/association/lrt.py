@@ -10,6 +10,7 @@ import scipy.special as SS
 import os
 import sys
 from fastlmm.pyplink.plink import *
+from pysnptools.util.pheno import *
 from fastlmm.util.mingrid import *
 from fastlmm.util.util import *
 import fastlmm.util.stats as ss

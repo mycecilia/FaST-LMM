@@ -14,6 +14,7 @@ import pandas as pd
 from scipy import stats
 import pylab
 import fastlmm.pyplink.plink as plink
+import pysnptools.util.pheno as pstpheno
 import fastlmm.util.util as util 
 import fastlmm.util.standardizer as stdizer
 from fastlmm.util.pickle_io import load, save
@@ -49,7 +50,7 @@ def load_intersect(snp_reader, pheno_fn_or_none,snp_set=AllSnps()):
     if not pheno_fn_or_none is None:
 
         # load phenotype
-        pheno = plink.loadOnePhen(pheno_fn_or_none, 0)
+        pheno = pstpheno.loadOnePhen(pheno_fn_or_none, 0)
         y = pheno['vals'][:,0]
 
         # load covariates and intersect ids

@@ -158,7 +158,7 @@ class TestGwas(unittest.TestCase):
         # additional testing code for the new wrapper functions
 
         # Fix delta
-        from pysnptools.pysnptools.snpreader.bed import Bed as BedSnpReader
+        from pysnptools.snpreader.bed import Bed as BedSnpReader
         from fastlmm.association.single_snp import single_snp
         snpreader = BedSnpReader(bed_fn)
         frame = single_snp(test_snps=snpreader[:,idx_test], pheno=pheno_fn, G0=snpreader[:,idx_sim],log_delta=np.log(delta))

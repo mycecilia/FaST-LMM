@@ -37,18 +37,17 @@ class CleanCommand(Clean):
         Clean.run(self)
         if os.path.exists('build'):
             shutil.rmtree('build')
-            for dirpath, dirnames, filenames in os.walk('.'):
-                for filename in filenames:
-                    if (filename.endswith('.so') or filename.endswith('.pyd')
-                                 or filename.find("wrap_plink_parser.cpp") != -1 # remove automatically generated source file
-                                 or filename.find("wrap_qfc.cpp") != -1 # remove automatically generated source file
-                                 or filename.find("wrap_matrix_subset.cpp") != -1 # remove automatically generated source file
-                                 #or filename.endswith('.dll')
-                                 #or filename.endswith('.pyc')
-                                 ):
-                        tmp_fn = os.path.join(dirpath, filename)
-                        print "removing", tmp_fn
-                        os.unlink(tmp_fn)
+        for dirpath, dirnames, filenames in os.walk('.'):
+            for filename in filenames:
+                if (   filename.endswith('.so')
+                    or filename.endswith('.pyd')
+                    or filename.find("wrap_qfc.cpp") != -1 # remove automatically generated source file
+                    #or filename.endswith('.dll')
+                    or filename.endswith('.pyc')
+                                ):
+                    tmp_fn = os.path.join(dirpath, filename)
+                    print "removing", tmp_fn
+                    os.unlink(tmp_fn)
 
 # set up macro
 if platform.system() == "Darwin":
@@ -57,8 +56,6 @@ elif "win" in platform.system().lower():
     macros = [("_WIN32", "1")]
 
 ext = [Extension("fastlmm.util.stats.quadform.qfc_src.wrap_qfc", ["fastlmm/util/stats/quadform/qfc_src/wrap_qfc.pyx", "fastlmm/util/stats/quadform/qfc_src/QFC.cpp"], language="c++",define_macros=macros)]
-ext.append(Extension("pysnptools.pysnptools.snpreader.wrap_plink_parser", ["pysnptools/pysnptools/snpreader/wrap_plink_parser.pyx", "pysnptools/pysnptools/snpreader/CPlinkBedFile.cpp"], language="c++", define_macros=macros))
-ext.append(Extension("pysnptools.pysnptools.snpreader.wrap_matrix_subset", ["pysnptools/pysnptools/snpreader/wrap_matrix_subset.pyx", "pysnptools/pysnptools/snpreader/MatrixSubset.cpp"], language="c++", define_macros=macros))
 
 #python setup.py sdist bdist_wininst upload
 setup(

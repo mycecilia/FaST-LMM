@@ -10,6 +10,7 @@ import doctest
 from fastlmm.association import epistasis
 from fastlmm.association.epistasis import write
 import fastlmm.pyplink.plink as plink
+import pysnptools.util.pheno as pstpheno
 from fastlmm.feature_selection.test import TestFeatureSelection
 from fastlmm.util.runner import Local, Hadoop, Hadoop2, HPC, LocalMultiProc, LocalInParts
 
@@ -36,7 +37,7 @@ class TestEpistasis(unittest.TestCase):
 
         '''
         logging.info("TestEpistasis test_match_cpp")
-        from pysnptools.pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader.bed import Bed
         snps = Bed(os.path.join(self.pythonpath, "tests/datasets/selecttest/snps"))
         pheno = os.path.join(self.pythonpath, "tests/datasets/selecttest/pheno.txt")
         covar = os.path.join(self.pythonpath, "tests/datasets/selecttest/covariate.txt")
@@ -87,7 +88,7 @@ class TestEpistasis(unittest.TestCase):
 
     def test_one(self):
         logging.info("TestEpistasis test_one")
-        from pysnptools.pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader.bed import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -113,10 +114,10 @@ class TestEpistasis(unittest.TestCase):
 
     def test_preload_files(self):
         logging.info("TestEpistasis test_preload_files")
-        from pysnptools.pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader.bed import Bed
         test_snps = self.bedbase
-        pheno = plink.loadOnePhen(self.phen_fn,vectorize=True)
-        covar = plink.loadPhen(self.cov_fn)
+        pheno = pstpheno.loadOnePhen(self.phen_fn,vectorize=True)
+        covar = pstpheno.loadPhen(self.cov_fn)
         bed = Bed(test_snps)
 
         output_file = self.file_name("preload_files")
@@ -133,7 +134,7 @@ class TestEpistasis(unittest.TestCase):
         
     def test_G0_has_reader(self):
         logging.info("TestEpistasis test_G0_has_reader")
-        from pysnptools.pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader.bed import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -152,7 +153,7 @@ class TestEpistasis(unittest.TestCase):
 
     def test_no_sid_list_0(self):
         logging.info("TestEpistasis test_no_sid_list_0")
-        from pysnptools.pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader.bed import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -169,7 +170,7 @@ class TestEpistasis(unittest.TestCase):
 
     def test_no_sid_list_1(self):
         logging.info("TestEpistasis test_no_sid_list_1")
-        from pysnptools.pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader.bed import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -188,7 +189,7 @@ class TestEpistasis(unittest.TestCase):
 
     def test_no_cov(self):
         logging.info("TestEpistasis test_no_cov")
-        from pysnptools.pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader.bed import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
 
@@ -205,12 +206,12 @@ class TestEpistasis(unittest.TestCase):
 
     def test_no_cov_b(self):
         logging.info("TestEpistasis test_no_cov_b")
-        from pysnptools.pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader.bed import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
 
         output_file = self.file_name("no_cov_b")
-        covar = plink.loadPhen(self.cov_fn)
+        covar = pstpheno.loadPhen(self.cov_fn)
         covar['vals'] = np.delete(covar['vals'], np.s_[:],1) #Remove all the columns
 
         frame = epistasis(test_snps, pheno, G0=test_snps, 
@@ -226,7 +227,7 @@ class TestEpistasis(unittest.TestCase):
 
     def test_G1(self):
         logging.info("TestEpistasis test_G1")
-        from pysnptools.pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader.bed import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -247,7 +248,7 @@ class TestEpistasis(unittest.TestCase):
 
     def test_G1b(self):
         logging.info("TestEpistasis test_G1b")
-        from pysnptools.pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader.bed import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -269,7 +270,7 @@ class TestEpistasis(unittest.TestCase):
 
     def test_G1_mixing(self):
         logging.info("TestEpistasis test_G1_mixing")
-        from pysnptools.pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader.bed import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -292,7 +293,7 @@ class TestEpistasis(unittest.TestCase):
     #def test_REML_delta(self):
     #    logging.info("TestEpistasis test_REML_delta")
 
-    #    from pysnptools.pysnptools.snpreader.bed import Bed
+    #    from pysnptools.snpreader.bed import Bed
     #    snps = Bed(os.path.join(self.pythonpath, "tests/datasets/selecttest/snps"))
     #    pheno = os.path.join(self.pythonpath, "tests/datasets/selecttest/pheno.txt")
     #    covar = os.path.join(self.pythonpath, "tests/datasets/selecttest/covariate.txt")
@@ -309,7 +310,7 @@ class TestEpistasis(unittest.TestCase):
     def test_unknown_sid(self):
         logging.info("TestEpistasis test_unknown_sid")
 
-        from pysnptools.pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader.bed import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -324,9 +325,9 @@ class TestEpistasis(unittest.TestCase):
 
     def test_cid_intersect(self):
         logging.info("TestEpistasis test_cid_intersect")
-        from pysnptools.pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader.bed import Bed
         test_snps = Bed(self.bedbase)
-        pheno = plink.loadOnePhen(self.phen_fn,vectorize=True)
+        pheno = pstpheno.loadOnePhen(self.phen_fn,vectorize=True)
         pheno['iid'] = np.vstack([pheno['iid'][::-1],[['Bogus','Bogus']]])
         pheno['vals'] = np.hstack([pheno['vals'][::-1],[-34343]])
 

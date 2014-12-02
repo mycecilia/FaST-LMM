@@ -31,17 +31,17 @@ from sklearn import grid_search
 from sklearn.decomposition import KernelPCA
 
 # project
-from pysnptools.pysnptools.snpreader.bed import Bed
-import pysnptools.pysnptools.util.util as srutil
-import fastlmm.pyplink.plink as plink
+from pysnptools.snpreader.bed import Bed
+import pysnptools.util.util as pstutil
+import pysnptools.util.pheno as pstpheno
 import fastlmm.util.util as util 
 import fastlmm.util.preprocess as up
 import fastlmm.inference as inference
 import fastlmm.inference.linear_regression as lin_reg
 import PerformSelectionDistributable as psd
 from fastlmm.util.runner import *
-from pysnptools.pysnptools.standardizer.unit import Unit
-import pysnptools.pysnptools.snpreader.snpreader as sr
+from pysnptools.standardizer.unit import Unit
+import pysnptools.snpreader.snpreader as sr
 
 class FeatureSelectionStrategy(object):
 
@@ -139,7 +139,7 @@ class FeatureSelectionStrategy(object):
 
         # precompute kernel on all snps if needed
         if self.num_pcs > 0 or self.biggest_k >= self.snpreader.sid_count:
-            from pysnptools.pysnptools.standardizer.identity import Identity
+            from pysnptools.standardizer.identity import Identity
             self.K = self.G.kernel()
             self.K.flags.writeable = False
 
@@ -152,7 +152,7 @@ class FeatureSelectionStrategy(object):
             cov_iid = pheno['iid']
             X = np.ones((len(cov_iid), 1))
         else:
-            cov = plink.loadPhen(self.cov_fn)
+            cov = pstpheno.loadPhen(self.cov_fn)
             X = cov['vals']
             cov_iid = cov['iid']
             # add bias column if not present - #!! LATER -- Bug? should this test be done after intersection in case removing an iid makes it constant?
@@ -175,7 +175,7 @@ class FeatureSelectionStrategy(object):
         self.sid = pd.Series(self.snpreader.sid)
 
         # load phenotype
-        pheno = plink.loadOnePhen(self.pheno_fn,self.mpheno, vectorize=True)
+        pheno = pstpheno.loadOnePhen(self.pheno_fn,self.mpheno, vectorize=True)
         self.ind_iid = pheno['iid'] #!!LATER: bug? It looks like we record the pre-intersect iids only to write out the pcs later? Why?
 
         # load covariates
@@ -186,7 +186,7 @@ class FeatureSelectionStrategy(object):
         self.G = GClass.factory(self.snpreader, self.num_snps_in_memory, self.standardizer, self.blocksize)
 
         #!!LATER Should we give preference to self.G since reordering it is the most expensive?
-        (self.y, yiid), (self.X, xiid), self.G = srutil.intersect_apply([(pheno['vals'], pheno['iid']), (self.X, cov_iid), self.G], sort_by_dataset=False)
+        (self.y, yiid), (self.X, xiid), self.G = pstutil.intersect_apply([(pheno['vals'], pheno['iid']), (self.X, cov_iid), self.G], sort_by_dataset=False)
 
         # make sure input data isn't modified
         self.X.flags.writeable = False
@@ -711,7 +711,7 @@ def load_snp_data(snpreader, pheno_fn, cov_fn=None, offset=True, mpheno=0, stand
     """
     
     #TODO: completely remove this
-    pheno = plink.loadOnePhen(pheno_fn,mpheno, vectorize=True)
+    pheno = pstpheno.loadOnePhen(pheno_fn,mpheno, vectorize=True)
     geno = snpreader.read(order='C').standardize(standardizer)
 
     # sanity check
@@ -721,9 +721,9 @@ def load_snp_data(snpreader, pheno_fn, cov_fn=None, offset=True, mpheno=0, stand
     if cov_fn == None:
         cov = {'vals': np.ones((len(pheno['iid']), 1)), 'iid':pheno['iid']}
     else:
-        cov = plink.loadPhen(cov_fn)
+        cov = pstpheno.loadPhen(cov_fn)
 
-    (y, yiid), G, (X, xiid) = srutil.intersect_apply([(pheno['vals'],pheno['iid']), geno, (cov['vals'],cov['iid'])], sort_by_dataset=False)
+    (y, yiid), G, (X, xiid) = pstutil.intersect_apply([(pheno['vals'],pheno['iid']), geno, (cov['vals'],cov['iid'])], sort_by_dataset=False)
     G = G.read(order='C', view_ok=True)
 
     # add bias column if not present
@@ -795,7 +795,7 @@ def main():
         return
 
     #standardizer
-    from pysnptools.pysnptools.standardizer import factory
+    from pysnptools.standardizer import factory
     standardizer = factory(args.standardizer)
 
     ##############################
@@ -884,7 +884,7 @@ class InMemory(GClass):
 
     def kernel(self):
         self.val # cache the data
-        from pysnptools.pysnptools.standardizer.identity import Identity
+        from pysnptools.standardizer.identity import Identity
         return self._snpreader.kernel(Identity())
 
     def __getitem__(self, iid_indexer_and_snp_indexer):

@@ -1,17 +1,16 @@
 from fastlmm.util.runner import *
 import logging
 import fastlmm.pyplink.plink as plink
-import pysnptools.pysnptools.util.util as srutil
+import pysnptools.util.pheno as pstpheno
+import pysnptools.util.util as pstutil
 import fastlmm.util.util as flutil
 import numpy as np
 #from fastlmm.inference import LMM
 from fastlmm.inference.lmm_cov import LMM as fastLMM
 import scipy.stats as stats
-from pysnptools.pysnptools.snpreader.bed import Bed
+from pysnptools.snpreader.bed import Bed
 from fastlmm.util.pickle_io import load, save
 import time
-import pysnptools.pysnptools.util.util as srutil
-from pysnptools import pysnptools
 import pandas as pd
 
 def single_snp(test_snps,pheno,
@@ -66,7 +65,7 @@ def single_snp(test_snps,pheno,
     >>> import logging
     >>> import numpy as np
     >>> from fastlmm.association import single_snp
-    >>> from pysnptools.pysnptools.snpreader.bed import Bed
+    >>> from pysnptools.snpreader.bed import Bed
     >>> logging.basicConfig(level=logging.INFO)
     >>> snpreader = Bed("../feature_selection/examples/toydata")
     >>> pheno_fn = "../feature_selection/examples/toydata.phe"
@@ -81,7 +80,7 @@ def single_snp(test_snps,pheno,
     G1 = _snp_fixup(G1, iid_source_if_none=G0)
     pheno = _pheno_fixup(pheno)
     covar = _pheno_fixup(covar, iid_source_if_none=pheno)
-    G0, G1, test_snps, pheno, covar,  = srutil.intersect_apply([G0, G1, test_snps, pheno, covar])
+    G0, G1, test_snps, pheno, covar,  = pstutil.intersect_apply([G0, G1, test_snps, pheno, covar])
     G0_standardized = G0.read().standardize()
     G1_standardized = G1.read().standardize()
 
@@ -164,7 +163,7 @@ def single_snp_leave_out_one_chrom(test_snps, pheno,
     >>> import logging
     >>> import numpy as np
     >>> from fastlmm.association import single_snp_leave_out_one_chrom
-    >>> from pysnptools.pysnptools.snpreader.bed import Bed
+    >>> from pysnptools.snpreader.bed import Bed
     >>> logging.basicConfig(level=logging.INFO)
     >>> pheno_fn = "../feature_selection/examples/toydata.phe"
     >>> results_dataframe = single_snp_leave_out_one_chrom(test_snps="../feature_selection/examples/toydata.5chrom", pheno=pheno_fn, log_delta=np.log(4.0))
@@ -177,7 +176,7 @@ def single_snp_leave_out_one_chrom(test_snps, pheno,
     G1 = _snp_fixup(G1, iid_source_if_none=test_snps)
     pheno = _pheno_fixup(pheno)
     covar = _pheno_fixup(covar, iid_source_if_none=pheno)
-    test_snps, G1, pheno, covar,  = srutil.intersect_apply([test_snps, G1, pheno, covar])
+    test_snps, G1, pheno, covar,  = pstutil.intersect_apply([test_snps, G1, pheno, covar])
     G0_standardized = test_snps.read().standardize()
     G1_standardized = G1.read().standardize()
 
@@ -220,7 +219,7 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
     covar = np.hstack((covar['vals'],np.ones((test_snps.iid_count, 1))))  #We always add 1's to the end.
     y =  pheno['vals']
 
-    from pysnptools.pysnptools.standardizer.diag_K_to_N import DiagKtoN
+    from pysnptools.standardizer.diag_K_to_N import DiagKtoN
 
     assert 0.0 <= mixing <= 1.0
     
@@ -281,7 +280,7 @@ def _create_covar_chrom(covar, covar_by_chrom, chrom):
     if covar_by_chrom is not None:
         covar_by_chrom_chrom = covar_by_chrom[chrom]
         covar_by_chrom_chrom = _pheno_fixup(covar_by_chrom_chrom, iid_source_if_none=covar)
-        covar_after,  covar_by_chrom_chrom = srutil.intersect_apply([covar,  covar_by_chrom_chrom])
+        covar_after,  covar_by_chrom_chrom = pstutil.intersect_apply([covar,  covar_by_chrom_chrom])
         assert np.all(covar_after['iid'] == covar['iid']), "covar_by_chrom must contain all iids found in the intersection of the other datasets"
 
         ret = {
@@ -304,7 +303,7 @@ def _snp_fixup(snp_input, iid_source_if_none=None):
 
 def _pheno_fixup(pheno_input, iid_source_if_none=None):
     if isinstance(pheno_input, str):
-        return plink.loadPhen(pheno_input) #!!what about missing=-9?
+        return pstpheno.loadPhen(pheno_input) #!!what about missing=-9?
 
     if pheno_input is None:
         ret = {
@@ -327,13 +326,13 @@ if __name__ == "__main__":
     doctest.testmod()
 
     ##import logging
-    #from pysnptools.pysnptools.snpreader.bed import Bed
+    #from pysnptools.snpreader.bed import Bed
     #logging.basicConfig(level=logging.INFO)
     #snpreader = Bed("../feature_selection/examples/toydata")
     #pheno_fn = "../feature_selection/examples/toydata.phe"
 
     ##null_9930 = snpreader[:,snpreader.sid_to_index(['null_9930'])].read()
-    ##from pysnptools.pysnptools.snpreader.dat import Dat
+    ##from pysnptools.snpreader.dat import Dat
     ##Dat.write(null_9930,r"c:\deldir\9930.dat")
 
 

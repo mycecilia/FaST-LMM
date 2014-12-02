@@ -33,7 +33,7 @@ import fastlmm.inference as fastlmm
 import fastlmm.inference.linear_regression as lin_reg
 from fastlmm.pyplink.snpset import *  
 
-from pysnptools.pysnptools.snpreader.bed import Bed
+from pysnptools.snpreader.bed import Bed
 
 class PerformSelectionDistributable(object) : #implements IDistributable
 

@@ -4,7 +4,7 @@ example of how to use feature selection from python (see also command line inter
 
 import numpy as np
 from fastlmm.feature_selection import FeatureSelectionStrategy
-from pysnptools.pysnptools.snpreader.bed import Bed
+from pysnptools.snpreader.bed import Bed
 
 import logging
 

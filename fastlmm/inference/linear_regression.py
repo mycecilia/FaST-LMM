@@ -25,7 +25,7 @@ from scipy import stats
 #    """
     
 #    import fastlmm.pyplink.plink as plink
-#    import pysnptools.pysnptools.snpreader.bed as Bed
+#    import pysnptools.snpreader.bed as Bed
 #    import fastlmm.util.util as util
     
     
@@ -45,7 +45,7 @@ from scipy import stats
 #    fn_pheno = "../../featureSelection/examples/toydata.phe"
 
     
-#    pheno = plink.loadPhen(fn_pheno)
+#    pheno = pstpheno.loadPhen(fn_pheno)
   
 #    # load data
 #    bed = plink.Bed(fn_bed)

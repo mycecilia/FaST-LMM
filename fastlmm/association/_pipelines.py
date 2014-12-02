@@ -34,11 +34,11 @@ def TESTBEFOREUSING_score_testfilesFromDir(phenofile, base0, pedfilesalt, covarf
     'filenames' : [Nalt] array of basefilenames
     --------------------------------------------------------------------------
     '''
-    pheno = plink.loadPhen(filename = phenofile, missing ='-9', pheno = None)
+    pheno = pstpheno.loadPhen(filename = phenofile, missing ='-9', pheno = None)
     if covarfile is None:
         X = SP.ones((pheno['vals'].shape[0],1))
     else:
-        covar = plink.loadPhen(filename = covarfile, missing ='-9', pheno = None)
+        covar = pstpheno.loadPhen(filename = covarfile, missing ='-9', pheno = None)
         X = SP.hstack((SP.ones((pheno['vals'].shape[0],1)),covar['vals']))
     if filetype =='PED':
         SNPs0 = plink.readPED(basefilename = base0, delimiter = ' ',missing = '0',standardize = True, pheno = None)
@@ -137,11 +137,11 @@ def lrt_testfilesFromDir(phenofile, base0, pedfilesalt, covarfile = None, outfil
     'filenames' : [Nalt] array of basefilenames
     --------------------------------------------------------------------------
     '''
-    pheno = plink.loadPhen(filename = phenofile, missing ='-9', pheno = None)
+    pheno = pstpheno.loadPhen(filename = phenofile, missing ='-9', pheno = None)
     if covarfile is None:
         X = SP.ones((pheno['vals'].shape[0],1))
     else:
-        covar = plink.loadPhen(filename = covarfile, missing ='-9', pheno = None)
+        covar = pstpheno.loadPhen(filename = covarfile, missing ='-9', pheno = None)
         X = SP.hstack((SP.ones((pheno['vals'].shape[0],1)),covar['vals']))
     if filetype =='PED':
         SNPs0 = plink.readPED(basefilename = base0, delimiter = ' ',missing = '0',standardize = True, pheno = None)

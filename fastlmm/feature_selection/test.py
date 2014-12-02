@@ -2,22 +2,22 @@ import numpy as np
 import logging
 
 from fastlmm.feature_selection import FeatureSelectionStrategy, load_snp_data
-from pysnptools.pysnptools.snpreader.bed import Bed
-from fastlmm.pyplink import plink
+from pysnptools.snpreader.bed import Bed
+import pysnptools.util.pheno as pstpheno
 import fastlmm.inference.linear_regression as lin_reg 
-from pysnptools.pysnptools.snpreader.hdf5 import Hdf5
-from pysnptools.pysnptools.snpreader.dat import Dat
-from pysnptools.pysnptools.snpreader.ped import Ped
+from pysnptools.snpreader.hdf5 import Hdf5
+from pysnptools.snpreader.dat import Dat
+from pysnptools.snpreader.ped import Ped
 
 #  sklearn
 from sklearn.cross_validation import KFold
-from pysnptools.pysnptools.standardizer.unit import Unit
+from pysnptools.standardizer.unit import Unit
 
 from fastlmm.inference import getLMM
 import unittest
 import os.path
 
-import pysnptools.pysnptools.util.util
+import pysnptools.util.util
 from fastlmm.feature_selection.feature_selection_two_kernel import FeatureSelectionInSample
 import fastlmm.util.standardizer as stdizer
 
@@ -34,11 +34,11 @@ class TestTwoKernelFeatureSelection(unittest.TestCase):
         # load data
         ###################################################################
         snp_reader = Bed(self.snp_fn)
-        pheno = plink.loadOnePhen(self.pheno_fn)
-        #cov = plink.loadPhen(self.cov_fn)
+        pheno = pstpheno.loadOnePhen(self.pheno_fn)
+        #cov = pstpheno.loadPhen(self.cov_fn)
         
         # intersect sample ids
-        snp_reader, pheno = pysnptools.pysnptools.util.util.intersect_apply([snp_reader, pheno])
+        snp_reader, pheno = pysnptools.util.util.intersect_apply([snp_reader, pheno])
         
         self.G = snp_reader.read(order='C').val
         self.G = stdizer.Unit().standardize(self.G)

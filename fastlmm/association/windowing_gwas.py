@@ -9,9 +9,9 @@ import os
 import numpy as np
 import logging
 from scipy import stats
-from pysnptools.pysnptools.snpreader.bed import Bed
-from pysnptools.pysnptools.util.util import intersect_apply
-import fastlmm.pyplink.plink as plink
+from pysnptools.snpreader.bed import Bed
+from pysnptools.util.util import intersect_apply
+import pysnptools.util.pheno as pstpheno
 import fastlmm.util.standardizer as stdizer
 from fastlmm.inference import LMM
 
@@ -232,10 +232,10 @@ def main():
     # load data
     ###################################################################
     snp_reader = Bed(snp_fn)
-    pheno = plink.loadOnePhen(phen_fn)
+    pheno = pstpheno.loadOnePhen(phen_fn)
 
     cov = None
-    #cov = plink.loadPhen(self.cov_fn)    
+    #cov = pstpheno.loadPhen(self.cov_fn)    
 
     snp_reader, pheno, cov = intersect_apply([snp_reader, pheno, cov])
     

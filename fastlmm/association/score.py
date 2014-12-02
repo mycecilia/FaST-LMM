@@ -7,6 +7,7 @@ import sys
 import glob
 sys.path.append("./../../pyplink")
 from fastlmm.pyplink.plink import *
+from pysnptools.util.pheno import *
 from fastlmm.util.mingrid import *
 #import pdb
 import scipy.stats as ST

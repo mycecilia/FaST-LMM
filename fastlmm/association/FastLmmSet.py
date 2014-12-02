@@ -3,6 +3,7 @@ import fastlmm.association.score as score
 import fastlmm.association.testCV as testCV
 import fastlmm.inference as fastlmm
 from fastlmm.pyplink.plink import *
+from pysnptools.util.pheno import *
 from fastlmm.pyplink.altset_list import *
 import subprocess, sys, os.path
 import fastlmm.util.stats.chi2mixture as c2

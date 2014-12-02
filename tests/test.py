@@ -12,7 +12,7 @@ import unittest
 import subprocess
 import fastlmm.inference.test
 import fastlmm.feature_selection.test
-import pysnptools.pysnptools.test
+import pysnptools.test
 import fastlmm.util.testdistributable
 import shutil
 import logging
@@ -141,7 +141,6 @@ if __name__ == '__main__':
     suites = unittest.TestSuite([
                                     #getDebugTestSuite(),
                                     fastlmm.util.test.getTestSuite(),
-                                    pysnptools.pysnptools.test.getTestSuite(), #new snpreader
                                     getTestSuite(),
                                     fastlmm.inference.test.getTestSuite(),
                                     fastlmm.association.tests.test_single_snp.getTestSuite(),
