@@ -88,12 +88,6 @@ setup(
         "fastlmm/util/stats",
         "fastlmm/util",
         "fastlmm",
-        "pysnptools/pysnptools/altset_list", #new snpreader
-        "pysnptools/pysnptools/snpreader", #new snpreader
-        "pysnptools/pysnptools/standardizer", #new snpreader
-        "pysnptools/pysnptools/util", #new snpreader
-        "pysnptools/pysnptools", #new snpreader
-        "pysnptools" #new snpreader
 	],
 	package_data={"fastlmm/association" : [
                        "Fastlmm_autoselect/FastLmmC.exe",
@@ -123,7 +117,7 @@ setup(
                        "examples/toydataTrain.phe"
 					   ]
                  },
-    requires = ['cython', 'numpy', 'scipy', 'pandas', 'sklearn', 'matplotlib'],
+    requires = ['cython', 'numpy', 'scipy', 'pandas', 'sklearn', 'matplotlib', 'pysnptools'],
     #zip_safe=False,
     # extensions
     cmdclass = {'build_ext': build_ext, 'clean': CleanCommand},
