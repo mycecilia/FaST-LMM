@@ -54,6 +54,8 @@ if platform.system() == "Darwin":
     macros = [("__APPLE__", "1")]
 elif "win" in platform.system().lower():
     macros = [("_WIN32", "1")]
+else:
+    macros = [("_UNIX", "1")]
 
 ext = [Extension("fastlmm.util.stats.quadform.qfc_src.wrap_qfc", ["fastlmm/util/stats/quadform/qfc_src/wrap_qfc.pyx", "fastlmm/util/stats/quadform/qfc_src/QFC.cpp"], language="c++",define_macros=macros)]
 
