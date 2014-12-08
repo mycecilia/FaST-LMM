@@ -36,6 +36,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="altset_list\consecutive.py" />
+    <Compile Include="altset_list\minmaxsetsize.py" />
+    <Compile Include="altset_list\snpandsetnamecollection.py" />
+    <Compile Include="altset_list\subset.py" />
+    <Compile Include="altset_list\__init__.py" />
     <Compile Include="epistasis.py">
       <SubType>Code</SubType>
     </Compile>
@@ -81,6 +86,7 @@
     <Content Include="Fastlmm_autoselect\libiomp5md.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="altset_list\" />
     <Folder Include="Fastlmm_autoselect" />
     <Folder Include="tests\" />
   </ItemGroup>

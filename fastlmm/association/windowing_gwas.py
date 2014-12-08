@@ -9,8 +9,8 @@ import os
 import numpy as np
 import logging
 from scipy import stats
-from pysnptools.snpreader.bed import Bed
-from pysnptools.util.util import intersect_apply
+from pysnptools.snpreader import Bed
+from pysnptools.util import intersect_apply
 import pysnptools.util.pheno as pstpheno
 import fastlmm.util.standardizer as stdizer
 from fastlmm.inference import LMM

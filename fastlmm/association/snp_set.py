@@ -167,7 +167,7 @@ if __name__ == "__main__":
 
     #os.chdir("../..")
 
-    #from pysnptools.snpreader.bed import Bed
+    #from pysnptools.snpreader import Bed
     #all_snps = Bed("tests/datasets/synth/all")
     #chr1_snps = all_snps[:,all_snps.pos[:,0] == 1]
     #with open(r"c:\deldir\chr1.sets.txt","w") as f:

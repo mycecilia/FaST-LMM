@@ -2,22 +2,22 @@ import numpy as np
 import logging
 
 from fastlmm.feature_selection import FeatureSelectionStrategy, load_snp_data
-from pysnptools.snpreader.bed import Bed
+from pysnptools.snpreader import Bed
 import pysnptools.util.pheno as pstpheno
 import fastlmm.inference.linear_regression as lin_reg 
-from pysnptools.snpreader.hdf5 import Hdf5
-from pysnptools.snpreader.dat import Dat
-from pysnptools.snpreader.ped import Ped
+from pysnptools.snpreader import Hdf5
+from pysnptools.snpreader import Dat
+from pysnptools.snpreader import Ped
 
 #  sklearn
 from sklearn.cross_validation import KFold
-from pysnptools.standardizer.unit import Unit
+from pysnptools.standardizer import Unit
 
 from fastlmm.inference import getLMM
 import unittest
 import os.path
 
-import pysnptools.util.util
+import pysnptools.util
 from fastlmm.feature_selection.feature_selection_two_kernel import FeatureSelectionInSample
 import fastlmm.util.standardizer as stdizer
 
@@ -38,7 +38,7 @@ class TestTwoKernelFeatureSelection(unittest.TestCase):
         #cov = pstpheno.loadPhen(self.cov_fn)
         
         # intersect sample ids
-        snp_reader, pheno = pysnptools.util.util.intersect_apply([snp_reader, pheno])
+        snp_reader, pheno = pysnptools.util.intersect_apply([snp_reader, pheno])
         
         self.G = snp_reader.read(order='C').val
         self.G = stdizer.Unit().standardize(self.G)

@@ -1,13 +1,13 @@
 from fastlmm.util.runner import *
 import logging
 import fastlmm.pyplink.plink as plink
-import pysnptools.util.util as pstutil
+import pysnptools.util as pstutil
 import pysnptools.util.pheno as pstpheno
 import fastlmm.util.util as flutil
 import numpy as np
 from fastlmm.inference import LMM
 import scipy.stats as stats
-from pysnptools.snpreader.bed import Bed
+from pysnptools.snpreader import Bed
 from fastlmm.util.pickle_io import load, save
 import time
 import pandas as pd
@@ -84,7 +84,7 @@ def epistasis(test_snps,pheno,G0, G1=None, mixing=0.0, covar=None,output_file_na
     :Example:
 
     >>> import logging
-    >>> from pysnptools.snpreader.bed import Bed
+    >>> from pysnptools.snpreader import Bed
     >>> from fastlmm.association import epistasis
     >>> logging.basicConfig(level=logging.INFO)
     >>> test_snps = Bed('../../tests/datasets/all_chr.maf0.001.N300')
@@ -554,7 +554,7 @@ if __name__ == "__main__":
     #os.chdir("../..")
 
     #from fastlmm.association import epistasis
-    #from pysnptools.snpreader.bed import Bed
+    #from pysnptools.snpreader import Bed
 
     #logging.basicConfig(level=logging.INFO)
 
@@ -572,7 +572,7 @@ if __name__ == "__main__":
     #os.chdir("../..")
 
     #from fastlmm.association import epistasis
-    #from pysnptools.snpreader.bed import Bed
+    #from pysnptools.snpreader import Bed
 
     #logging.basicConfig(level=logging.INFO)
 
@@ -588,7 +588,7 @@ if __name__ == "__main__":
     #logging.basicConfig(level=logging.INFO)
 
     #import logging
-    #from pysnptools.snpreader.bed import Bed
+    #from pysnptools.snpreader import Bed
     #logging.basicConfig(level=logging.INFO)
 
     #os.chdir(r"C:\Source\carlk\july_7_14\fastlmm\feature_selection\examples")
@@ -603,7 +603,7 @@ if __name__ == "__main__":
 
     #logging.basicConfig(level=logging.INFO)
 
-    #from pysnptools.snpreader.bed import Bed
+    #from pysnptools.snpreader import Bed
     #from fastlmm.association.epistasis import epistasis, write
     #from fastlmm.util.runner import Local, Hadoop, Hadoop2, HPC, LocalMultiProc, LocalInParts, LocalFromRanges
 
@@ -650,7 +650,7 @@ if __name__ == "__main__":
     #print sid_0[0],sid_1[0],round(pvalue_list[0],5),len(pvalue_list)
 
 
-    #from pysnptools.snpreader.bed import Bed
+    #from pysnptools.snpreader import Bed
     #logging.basicConfig(level=logging.INFO)
     #test_snps = Bed('../../tests/datasets/all_chr.maf0.001.N300')
     #pheno = r'../../tests/datasets/phenSynthFrom22.23.N300.randcidorder.txt'

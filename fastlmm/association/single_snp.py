@@ -2,13 +2,13 @@ from fastlmm.util.runner import *
 import logging
 import fastlmm.pyplink.plink as plink
 import pysnptools.util.pheno as pstpheno
-import pysnptools.util.util as pstutil
+import pysnptools.util as pstutil
 import fastlmm.util.util as flutil
 import numpy as np
 #from fastlmm.inference import LMM
 from fastlmm.inference.lmm_cov import LMM as fastLMM
 import scipy.stats as stats
-from pysnptools.snpreader.bed import Bed
+from pysnptools.snpreader import Bed
 from fastlmm.util.pickle_io import load, save
 import time
 import pandas as pd
@@ -65,7 +65,7 @@ def single_snp(test_snps,pheno,
     >>> import logging
     >>> import numpy as np
     >>> from fastlmm.association import single_snp
-    >>> from pysnptools.snpreader.bed import Bed
+    >>> from pysnptools.snpreader import Bed
     >>> logging.basicConfig(level=logging.INFO)
     >>> snpreader = Bed("../feature_selection/examples/toydata")
     >>> pheno_fn = "../feature_selection/examples/toydata.phe"
@@ -163,7 +163,7 @@ def single_snp_leave_out_one_chrom(test_snps, pheno,
     >>> import logging
     >>> import numpy as np
     >>> from fastlmm.association import single_snp_leave_out_one_chrom
-    >>> from pysnptools.snpreader.bed import Bed
+    >>> from pysnptools.snpreader import Bed
     >>> logging.basicConfig(level=logging.INFO)
     >>> pheno_fn = "../feature_selection/examples/toydata.phe"
     >>> results_dataframe = single_snp_leave_out_one_chrom(test_snps="../feature_selection/examples/toydata.5chrom", pheno=pheno_fn, log_delta=np.log(4.0))
@@ -219,7 +219,7 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
     covar = np.hstack((covar['vals'],np.ones((test_snps.iid_count, 1))))  #We always add 1's to the end.
     y =  pheno['vals']
 
-    from pysnptools.standardizer.diag_K_to_N import DiagKtoN
+    from pysnptools.standardizer import DiagKtoN
 
     assert 0.0 <= mixing <= 1.0
     
@@ -326,13 +326,13 @@ if __name__ == "__main__":
     doctest.testmod()
 
     ##import logging
-    #from pysnptools.snpreader.bed import Bed
+    #from pysnptools.snpreader import Bed
     #logging.basicConfig(level=logging.INFO)
     #snpreader = Bed("../feature_selection/examples/toydata")
     #pheno_fn = "../feature_selection/examples/toydata.phe"
 
     ##null_9930 = snpreader[:,snpreader.sid_to_index(['null_9930'])].read()
-    ##from pysnptools.snpreader.dat import Dat
+    ##from pysnptools.snpreader import Dat
     ##Dat.write(null_9930,r"c:\deldir\9930.dat")
 
 

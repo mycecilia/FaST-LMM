@@ -33,7 +33,7 @@ class TestSingleSnp(unittest.TestCase):
 
         '''
         logging.info("TestSingleSnp test_match_cpp")
-        from pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader import Bed
         snps = Bed(os.path.join(self.pythonpath, "tests/datasets/selecttest/snps"))
         pheno = os.path.join(self.pythonpath, "tests/datasets/selecttest/pheno.txt")
         covar = os.path.join(self.pythonpath, "tests/datasets/selecttest/covariate.txt")
@@ -65,7 +65,7 @@ class TestSingleSnp(unittest.TestCase):
 
     def test_one(self):
         logging.info("TestSingleSnp test_one")
-        from pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -81,7 +81,7 @@ class TestSingleSnp(unittest.TestCase):
 
     def test_preload_files(self):
         logging.info("TestSingleSnp test_preload_files")
-        from pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader import Bed
         test_snps = self.bedbase
         pheno = pstpheno.loadOnePhen(self.phen_fn,vectorize=True)
         covar = pstpheno.loadPhen(self.cov_fn)
@@ -96,7 +96,7 @@ class TestSingleSnp(unittest.TestCase):
         
     def test_G0_has_reader(self):
         logging.info("TestSingleSnp test_G0_has_reader")
-        from pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -111,7 +111,7 @@ class TestSingleSnp(unittest.TestCase):
 
     def test_no_cov(self):
         logging.info("TestSingleSnp test_no_cov")
-        from pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
 
@@ -124,7 +124,7 @@ class TestSingleSnp(unittest.TestCase):
 
     def test_no_cov_b(self):
         logging.info("TestSingleSnp test_no_cov_b")
-        from pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
 
@@ -141,7 +141,7 @@ class TestSingleSnp(unittest.TestCase):
 
     def test_G1(self):
         logging.info("TestSingleSnp test_G1")
-        from pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -157,7 +157,7 @@ class TestSingleSnp(unittest.TestCase):
 
     def test_G1_mixing(self):
         logging.info("TestSingleSnp test_G1_mixing")
-        from pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -175,7 +175,7 @@ class TestSingleSnp(unittest.TestCase):
     def test_unknown_sid(self):
         logging.info("TestSingleSnp test_unknown_sid")
 
-        from pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -190,7 +190,7 @@ class TestSingleSnp(unittest.TestCase):
 
     def test_cid_intersect(self):
         logging.info("TestSingleSnp test_cid_intersect")
-        from pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
         pheno = pstpheno.loadOnePhen(self.phen_fn,vectorize=True)
         pheno['iid'] = np.vstack([pheno['iid'][::-1],[['Bogus','Bogus']]])
@@ -250,7 +250,7 @@ class TestSingleSnpLeaveOutOneChrom(unittest.TestCase):
 
     def test_one_looc(self):
         logging.info("TestSingleSnpLeaveOutOneChrom test_one_looc")
-        from pysnptools.snpreader.bed import Bed
+        from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
         covar = self.cov_fn
@@ -265,7 +265,7 @@ class TestSingleSnpLeaveOutOneChrom(unittest.TestCase):
 
     def test_covar_by_chrom(self):
             logging.info("TestSingleSnpLeaveOutOneChrom test_covar_by_chrom")
-            from pysnptools.snpreader.bed import Bed
+            from pysnptools.snpreader import Bed
             test_snps = Bed(self.bedbase)
             pheno = self.phen_fn
             covar = self.cov_fn

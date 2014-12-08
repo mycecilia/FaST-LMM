@@ -31,8 +31,8 @@ from sklearn import grid_search
 from sklearn.decomposition import KernelPCA
 
 # project
-from pysnptools.snpreader.bed import Bed
-import pysnptools.util.util as pstutil
+from pysnptools.snpreader import Bed
+import pysnptools.util as pstutil
 import pysnptools.util.pheno as pstpheno
 import fastlmm.util.util as util 
 import fastlmm.util.preprocess as up
@@ -40,8 +40,8 @@ import fastlmm.inference as inference
 import fastlmm.inference.linear_regression as lin_reg
 import PerformSelectionDistributable as psd
 from fastlmm.util.runner import *
-from pysnptools.standardizer.unit import Unit
-import pysnptools.snpreader.snpreader as sr
+from pysnptools.standardizer import Unit
+import pysnptools.snpreader as sr
 
 class FeatureSelectionStrategy(object):
 
@@ -139,7 +139,7 @@ class FeatureSelectionStrategy(object):
 
         # precompute kernel on all snps if needed
         if self.num_pcs > 0 or self.biggest_k >= self.snpreader.sid_count:
-            from pysnptools.standardizer.identity import Identity
+            from pysnptools.standardizer import Identity
             self.K = self.G.kernel()
             self.K.flags.writeable = False
 
@@ -734,6 +734,31 @@ def load_snp_data(snpreader, pheno_fn, cov_fn=None, offset=True, mpheno=0, stand
     return G, X, y
  
 
+from pysnptools.standardizer import Unit
+from pysnptools.standardizer import Identity
+from pysnptools.standardizer import Beta
+from pysnptools.standardizer import BySqrtSidCount
+from pysnptools.standardizer import BySidCount
+def factory(s):
+    s = s.capitalize()
+    if s == "Unit" or s=="Unit()":
+        return Unit()
+
+    if s == "Identity" or s=="Identity()":
+        return Identity()
+
+    if s == "BySqrtSidCount" or s=="BySqrtSidCount()":
+        return BySqrtSidCount()
+
+    if s == "BySidCount" or s=="BySidCount()":
+        return BySidCount()
+
+    if s=="Beta":
+        return Beta()
+
+    if s.startswith("Beta("):
+        standardizer = eval(s)
+        return standardizer
 
 
 def main():
@@ -884,7 +909,7 @@ class InMemory(GClass):
 
     def kernel(self):
         self.val # cache the data
-        from pysnptools.standardizer.identity import Identity
+        from pysnptools.standardizer import Identity
         return self._snpreader.kernel(Identity())
 
     def __getitem__(self, iid_indexer_and_snp_indexer):
