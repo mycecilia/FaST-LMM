@@ -7,7 +7,7 @@
     <ProjectHome>
     </ProjectHome>
     <StartupFile>tests\testepistasis.py</StartupFile>
-    <SearchPath>..\..</SearchPath>
+    <SearchPath>..\..\;..\..\doc\source\</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <InterpreterId>00000000-0000-0000-0000-000000000000</InterpreterId>
@@ -36,6 +36,12 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\doc\source\conf.py">
+      <Link>docsource\conf.py</Link>
+    </Compile>
+    <Compile Include="..\..\setup.py">
+      <Link>setup\setup.py</Link>
+    </Compile>
     <Compile Include="altset_list\consecutive.py" />
     <Compile Include="altset_list\minmaxsetsize.py" />
     <Compile Include="altset_list\snpandsetnamecollection.py" />
@@ -81,6 +87,24 @@
     <Compile Include="score.py" />
     <Compile Include="_pipelines.py" />
     <Compile Include="__init__.py" />
+    <Content Include="..\..\AUTHORS.txt">
+      <Link>setup\AUTHORS.txt</Link>
+    </Content>
+    <Content Include="..\..\doc\make.bat">
+      <Link>docsource\make.bat</Link>
+    </Content>
+    <Content Include="..\..\doc\source\index.rst">
+      <Link>docsource\index.rst</Link>
+    </Content>
+    <Content Include="..\..\LICENSE.md">
+      <Link>setup\LICENSE.md</Link>
+    </Content>
+    <Content Include="..\..\MANIFEST.in">
+      <Link>setup\MANIFEST.in</Link>
+    </Content>
+    <Content Include="..\..\README.md">
+      <Link>setup\README.md</Link>
+    </Content>
     <Content Include="Fastlmm_autoselect\fastlmmc" />
     <Content Include="Fastlmm_autoselect\FastLmmC.exe" />
     <Content Include="Fastlmm_autoselect\libiomp5md.dll" />
@@ -88,6 +112,8 @@
   <ItemGroup>
     <Folder Include="altset_list\" />
     <Folder Include="Fastlmm_autoselect" />
+    <Folder Include="docsource\" />
+    <Folder Include="setup\" />
     <Folder Include="tests\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
