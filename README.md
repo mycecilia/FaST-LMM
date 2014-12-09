@@ -9,6 +9,9 @@ http://research.microsoft.com/en-us/um/redmond/projects/MicrosoftGenomics/Fastlm
 Our documentation (including live examples) is also available as ipython notebook:
 http://nbviewer.ipython.org/github/MicrosoftGenomics/FaST-LMM/blob/master/doc/ipynb/FaST-LMM.ipynb
 
+Additionally, API documentation is available:
+http://research.microsoft.com/en-us/um/redmond/projects/MSCompBio/Fastlmm/api/
+
 
 ### Quick install:
 
