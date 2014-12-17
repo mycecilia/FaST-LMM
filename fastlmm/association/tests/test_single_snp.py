@@ -9,7 +9,7 @@ from fastlmm.association import single_snp
 from fastlmm.association import single_snp_leave_out_one_chrom
 import pysnptools.util.pheno as pstpheno
 from fastlmm.feature_selection.test import TestFeatureSelection
-from fastlmm.util.runner import Local, HPC
+from fastlmm.util.runner import Local, HPC, LocalMultiProc
 
 class TestSingleSnp(unittest.TestCase):
 
@@ -154,6 +154,35 @@ class TestSingleSnp(unittest.TestCase):
                                       )
 
         self.compare_files(frame,"G1")
+
+
+    def test_file_cache(self):
+        logging.info("TestSingleSnp test_file_cache")
+        from pysnptools.snpreader import Bed
+        test_snps = Bed(self.bedbase)
+        pheno = self.phen_fn
+        covar = self.cov_fn
+
+        output_file_name = self.file_name("G1")
+        cache_file = self.file_name("cache_file")+".npz"
+        if os.path.exists(cache_file):
+            os.remove(cache_file)
+        frame = single_snp(test_snps=test_snps[:,:10], pheno=pheno,G0=test_snps[:,10:100], 
+                                      covar=covar, G1=test_snps[:,100:200],
+                                      mixing=.5,
+                                      output_file_name=output_file_name,
+                                      cache_file = cache_file
+                                      )
+        self.compare_files(frame,"G1")
+
+        frame2 = single_snp(test_snps=test_snps[:,:10], pheno=pheno,G0=None, 
+                                      covar=covar, G1=None,
+                                      mixing=.5,
+                                      output_file_name=output_file_name,
+                                      cache_file = cache_file
+                                      )
+        self.compare_files(frame2,"G1")
+
 
     def test_G1_mixing(self):
         logging.info("TestSingleSnp test_G1_mixing")
@@ -315,8 +344,8 @@ if __name__ == '__main__':
     from fastlmm.association.tests.test_single_snp import TestSingleSnp
     suites = unittest.TestSuite([getTestSuite()])
 
-    if False: #Standard test run
-        r = unittest.TextTestRunner(failfast=False)
+    if True: #Standard test run 
+        r = unittest.TextTestRunner(failfast=True)
         r.run(suites)
     else: #Cluster test run
         from fastlmm.util.distributabletest import DistributableTest

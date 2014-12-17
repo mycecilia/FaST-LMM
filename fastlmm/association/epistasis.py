@@ -67,12 +67,12 @@ def epistasis(test_snps,pheno,G0, G1=None, mixing=0.0, covar=None,output_file_na
             When searching for log_delta, the upper bounds of the search.
     :type max_log_delta: number
 
-    :param cache_file: Name of  file to read or write cached precomutation values to, optional.
+    :param cache_file: Name of  file to read or write cached precomputation values to, optional.
                 If not given, no cache file will be used.
                 If given and file does not exists, will write precomputation values to file.
                 If given and file does exists, will read precomputation values from file.
                 The file contains the U and S matrix from the decomposition of the training matrix. It is in Python's np.savez (*.npz) format.
-                Calls using the same cache file should have the same 'G0'
+                Calls using the same cache file should have the same 'G0' and 'G1'
     :type cache_file: file name
 
     :param runner: a runner, optional: Tells how to run locally, multi-processor, or on a cluster.

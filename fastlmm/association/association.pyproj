@@ -6,8 +6,8 @@
     <ProjectGuid>{52d85a6d-fd53-41e5-b7e2-6acc38373c98}</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>tests\testepistasis.py</StartupFile>
-    <SearchPath>..\..\;..\..\doc\source\</SearchPath>
+    <StartupFile>tests\test_single_snp.py</StartupFile>
+    <SearchPath>..\..;..\..\..\pysnptools</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <InterpreterId>00000000-0000-0000-0000-000000000000</InterpreterId>

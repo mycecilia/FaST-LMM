@@ -5,17 +5,17 @@ import pysnptools.util.pheno as pstpheno
 import pysnptools.util as pstutil
 import fastlmm.util.util as flutil
 import numpy as np
-#from fastlmm.inference import LMM
-from fastlmm.inference.lmm_cov import LMM as fastLMM
 import scipy.stats as stats
 from pysnptools.snpreader import Bed
 from fastlmm.util.pickle_io import load, save
 import time
 import pandas as pd
+from fastlmm.inference.lmm_cov import LMM as fastLMM
 
 def single_snp(test_snps,pheno,
                  G0=None, G1=None, mixing=0.0, #!!test mixing and G1
-                 covar=None, output_file_name=None, log_delta=None, min_log_delta=-5, max_log_delta=10):
+                 covar=None, output_file_name=None, log_delta=None, min_log_delta=-5, max_log_delta=10,
+                 cache_file = None):
     """
     Function performing single SNP GWAS with REML
 
@@ -57,6 +57,18 @@ def single_snp(test_snps,pheno,
             When searching for log_delta, the upper bounds of the search.
     :type max_log_delta: number
 
+    :param cache_file: Name of  file to read or write cached precomputation values to, optional.
+                If not given, no cache file will be used.
+                If given and file does not exists, will write precomputation values to file.
+                If given and file does exists, will read precomputation values from file.
+                The file contains the U and S matrix from the decomposition of the training matrix. It is in Python's np.savez (*.npz) format.
+                Calls using the same cache file should have the same 'G0' and 'G1'
+                If given and the file does exist then G0 and G1 need not be given.
+    :type cache_file: file name
+
+
+
+
 
     :rtype: Pandas dataframe with one row per test SNP. Columns include "PValue"
 
@@ -76,18 +88,24 @@ def single_snp(test_snps,pheno,
     """
     t0 = time.time()
     test_snps = _snp_fixup(test_snps)
-    G0 = _snp_fixup(G0)
-    G1 = _snp_fixup(G1, iid_source_if_none=G0)
     pheno = _pheno_fixup(pheno)
     covar = _pheno_fixup(covar, iid_source_if_none=pheno)
-    G0, G1, test_snps, pheno, covar,  = pstutil.intersect_apply([G0, G1, test_snps, pheno, covar])
-    G0_standardized = G0.read().standardize()
-    G1_standardized = G1.read().standardize()
+
+    if G0 is not None or G1 is not None:
+        G0 = _snp_fixup(G0)
+        G1 = _snp_fixup(G1, iid_source_if_none=G0)
+        G0, G1, test_snps, pheno, covar,  = pstutil.intersect_apply([G0, G1, test_snps, pheno, covar])
+        G0_standardized = G0.read().standardize()
+        G1_standardized = G1.read().standardize()
+    else:
+        test_snps, pheno, covar,  = pstutil.intersect_apply([test_snps, pheno, covar])
+        G0_standardized, G1_standardized = None, None
 
 
     frame =  _internal_single(G0_standardized=G0_standardized, test_snps=test_snps, pheno=pheno,
-                                covar=covar, G1_standardized=G1_standardized, mixing=mixing,
-                                external_log_delta=log_delta, min_log_delta=min_log_delta, max_log_delta=max_log_delta)
+                                covar=covar, G1_standardized=G1_standardized, mixing=mixing, 
+                                external_log_delta=log_delta, min_log_delta=min_log_delta, max_log_delta=max_log_delta,
+                                cache_file = cache_file)
 
     frame.sort("PValue", inplace=True)
     frame.index = np.arange(len(frame))
@@ -97,8 +115,9 @@ def single_snp(test_snps,pheno,
         frame.to_csv(output_file_name, sep="\t", index=False)
 
     logging.info("PhenotypeName\t{0}".format(pheno['header']))
-    logging.info("SampleSize\t{0}".format(G0.iid_count))
-    logging.info("SNPCount\t{0}".format(G0.sid_count))
+    if G0 is not None:
+        logging.info("SampleSize\t{0}".format(G0.iid_count))
+        logging.info("SNPCount\t{0}".format(G0.sid_count))
     logging.info("Runtime\t{0}".format(time.time()-t0))
 
 
@@ -192,7 +211,7 @@ def single_snp_leave_out_one_chrom(test_snps, pheno,
 
         frame_chrom = _internal_single(G0_standardized=G0_standardized_chrom, test_snps=test_snps_chrom, pheno=pheno,
                                 covar=covar_chrom, G1_standardized=G1_standardized_chrom, mixing=mixing,
-                                external_log_delta=log_delta, min_log_delta=min_log_delta, max_log_delta=max_log_delta)
+                                external_log_delta=log_delta, min_log_delta=min_log_delta, max_log_delta=max_log_delta, cache_file=None)
 
         frame_list.append(frame_chrom)
 
@@ -213,7 +232,8 @@ def single_snp_leave_out_one_chrom(test_snps, pheno,
 
 def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
                  mixing, #!!test mixing and G1
-                 external_log_delta, min_log_delta, max_log_delta):
+                 external_log_delta, min_log_delta, max_log_delta,
+                 cache_file):
 
 
     covar = np.hstack((covar['vals'],np.ones((test_snps.iid_count, 1))))  #We always add 1's to the end.
@@ -222,29 +242,34 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
     from pysnptools.standardizer import DiagKtoN
 
     assert 0.0 <= mixing <= 1.0
-    
-    # combine two kernels (normalize kernels to diag(K)=N
-    if mixing == 0.0:
-        #G0_standardized_val = 1./np.sqrt((G0_standardized.val**2).sum() / float(G0_standardized.val.shape[0])) * G0_standardized.val
-        G = DiagKtoN(G0_standardized.val.shape[0]).standardize(G0_standardized.val)
-    elif mixing == 1.0:
-        #G1_standardized_val = 1./np.sqrt((G1_standardized.val**2).sum() / float(G1_standardized.val.shape[0])) * G1_standardized.val
-        G = DiagKtoN(G1_standardized.val.shape[0]).standardize(G1_standardized.val)
-    else:
-        assert G1_standardized.sid_count > 0, "If a nonzero mixing weight is given, G1 is required"
-        logging.info("concat G1, mixing {0}".format(mixing))
-        
-        G0_standardized_val = DiagKtoN(G0_standardized.val.shape[0]).standardize(G0_standardized.val)
-        G1_standardized_val = DiagKtoN(G1_standardized.val.shape[0]).standardize(G1_standardized.val)
-         
-        G0_standardized_val *= (np.sqrt(1.0-mixing))
-        G1_standardized_val *= np.sqrt(mixing) 
-        G = np.concatenate((G0_standardized_val, G1_standardized_val),1)
-        
 
-    #TODO: make sure low-rank case is handled correctly
-    from fastlmm.inference.lmm_cov import LMM as fastLMM
-    lmm = fastLMM(X=covar, Y=y, G=G, K=None)
+    if cache_file is not None and os.path.exists(cache_file):
+        lmm = fastLMM(X=covar, Y=y, G=None, K=None)
+        with np.load(cache_file) as data: #!! similar code in epistasis
+            lmm.U = data['arr_0']
+            lmm.S = data['arr_1']
+    else:
+        # combine two kernels (normalize kernels to diag(K)=N
+        if mixing == 0.0:
+            #G0_standardized_val = 1./np.sqrt((G0_standardized.val**2).sum() / float(G0_standardized.val.shape[0])) * G0_standardized.val
+            G = DiagKtoN(G0_standardized.val.shape[0]).standardize(G0_standardized.val)
+        elif mixing == 1.0:
+            #G1_standardized_val = 1./np.sqrt((G1_standardized.val**2).sum() / float(G1_standardized.val.shape[0])) * G1_standardized.val
+            G = DiagKtoN(G1_standardized.val.shape[0]).standardize(G1_standardized.val)
+        else:
+            assert G1_standardized.sid_count > 0, "If a nonzero mixing weight is given, G1 is required"
+            logging.info("concat G1, mixing {0}".format(mixing))
+        
+            G0_standardized_val = DiagKtoN(G0_standardized.val.shape[0]).standardize(G0_standardized.val)
+            G1_standardized_val = DiagKtoN(G1_standardized.val.shape[0]).standardize(G1_standardized.val)
+         
+            G0_standardized_val *= (np.sqrt(1.0-mixing))
+            G1_standardized_val *= np.sqrt(mixing) 
+            G = np.concatenate((G0_standardized_val, G1_standardized_val),1)
+        
+        #TODO: make sure low-rank case is handled correctly
+        lmm = fastLMM(X=covar, Y=y, G=G, K=None)
+
 
     if external_log_delta is None:
         result = lmm.find_log_delta(sid_count=1, min_log_delta=min_log_delta, max_log_delta=max_log_delta)
@@ -255,11 +280,19 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
 
     snps_read = test_snps.read().standardize()
     res = lmm.nLLeval(delta=internal_delta, dof=None, scale=1.0, penalty=0.0, snps=snps_read.val)
+
+    if cache_file is not None and not os.path.exists(cache_file):
+        pstutil.create_directory_if_necessary(cache_file)
+        np.savez(cache_file, lmm.U,lmm.S) #using np.savez instead of pickle because it seems to be faster to read and write
+
+
     beta = res['beta']
         
     chi2stats = beta*beta/res['variance_beta']
     #p_values = stats.chi2.sf(chi2stats,1)[:,0]
-    p_values = stats.f.sf(chi2stats,1,G.shape[0]-3)[:,0]#note that G.shape is the number of individuals and 3 is the number of fixed effects (covariates+SNP)
+    if G0_standardized is not None:
+        assert G.shape[0] == lmm.U.shape[0]
+    p_values = stats.f.sf(chi2stats,1,lmm.U.shape[0]-3)[:,0]#note that G.shape is the number of individuals and 3 is the number of fixed effects (covariates+SNP)
 
 
     items = [
