@@ -75,7 +75,7 @@
     <Content Include="datasets\mouse\alldata.bed" />
     <Content Include="datasets\mouse\alldata.bim" />
     <Content Include="datasets\mouse\alldata.fam" />
-    <Content Include="datasets\mouse\pheno.txt" />
+    <Content Include="datasets\mouse\pheno_10_causals.txt" />
     <Content Include="datasets\phenSynthFrom22.23.bin.N30.txt" />
     <Content Include="datasets\phenSynthFrom22.23.bin.N300.txt" />
     <Content Include="datasets\phenSynthFrom22.23.N30.txt" />
@@ -146,6 +146,7 @@
     <Content Include="expected-Windows\single_snp\one.txt" />
     <Content Include="expected-Windows\single_snp\one_looc.txt" />
     <Content Include="expected-Windows\single_snp\preload_files.txt" />
+    <Content Include="expected-Windows\single_snp\snc.txt" />
     <Content Include="expected-Windows\single_snp\topsnps.single.txt" />
   </ItemGroup>
   <ItemGroup>
