@@ -127,8 +127,7 @@ def write_plink_covariates(iid,X,fileout):
 def combineseeds(seed1,seed2):
     import hashlib
     import sys
-    seed=int(hashlib.md5(str(seed1) + "_" + str(seed2)).hexdigest(), 16)    
-    seed = int(seed % sys.maxint)
+    seed=int(hashlib.md5(str(seed1) + "_" + str(seed2)).hexdigest()[-8:], 16)    #as of numpy 1.9, seeds must be 32-bit, so keep only the 8 right-most hex digits
     return seed
 
 
