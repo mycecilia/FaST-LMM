@@ -820,7 +820,7 @@ def main():
         return
 
     #standardizer
-    from pysnptools.standardizer import factory
+    #from pysnptools.standardizer import factory
     standardizer = factory(args.standardizer)
 
     ##############################
