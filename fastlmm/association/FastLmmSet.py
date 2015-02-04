@@ -68,6 +68,7 @@ class FastLmmSet: # implements IDistributable
     _synthphenfile=None
 
     alt_snpreader = None
+    standardizer = pststandardizer.Unit()
 
     def addpostifx_to_outfile(self):
         if self.datestamp is not None:
@@ -197,7 +198,7 @@ class FastLmmSet: # implements IDistributable
             for iset, altset in enumerate(self.altsetlist_filtbysnps):
                 for iperm in xrange(-1, self.nperm):   #note that self.nperm is the 'stop', not the 'count'
                     SNPsalt=altset.read()    
-                    SNPsalt['snps'] = util.standardize(SNPsalt['snps'])     #!!!cmk standardize snps
+                    SNPsalt['snps'] = self.standardizer.standardize(SNPsalt['snps'])
                     G1 = pststandardizer.diag_K_to_N.DiagKtoN(SNPsalt['snps'].shape[0]).standardize(SNPsalt['snps'])
                     ichrm =  ",".join(sp.array(sp.unique(SNPsalt['pos'][:,0]),dtype=str)) 
                     minpos= str(sp.min(SNPsalt['pos'][:,2]))
@@ -547,6 +548,8 @@ class FastLmmSet: # implements IDistributable
         logging.info("    used " + str(pm+1) + " permutations to compute p=" + str(pv) + ", p50=" + str(result.test['pv']))
 
     def G_exclude(self, i_exclude):
+        assert isinstance(self.standardizer, pststandardizer.Unit), "On this code path (G_exclude), only default Unit standardization should be used."
+
         if self.__SNPs0.has_key("data"):
             G_exclude = self.__SNPs0["data"]["snps"][:,i_exclude]
         else:
@@ -558,7 +561,6 @@ class FastLmmSet: # implements IDistributable
             pass
         G_exclude/=sp.sqrt(self.__SNPs0["num_snps"]) #!!!better to use pststandardizer.diag_K_to_N.DiagKtoN because it handles SNCs better?
         logging.warn("On this code path (G_exclude), the snps may not be conditioned as well as possible.")
-        logging.warn("On this code path (G_exclude), only default Unit standardization should be used.")
         return G_exclude
         
     def run_test(self, SNPs1, G1, y, altset, iset, ichrm, iposrange, iperm = -1, varcomp_test=None):
