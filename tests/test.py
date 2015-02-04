@@ -152,7 +152,7 @@ if __name__ == '__main__':
                                     ])
     suites.debug
 
-    if True: #Standard test run
+    if False: #Standard test run #!!!cmk
         r = unittest.TextTestRunner(failfast=False)
         r.run(suites)
     else: #Cluster test run
