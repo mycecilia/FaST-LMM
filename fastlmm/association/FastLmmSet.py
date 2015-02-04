@@ -199,7 +199,7 @@ class FastLmmSet: # implements IDistributable
                 for iperm in xrange(-1, self.nperm):   #note that self.nperm is the 'stop', not the 'count'
                     SNPsalt=altset.read()    
                     SNPsalt['snps'] = self.standardizer.standardize(SNPsalt['snps'])
-                    G1 = pststandardizer.diag_K_to_N.DiagKtoN(SNPsalt['snps'].shape[0]).standardize(SNPsalt['snps'])
+                    G1 = pststandardizer.DiagKtoN(SNPsalt['snps'].shape[0]).standardize(SNPsalt['snps'])
                     ichrm =  ",".join(sp.array(sp.unique(SNPsalt['pos'][:,0]),dtype=str)) 
                     minpos= str(sp.min(SNPsalt['pos'][:,2]))
                     maxpos= str(sp.max(SNPsalt['pos'][:,2]))
