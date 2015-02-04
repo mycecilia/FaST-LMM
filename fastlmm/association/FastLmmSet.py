@@ -198,14 +198,7 @@ class FastLmmSet: # implements IDistributable
                 for iperm in xrange(-1, self.nperm):   #note that self.nperm is the 'stop', not the 'count'
                     SNPsalt=altset.read()    
                     SNPsalt['snps'] = util.standardize(SNPsalt['snps'])     #!!!cmk standardize snps
-                    SNPsalt['snps'] = util.standardize(SNPsalt['snps'])     #!!!cmk standardize snps #!!!CMK
-                    #snp_count = SNPsalt['snps'].shape[1] #!!!cmk
-                    snp_count = 0
-                    for i in xrange(SNPsalt['snps'].shape[1]):
-                        if not sp.all(SNPsalt['snps'][:,i]==0.0):
-                            snp_count += 1
-                    G1 = SNPsalt['snps']/sp.sqrt(snp_count)   #!!!Cmk
-                    #G1 = pststandardizer.diag_K_to_N.DiagKtoN(SNPsalt['snps'].shape[0]).standardize(SNPsalt['snps'].copy()) #!!!cmk would be great not to have the copy, but it seems needed.
+                    G1 = pststandardizer.diag_K_to_N.DiagKtoN(SNPsalt['snps'].shape[0]).standardize(SNPsalt['snps'])
                     ichrm =  ",".join(sp.array(sp.unique(SNPsalt['pos'][:,0]),dtype=str)) 
                     minpos= str(sp.min(SNPsalt['pos'][:,2]))
                     maxpos= str(sp.max(SNPsalt['pos'][:,2]))
@@ -560,31 +553,14 @@ class FastLmmSet: # implements IDistributable
             snp_names = self.__SNPs0["reader"].rs[i_exclude]
             snp_set = SnpAndSetName('G_exclude', snp_names)
             G_exclude = self.__SNPs0["reader"].read(snp_set)['snps']
-            G_exclude = util.standardize(G_exclude)
+            G_exclude = util.standardize(G_exclude) #!!!add support for other standardizers, here?
             #normalize
             pass
-        G_exclude/=sp.sqrt(self.__SNPs0["num_snps"])
+        G_exclude/=sp.sqrt(self.__SNPs0["num_snps"]) #!!!better to use pststandardizer.diag_K_to_N.DiagKtoN because it handles SNCs better?
+        logging.warn("On this code path (G_exclude), the snps may not be conditioned as well as possible.")
+        logging.warn("On this code path (G_exclude), only default Unit standardization should be used.")
         return G_exclude
         
-    
-    #def G_exclude(self, i_exclude):
-    #    if self.__SNPs0.has_key("data"):
-    #        G_exclude = self.__SNPs0["data"]["snps"][:,i_exclude] #!!!cmk what doesn't this get standardized?
-    #    else:
-    #        snp_names = self.__SNPs0["reader"].rs[i_exclude]
-    #        snp_set = SnpAndSetName('G_exclude', snp_names)
-    #        G_exclude = self.__SNPs0["reader"].read(snp_set)['snps']
-    #        G_exclude = util.standardize(G_exclude)  #!!!cmk standardize location
-    #        #G_exclude = util.standardize(G_exclude)  #!!!cmk standardize location !!!CMK
-    #    #G_exclude = pststandardizer.diag_K_to_N.DiagKtoN(G_exclude.shape[0]).standardize(G_exclude)# !!!CMK
-
-    #    snp_count = 0
-    #    for i in xrange(G_exclude.shape[1]):
-    #        if not sp.all(G_exclude[:,i]==0.0):
-    #            snp_count += 1
-    #    G_exclude/=sp.sqrt(snp_count) #!!!cmk
-    #    return G_exclude
-
     def run_test(self, SNPs1, G1, y, altset, iset, ichrm, iposrange, iperm = -1, varcomp_test=None):
         '''
         This function does the main work of the class, and also reads in the SNPs for the alternative model.
