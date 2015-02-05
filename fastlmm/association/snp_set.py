@@ -8,7 +8,6 @@ import scipy.stats as stats
 from fastlmm.util.pickle_io import load, save
 import time
 import pandas as pd
-import pysnptools
 
 def snp_set(
         test_snps,
@@ -28,8 +27,7 @@ def snp_set(
         minsetsize = None,
         maxsetsize = None,
         mindist=0,
-        idist=1,
-        standardizer = pysnptools.standardizer.Unit()
+        idist=1
     ):
     """
     Function performing GWAS on sets of snps
@@ -91,9 +89,6 @@ def snp_set(
          2, base-pair distance
     :type idist: number
 
-    :param standardizer: (default pysnptools.standardizer.Unit()) How to standardize the SNPs, e.g. Unit(), Beta(a,b), Identity()
-    :type standardizer: a standardizer
-
 
     :rtype: Pandas dataframe with one row per set.
 
@@ -154,8 +149,7 @@ def snp_set(
         calseed = seed,
         minsetsize = minsetsize,
         maxsetsize = maxsetsize,
-        write_lrtperm = write_lrtperm,
-        standardizer = standardizer
+        write_lrtperm = write_lrtperm
         )
     result = Local().run(fast_lmm_set)
 

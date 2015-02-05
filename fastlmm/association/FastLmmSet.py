@@ -24,7 +24,6 @@ import logging
 import warnings
 from tempfile import TemporaryFile
 import fastlmm.util.preprocess as util
-import pysnptools.standardizer as pststandardizer
 
 class FastLmmSet: # implements IDistributable
     '''
@@ -68,7 +67,6 @@ class FastLmmSet: # implements IDistributable
     _synthphenfile=None
 
     alt_snpreader = None
-    standardizer = pststandardizer.Unit()
 
     def addpostifx_to_outfile(self):
         if self.datestamp is not None:
@@ -198,8 +196,8 @@ class FastLmmSet: # implements IDistributable
             for iset, altset in enumerate(self.altsetlist_filtbysnps):
                 for iperm in xrange(-1, self.nperm):   #note that self.nperm is the 'stop', not the 'count'
                     SNPsalt=altset.read()    
-                    SNPsalt['snps'] = self.standardizer.standardize(SNPsalt['snps'])
-                    G1 = pststandardizer.DiagKtoN(SNPsalt['snps'].shape[0]).standardize(SNPsalt['snps'])
+                    SNPsalt['snps'] = util.standardize(SNPsalt['snps'])
+                    G1 = SNPsalt['snps']/sp.sqrt(SNPsalt['snps'].shape[1])  
                     ichrm =  ",".join(sp.array(sp.unique(SNPsalt['pos'][:,0]),dtype=str)) 
                     minpos= str(sp.min(SNPsalt['pos'][:,2]))
                     maxpos= str(sp.max(SNPsalt['pos'][:,2]))
@@ -375,6 +373,43 @@ class FastLmmSet: # implements IDistributable
         y_randG=sp.sqrt(genphen["varBack"])*randG.dot(randomstate.rand(nSnp,1))            
         return y_randG
 
+    def TESTBEFOREUSINGKfromAltSnps(self, N, SNPsalt=None):        
+       
+        print "constructing K from all SNPs"
+        t0=time.time()
+
+        Kall=sp.zeros([N,N])
+        nSnpTotal=self.alt_snpreader.snp_count
+        print "reading in " +str(nSnpTotal)+ " SNPs and adding up kernels"
+        #altsnps = readBED(self.bedfilealt,standardizeSNPs=True)['snps'] #loads all in to memory        
+        blocksize=100
+        ct=0
+        ts=time.time()
+        if self.alt_snpreader.snp_count<N: raise Exception("need to adjust code to handle low rank")          
+        for start in range(0,self.alt_snpreader.snp_count,blocksize):                                
+            ct+=blocksize
+            snpSet = PositionRange(start,blocksize)
+            snps = self.alt_snpreader.read(snpSet)['snps']
+            import fastlmm.util.preprocess as util
+            snps = util.standardize(snps)
+
+            #print "start = {0}".format(start)
+            Kall=Kall + snps.dot(snps.T)    
+            t1=time.time()
+            if ct % 50000==0: 
+                print "read %s SNPs in %.2f seconds" % (ct, t1-ts)
+                ts=time.time()
+            #if ct==2: 
+            #    break
+            #    Kall=sp.rand((N,N))
+            #    Kall=Kall.dot(Kall.T)
+        Kall=Kall/sp.sqrt(self.alt_snpreader.snp_count)  
+        Kall=Kall + 1e-5*sp.eye(N,N)     
+        t1=time.time()
+        logging.info("%.2f seconds elapsed" % (t1-t0))        
+                
+        return Kall
+
     def _saveArray(self, appendNameFile, header, values):
         outfile = utilx.appendtofilename(self.outfile, appendNameFile)
         try:
@@ -546,23 +581,20 @@ class FastLmmSet: # implements IDistributable
             result.test['pv-local-aUD']=sp.NaN
         
         logging.info("    used " + str(pm+1) + " permutations to compute p=" + str(pv) + ", p50=" + str(result.test['pv']))
-
+        
     def G_exclude(self, i_exclude):
-        assert isinstance(self.standardizer, pststandardizer.Unit), "On this code path (G_exclude), only default Unit standardization should be used."
-
         if self.__SNPs0.has_key("data"):
             G_exclude = self.__SNPs0["data"]["snps"][:,i_exclude]
         else:
             snp_names = self.__SNPs0["reader"].rs[i_exclude]
             snp_set = SnpAndSetName('G_exclude', snp_names)
             G_exclude = self.__SNPs0["reader"].read(snp_set)['snps']
-            G_exclude = util.standardize(G_exclude) #!!!add support for other standardizers, here?
+            G_exclude = util.standardize(G_exclude)
             #normalize
             pass
-        G_exclude/=sp.sqrt(self.__SNPs0["num_snps"]) #!!!better to use pststandardizer.diag_K_to_N.DiagKtoN because it handles SNCs better?
-        logging.warn("On this code path (G_exclude), the snps may not be conditioned as well as possible.")
+        G_exclude/=sp.sqrt(self.__SNPs0["num_snps"])
         return G_exclude
-        
+
     def run_test(self, SNPs1, G1, y, altset, iset, ichrm, iposrange, iperm = -1, varcomp_test=None):
         '''
         This function does the main work of the class, and also reads in the SNPs for the alternative model.
@@ -661,7 +693,7 @@ class FastLmmSet: # implements IDistributable
             assert str(self.test)=="lrt", "can only use lrt, here now"
             assert self.altModel["effect"]=="mixed" and self.altModel["link"]=="linear", "caching only set up for linear lrt at the moment"
             assert self.nullModel["effect"]=="fixed", "caching only set up for one-kernel" 
-            assert self.__G0 is None, "caching only 1-kernel implemeneted, otherwise need to permute G0 as well here"
+            assert self.__G0 is None, "caching only 1-kernel implemented, otherwise need to permute G0 as well here"
 
             #permute X, y instead of G1 so can use caching                  
             yperm=y[permutationIndex]                
@@ -673,7 +705,88 @@ class FastLmmSet: # implements IDistributable
                 
         return [result]
 
- 
+    def TESTBEFOREUSING_run_interactiontest(self,altset,iset,altset2,iset2,iperm = -1):
+        '''
+        This function does the main work of the class (when interaction tests are running).
+        It is called (via a lambda) inside the loops found in 'generate_sequence'
+
+        Input:
+            altset - a set of snps
+            iset - index to altset
+            iperm - index to permutation (-1 means no permutation)
+        Output:
+            an instance of the Result class
+        '''
+
+        t0=time.time()
+
+        self.run_once() #load files, etc. -- stuff we only want to do once no matter how many times we call 'run_test' and then 'reduce.
+
+        logging.info("Working on permutation index #{0} out of {1} total permutations...".format(iperm, self.nperm))
+        logging.info("\taltset {0}, {1} of {2}  ".format(altset, iset, len(self.altsetlist_filtbysnps)))
+        self.stdout.flush()
+
+        result = PairResult(iperm=iperm,iset=iset,setname=str(altset),iset2=iset2,setname2=str(altset2))
+
+        #read the alternative model SNPs (for all sets) from disk.
+        SNPs1a = altset.read()      #first set
+        import fastlmm.util.preprocess as util
+        SNPs1a['snps'] = util.standardize(SNPs1a['snps'])
+
+        SNPs1b = altset2.read()     #second set
+        SNPs1b['snps'] = util.standardize(SNPs1b['snps'])
+
+        SNPs1=dict(SNPs1a)
+        SNPs1.update(SNPs1b) #concatenate the SNP dictionaries
+  
+        G1 = SNPs1['snps']/sp.sqrt(SNPs1['snps'].shape[1])
+        if G1.shape[1]==0: raise Exception("no SNPs to test")
+        result.setsize = SNPs1['snps'].shape[1]
+
+        logging.info(" (" + str(result.setsize) + " SNPs)")
+
+        if self.permute >= 0 :
+            permutationIndex = utilx.generatePermutation(SNPs1['snps'].shape[0],self.rseed ^ self.permute)
+            G1=G1[permutationIndex]
+
+        if iperm >= 0 :
+            newseed = self.rseed ^ iperm
+            if self.permute >= 0 :
+                #Add a left shift so that iperm=1 and self.permute=2 gives a different newseed than iperm=2 and self.permute=1
+                newseed = (newseed << 1) ^ self.permute
+            permutationIndex = utilx.generatePermutation(SNPs1['snps'].shape[0], newseed)
+            #permute the data to create Null-only P-values
+            G1=G1[permutationIndex]
+
+        if self.filenull is not None:
+            i_exclude =  utilx.excludeinds(self.__SNPs0['data']['pos'], SNPs1['pos'], mindist = self.mindist,idist = self.idist)
+            result.nexclude = i_exclude.sum()
+            logging.info("numExcluded=" + str(result.nexclude))
+        else:
+            result.nexclude=0;
+
+        null_model_changed=(result.nexclude>0)
+
+        #need to make this caching smarter for when background kernel changes in every test (e.g. interactions)
+        if null_model_changed:
+            logging.info(" (computing needed null info anew) ")
+            G0_to_use = self.__SNPs0['data']['snps'][:,~i_exclude]/SP.sqrt(self.__SNPs0['data']['snps'][:,~i_exclude].shape[1])  #excluded SNPs
+            null_model=None
+        else: #use cached values
+            G0_to_use=self.__G0
+            null_model=self.__varcomp_test           
+            logging.info(" (using cached null info)")
+
+        [result.pv,result.lik0,result.lik1] = self.test.pv_etc(filenull, G0_to_use, G1, y, x, appendBias, null_model, self.__varcomp_test, forcefullrank)
+
+        # where is result.test used?
+        result.test=self.test #probably not the best way to do this, but hacking it for now
+
+        t1=time.time()
+        logging.info("%.2f seconds elapsed" % (t1-t0))
+
+        return result
+  
     def setSNPs0(self):        
         logging.info("Reading SNPs0")
         root, ext = os.path.splitext(self.filenull)
@@ -728,6 +841,8 @@ class FastLmmSet: # implements IDistributable
                     }
                 self.__SNPs0["original_iids"] = self.__SNPs0["reader"].original_iids
                 self.__SNPs0["num_snps"] = num_snps
+                #import fastlmm.util.preprocess as util
+                #self.__SNPs0['data']['snps'] = util.standardize(self.__SNPs0['data']['snps'])
             else:
                 if self.extractSim is not None : raise Exception("extractSim not supported with filenull in ped format, please use bed format")
                 self.__SNPs0 = {"data":readPED(root),
@@ -813,7 +928,6 @@ class FastLmmSet: # implements IDistributable
             if self.genphen["varBackNullFileGen"] is not None:
                 self.__varBackNullSnpsGen=readBED(self.genphen["varBackNullFileGen"])
                 import fastlmm.util.preprocess as util
-                assert False, "should this offer other ways to standardize?"
                 self.__varBackNullSnpsGen['snps'] = util.standardize(self.__varBackNullSnpsGen['snps'])
             else:
                 self.__varBackNullSnpsGen=None

@@ -115,28 +115,6 @@ class TestSnpSet(unittest.TestCase):
         out,msg=ut.compare_files(tmpOutfile, referenceOutfile, tolerance)                
         self.assertTrue(out, "msg='{0}', ref='{1}', tmp='{2}'".format(msg, referenceOutfile, tmpOutfile))
 
-
-    def test_five(self):
-        logging.info("TestSnpSet test_five")
-
-        fn = "lrt_one_kernel_fixed_mixed_effect_linear_qqfit.N300.beta.txt"
-        tmpOutfile = self.file_name(fn)
-        referenceOutfile = self._referenceOutfile(fn)
-        import pysnptools.standardizer as pststandardizer
-
-        result_dataframe = snp_set(
-            test_snps = self.currentFolder+'/../../../tests/datasets/all_chr.maf0.001.N300',
-            set_list = self.currentFolder+'/../../../tests/datasets/set_input.23.txt',
-            pheno = self.currentFolder+'/../../../tests/datasets/phenSynthFrom22.23.N300.txt',
-            standardizer = pststandardizer.Beta(.5,.6),
-            output_file_name = tmpOutfile
-            )
-
-
-        out,msg=ut.compare_files(tmpOutfile, referenceOutfile, tolerance)                
-        self.assertTrue(out, "msg='{0}', ref='{1}', tmp='{2}'".format(msg, referenceOutfile, tmpOutfile))
-
-
     def test_doctest(self):
         result = doctest.testfile("../snp_set.py")
         assert result.failed == 0, "failed doc test: " + __file__
