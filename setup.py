@@ -62,7 +62,7 @@ ext = [Extension("fastlmm.util.stats.quadform.qfc_src.wrap_qfc", ["fastlmm/util/
 #python setup.py sdist bdist_wininst upload
 setup(
     name='fastlmm',
-    version='0.2.5',
+    version='0.2.6',
     description='Fast GWAS',
     long_description=readme(),
     keywords='gwas bioinformatics LMMs MLMs',
