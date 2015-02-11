@@ -623,7 +623,7 @@ class FastLmmSet: # implements IDistributable
                 logging.info( "no SNPS in set " + setname )
                 result=None
                 return [result]
-            if sp.isnan(G1).any(): raise Exception("found missing values in test SNPs that remain after intersection for " + str(altset))
+            if sp.isnan(G1.sum()): raise Exception("found missing values in test SNPs that remain after intersection for " + str(altset))
 
             result.setsize = SNPs1['snps'].shape[1]
                 
@@ -693,7 +693,7 @@ class FastLmmSet: # implements IDistributable
             assert str(self.test)=="lrt", "can only use lrt, here now"
             assert self.altModel["effect"]=="mixed" and self.altModel["link"]=="linear", "caching only set up for linear lrt at the moment"
             assert self.nullModel["effect"]=="fixed", "caching only set up for one-kernel" 
-            assert self.__G0 is None, "caching only 1-kernel implemeneted, otherwise need to permute G0 as well here"
+            assert self.__G0 is None, "caching only 1-kernel implemented, otherwise need to permute G0 as well here"
 
             #permute X, y instead of G1 so can use caching                  
             yperm=y[permutationIndex]                
@@ -965,9 +965,9 @@ class FastLmmSet: # implements IDistributable
             self.__X=sp.hstack((sp.ones((N,1)),covar['vals']))
         self.__y = pheno['vals']
 
-        if not covar is None and sp.isnan(covar['vals']).any(): raise Exception("found missing values in covariates file that remain after intersection")
-        if sp.isnan(self.__y).any(): raise Exception("found missing values in phenotype file that remain after intersection")
-        #if hasattr(self,'__G0') and not self.__G0 is None and sp.isnan(self.__G0).any(): raise Exception("found missing values in background SNPs that remain after intersection")
+        if not covar is None and sp.isnan(covar['vals'].sum()): raise Exception("found missing values in covariates file that remain after intersection")
+        if sp.isnan(self.__y.sum()): raise Exception("found missing values in phenotype file that remain after intersection")
+        #if hasattr(self,'__G0') and not self.__G0 is None and sp.isnan(self.__G0.sum())): raise Exception("found missing values in background SNPs that remain after intersection")
 
         #creating sets from set defn files. Looks at bed file to filter down the SNPs to only those present in the bed file
         self.altset_list,self.altsetlist_filtbysnps = self.create_altsetlist_filtbysnps(self.altset_list,self.alt_snpreader)

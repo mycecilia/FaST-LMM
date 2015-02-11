@@ -94,6 +94,23 @@ class TestSingleSnp(unittest.TestCase):
                                   )
         self.compare_files(frame,"one")
         
+    def test_SNC(self):
+        logging.info("TestSNC")
+        from pysnptools.snpreader import Bed
+        test_snps = self.bedbase
+        pheno = pstpheno.loadOnePhen(self.phen_fn,vectorize=True)
+        covar = pstpheno.loadPhen(self.cov_fn)
+        bed = Bed(test_snps)
+        snc = bed.read()
+        snc.val[:,2] = [0] * snc.iid_count # make SNP #2 have constant values (aka a SNC)
+
+        output_file_name = self.file_name("snc")
+
+        frame = single_snp(test_snps=snc[:,:10], pheno=pheno, G0=snc, 
+                                  covar=covar, output_file_name=output_file_name
+                                  )
+        self.compare_files(frame,"snc")
+
     def test_G0_has_reader(self):
         logging.info("TestSingleSnp test_G0_has_reader")
         from pysnptools.snpreader import Bed

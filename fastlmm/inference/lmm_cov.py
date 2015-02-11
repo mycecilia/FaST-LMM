@@ -614,15 +614,17 @@ class LMM(object):
 			########
 
 		if Usnps is not None:
+			beta = snpsKY / (snpsKsnps + (penalty or 0))
+			if np.isnan(beta.min()):
+			    logging.warning("NaN beta value seen, may be due to an SNC (a constant SNP)")
+			    beta[snpsKY==0] = 0.0
+			r2 = -(snpsKY * beta - YKY[np.newaxis,:])
 			if penalty:
-				beta = snpsKY / (snpsKsnps + penalty)
-				r2 = -(snpsKY * beta - YKY[np.newaxis,:])
 				variance_beta = r2 / (N - 1) * snpsKsnps / ((snpsKsnps + penalty) * (snpsKsnps + penalty))#note that we assume the loss in DOF is 1 here, even though it is less, so the
-                                                                                              #variance estimate is coservative
+                                                                                              #variance estimate is conservative
 			else:
-				beta = snpsKY / snpsKsnps
-				r2 = -(snpsKY * beta - YKY[np.newaxis,:])
 				variance_beta = r2 / (N - 1) / snpsKsnps
+            
 		else:
 			r2 = YKY
 			beta = None
@@ -641,9 +643,6 @@ class LMM(object):
 				'variance_beta':variance_beta,
 				'scale':scale
 				}
-        
-		if np.isnan(nLL).any():
-			raise FloatingPointError("nan likelihood")
 		return result
 
 

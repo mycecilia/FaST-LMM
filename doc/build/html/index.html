@@ -54,7 +54,7 @@ This release contains the improvements described in Widmer <em>et al.</em>, <em>
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">single_snp</span></tt><a class="headerlink" href="#single-snp" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="fastlmm.association.single_snp">
-<tt class="descclassname">fastlmm.association.</tt><tt class="descname">single_snp</tt><big>(</big><em>test_snps</em>, <em>pheno</em>, <em>G0=None</em>, <em>G1=None</em>, <em>mixing=0.0</em>, <em>covar=None</em>, <em>output_file_name=None</em>, <em>log_delta=None</em>, <em>min_log_delta=-5</em>, <em>max_log_delta=10</em><big>)</big><a class="headerlink" href="#fastlmm.association.single_snp" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">fastlmm.association.</tt><tt class="descname">single_snp</tt><big>(</big><em>test_snps</em>, <em>pheno</em>, <em>G0=None</em>, <em>G1=None</em>, <em>mixing=0.0</em>, <em>covar=None</em>, <em>output_file_name=None</em>, <em>log_delta=None</em>, <em>min_log_delta=-5</em>, <em>max_log_delta=10</em>, <em>cache_file=None</em><big>)</big><a class="headerlink" href="#fastlmm.association.single_snp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function performing single SNP GWAS with REML</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -79,6 +79,13 @@ If not given will search for best value.</li>
 When searching for log_delta, the lower bounds of the search.</li>
 <li><strong>max_log_delta</strong> (<em>number</em>) &#8211; (default:10)
 When searching for log_delta, the upper bounds of the search.</li>
+<li><strong>cache_file</strong> (<em>file name</em>) &#8211; Name of  file to read or write cached precomputation values to, optional.
+If not given, no cache file will be used.
+If given and file does not exists, will write precomputation values to file.
+If given and file does exists, will read precomputation values from file.
+The file contains the U and S matrix from the decomposition of the training matrix. It is in Python&#8217;s np.savez (<a href="#id1"><span class="problematic" id="id2">*</span></a>.npz) format.
+Calls using the same cache file should have the same &#8216;G0&#8217; and &#8216;G1&#8217;
+If given and the file does exist then G0 and G1 need not be given.</li>
 </ul>
 </td>
 </tr>
@@ -193,12 +200,12 @@ If not given will search for best value.</li>
 When searching for log_delta, the lower bounds of the search.</li>
 <li><strong>max_log_delta</strong> (<em>number</em>) &#8211; (default:-5)
 When searching for log_delta, the upper bounds of the search.</li>
-<li><strong>cache_file</strong> (<em>file name</em>) &#8211; Name of  file to read or write cached precomutation values to, optional.
+<li><strong>cache_file</strong> (<em>file name</em>) &#8211; Name of  file to read or write cached precomputation values to, optional.
 If not given, no cache file will be used.
 If given and file does not exists, will write precomputation values to file.
 If given and file does exists, will read precomputation values from file.
-The file contains the U and S matrix from the decomposition of the training matrix. It is in Python&#8217;s np.savez (<a href="#id1"><span class="problematic" id="id2">*</span></a>.npz) format.
-Calls using the same cache file should have the same &#8216;G0&#8217;</li>
+The file contains the U and S matrix from the decomposition of the training matrix. It is in Python&#8217;s np.savez (<a href="#id3"><span class="problematic" id="id4">*</span></a>.npz) format.
+Calls using the same cache file should have the same &#8216;G0&#8217; and &#8216;G1&#8217;</li>
 <li><strong>runner</strong> (<em>a runner.</em>) &#8211; a runner, optional: Tells how to run locally, multi-processor, or on a cluster.
 If not given, the function is run locally.</li>
 </ul>
@@ -232,7 +239,7 @@ If not given, the function is run locally.</li>
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">snp_set</span></tt><a class="headerlink" href="#snp-set" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="fastlmm.association.snp_set">
-<tt class="descclassname">fastlmm.association.</tt><tt class="descname">snp_set</tt><big>(</big><em>test_snps</em>, <em>set_list</em>, <em>pheno</em>, <em>covar=None</em>, <em>output_file_name=None</em>, <em>G0=None</em>, <em>test='lrt'</em>, <em>write_lrtperm=False</em>, <em>nperm=10</em>, <em>npermabs=None</em>, <em>mpheno=1</em>, <em>G0_fit='qq'</em>, <em>qmax=0.1</em>, <em>seed=None</em>, <em>minsetsize=None</em>, <em>maxsetsize=None</em>, <em>mindist=0</em>, <em>idist=1</em><big>)</big><a class="headerlink" href="#fastlmm.association.snp_set" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">fastlmm.association.</tt><tt class="descname">snp_set</tt><big>(</big><em>test_snps</em>, <em>set_list</em>, <em>pheno</em>, <em>covar=None</em>, <em>output_file_name=None</em>, <em>G0=None</em>, <em>test='lrt'</em>, <em>write_lrtperm=False</em>, <em>nperm=10</em>, <em>npermabs=None</em>, <em>mpheno=1</em>, <em>G0_fit='qq'</em>, <em>qmax=0.1</em>, <em>seed=None</em>, <em>minsetsize=None</em>, <em>maxsetsize=None</em>, <em>mindist=0</em>, <em>idist=1</em>, <em>standardizer=Unit()</em><big>)</big><a class="headerlink" href="#fastlmm.association.snp_set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function performing GWAS on sets of snps</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -259,6 +266,7 @@ If not given, the function is run locally.</li>
 <li><strong>idist</strong> (<em>number</em>) &#8211; (default: 1) the type of position to use with mindist
 1, genomic distance
 2, base-pair distance</li>
+<li><strong>standardizer</strong> (<em>a standardizer</em>) &#8211; (default pysnptools.standardizer.Unit()) How to standardize the SNPs, e.g. Unit(), Beta(a,b), Identity()</li>
 </ul>
 </td>
 </tr>
@@ -276,7 +284,7 @@ If not given, the function is run locally.</li>
 <span class="gp">... </span>    <span class="n">test_snps</span> <span class="o">=</span> <span class="s">&#39;../../tests/datasets/all_chr.maf0.001.N300&#39;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">set_list</span> <span class="o">=</span> <span class="s">&#39;../../tests/datasets/set_input.23.txt&#39;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">pheno</span> <span class="o">=</span> <span class="s">&#39;../../tests/datasets/phenSynthFrom22.23.N300.txt&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">result_dataframe</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">SetId</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">result_dataframe</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;P-value_adjusted&#39;</span><span class="p">],</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">result_dataframe</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">SetId</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">result_dataframe</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;P-value_adjusted&#39;</span><span class="p">],</span><span class="mi">15</span><span class="p">)</span>
 <span class="go">set23 0.0</span>
 </pre></div>
 </div>

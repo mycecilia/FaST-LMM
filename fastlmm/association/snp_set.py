@@ -101,7 +101,7 @@ def snp_set(
     ...     test_snps = '../../tests/datasets/all_chr.maf0.001.N300',
     ...     set_list = '../../tests/datasets/set_input.23.txt',
     ...     pheno = '../../tests/datasets/phenSynthFrom22.23.N300.txt')
-    >>> print result_dataframe.iloc[0].SetId, round(result_dataframe.iloc[0]['P-value_adjusted'],50)
+    >>> print result_dataframe.iloc[0].SetId, round(result_dataframe.iloc[0]['P-value_adjusted'],15)
     set23 0.0
 
     """
