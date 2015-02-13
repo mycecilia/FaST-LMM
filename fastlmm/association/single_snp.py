@@ -347,7 +347,12 @@ def _pheno_fixup(pheno_input, iid_source_if_none=None):
         return ret
 
     if len(pheno_input['vals'].shape) == 1:
-        pheno_input['vals'] = np.reshape(pheno_input['vals'],(-1,1))
+        ret = {
+        'header' : pheno_input['header'],
+        'vals' : np.reshape(pheno_input['vals'],(-1,1)),
+        'iid' : pheno_input['iid']
+        }
+        return ret
 
     return pheno_input
 
