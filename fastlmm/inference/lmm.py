@@ -271,7 +271,6 @@ class LMM(object):
         --------------------------------------------------------------------------
         '''
         #f = lambda x : (self.nLLeval(h2=x,**kwargs)['nLL'])
-        warnings.warn("The H2 to loglikelihood function is difficult to optimize. Consider using find_log_delta instead.") 
         resmin=[None]
         def f(x,resmin=resmin,**kwargs):
             res = self.nLLeval(h2=x,**kwargs)
