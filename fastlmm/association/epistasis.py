@@ -435,6 +435,7 @@ class _Epistasis(object) : #implements IDistributable
             logging.info("searching for internal delta")
             lmm.setX(self.covar)
             lmm.sety(self.pheno['vals'])
+            #log delta is used here. Might be better to use findH2, but if so will need to normalized G so that its K's diagonal would sum to iid_count
             result = lmm.find_log_delta(REML=False, sid_count=self.G0.sid_count, min_log_delta=self.min_log_delta, max_log_delta=self.max_log_delta  ) #!!what about findA2H2? minH2=0.00001
             self.external_log_delta = result['log_delta']
 

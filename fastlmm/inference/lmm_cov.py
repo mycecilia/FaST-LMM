@@ -446,7 +446,7 @@ class LMM(object):
 		dof     : Degrees of freedom of the Multivariate student-t
 						(default None uses multivariate Normal likelihood)
 		logdelta: log(delta) allows to optionally parameterize in delta space
-		delta   : delta     allows tomoptionally parameterize in delta space
+		delta   : delta     allows to optionally parameterize in delta space
 		scale   : Scale parameter the multiplies the Covariance matrix (default 1.0)
 		--------------------------------------------------------------------------
 		Output dictionary:
@@ -512,7 +512,7 @@ class LMM(object):
 		dof     : Degrees of freedom of the Multivariate student-t
 						(default None uses multivariate Normal likelihood)
 		logdelta: log(delta) allows to optionally parameterize in delta space
-		delta   : delta     allows tomoptionally parameterize in delta space
+		delta   : delta     allows to optionally parameterize in delta space
 		scale   : Scale parameter the multiplies the Covariance matrix (default 1.0)
 
 		#TODO: complete doc-string (clean up!)

@@ -317,7 +317,7 @@ class LMM(object):
         dof     : Degrees of freedom of the Multivariate student-t
                         (default None uses multivariate Normal likelihood)
         logdelta: log(delta) allows to optionally parameterize in delta space
-        delta   : delta     allows tomoptionally parameterize in delta space
+        delta   : delta     allows to optionally parameterize in delta space
         scale   : Scale parameter the multiplies the Covariance matrix (default 1.0)
         --------------------------------------------------------------------------
         Output dictionary:
@@ -590,7 +590,7 @@ class LMM(object):
         beta            : weight vector for fixed effects
         h2              : mixture weight between K and Identity (environmental noise)
         logdelta        : log(delta) allows to optionally parameterize in delta space
-        delta           : delta     allows tomoptionally parameterize in delta space
+        delta           : delta     allows to optionally parameterize in delta space
         scale           : Scale parameter the multiplies the Covariance matrix (default 1.0)
 
         If SNPs are excluded, nLLeval must be called before to re-calculate self.UW,self.UUW
@@ -697,7 +697,7 @@ class LMM(object):
         Input:
         h2              : mixture weight between K and Identity (environmental noise)
         logdelta        : log(delta) allows to optionally parameterize in delta space
-        delta           : delta     allows tomoptionally parameterize in delta space
+        delta           : delta     allows to optionally parameterize in delta space
         sigma2          : sigma2 parameter the multiplies the Covariance matrix (default 1.0)
         K_star_star     : Kernel on test examples
 
