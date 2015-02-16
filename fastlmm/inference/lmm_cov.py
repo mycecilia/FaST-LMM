@@ -294,6 +294,7 @@ class LMM(object):
 		'''
 		#f = lambda x : (self.nLLeval(h2=x,**kwargs)['nLL'])
 		resmin = [None]
+		logging.info("starting log_delta search") #!!!cmk comment all these out to add speed?
 		def f(x,resmin=resmin,**kwargs):
 		    h2 = 1.0 / (np.exp(x) * sid_count + 1) #We convert from external log_delta to h2 and then back again so that this
 		                                           #code is most similar to findH2
@@ -301,7 +302,7 @@ class LMM(object):
 		    res = self.nLLeval(h2=h2,**kwargs)
 		    if (resmin[0] is None) or (res['nLL'] < resmin[0]['nLL']):
 		        resmin[0] = res
-		    #logging.info("search\t{0}\t{1}".format(x,res['nLL']))
+		    logging.info("search\t{0}\t{1}".format(x,res['nLL']))
 		    return res['nLL']
 		min = minimize1D(f=f, nGrid=nGrid, minval=min_log_delta, maxval=max_log_delta)
 		res = resmin[0]
@@ -328,6 +329,7 @@ class LMM(object):
 		'''
 		#f = lambda x : (self.nLLeval(h2=x,**kwargs)['nLL'])
 		resmin = [None for i in xrange(self.Y.shape[1])]
+		logging.info("starting H2 search") #!!!cmk comment all these out to add speed?
 		assert estimate_Bayes == False, "not implemented"
 		if self.Y.shape[1] > 1:
 			def f(x):
@@ -337,6 +339,7 @@ class LMM(object):
 					if (resmin[i] is None) or (res['nLL'][i] < resmin[i]['nLL']):
 						resmin[i] = res.copy()
 						resmin[i]['nLL'] = res['nLL'][i]
+				logging.info("search\t{0}\t{1}".format(x,res['nLL']))
 				return res['nLL']
 			(evalgrid,resultgrid) = evalgrid1D(f, evalgrid = None, nGrid=nGridH2, minval=minH2, maxval = maxH2, dimF=self.Y.shape[1])
 			#import ipdb;ipdb.set_trace()
@@ -344,6 +347,7 @@ class LMM(object):
 		elif estimate_Bayes:
 			def f(x):
 				res = self.nLLeval(h2=x,**kwargs)
+				logging.info("search\t{0}\t{1}".format(x,res['nLL']))
 				return res['nLL']
 			(evalgrid,resultgrid) = evalgrid1D(f, evalgrid = None, nGrid=nGridH2, minval=minH2, maxval = maxH2, dimF=self.Y.shape[1])
 			lik = np.exp(-resultgrid)
@@ -357,8 +361,10 @@ class LMM(object):
 				res = self.nLLeval(h2=x,**kwargs)
 				if (resmin[0] is None) or (res['nLL'] < resmin[0]['nLL']):
 					resmin[0] = res
+				logging.info("search\t{0}\t{1}".format(x,res['nLL']))
 				return res['nLL'][0]   
 			min = minimize1D(f=f, nGrid=nGridH2, minval=minH2, maxval=maxH2)
+			logging.info("search\t{0}\t{1}".format("?",resmin[0]))
 			return resmin[0]
 
 	def nLLeval_2K(self, h2=0.0, h2_1=0.0, dof=None, scale=1.0, penalty=0.0, snps=None, UW=None, UUW=None, i_up=None, i_G1=None, subset=False):

@@ -14,7 +14,7 @@ from fastlmm.inference.lmm_cov import LMM as fastLMM
 
 def single_snp(test_snps,pheno,
                  G0=None, G1=None, mixing=0.0, #!!test mixing and G1
-                 covar=None, output_file_name=None, log_delta=None, min_log_delta=-5, max_log_delta=10,
+                 covar=None, output_file_name=None, h2=None,
                  cache_file = None):
     """
     Function performing single SNP GWAS with REML
@@ -45,17 +45,9 @@ def single_snp(test_snps,pheno,
     :param output_file_name: Name of file to write results to, optional. If not given, no output file will be created.
     :type output_file_name: file name
 
-    :param log_delta: A parameter to LMM learning, optional
+    :param h2: A parameter to LMM learning, optional
             If not given will search for best value.
-    :type log_delta: number
-
-    :param min_log_delta: (default:-5)
-            When searching for log_delta, the lower bounds of the search.
-    :type min_log_delta: number
-
-    :param max_log_delta: (default:10)
-            When searching for log_delta, the upper bounds of the search.
-    :type max_log_delta: number
+    :type h2: number
 
     :param cache_file: Name of  file to read or write cached precomputation values to, optional.
                 If not given, no cache file will be used.
@@ -81,7 +73,7 @@ def single_snp(test_snps,pheno,
     >>> logging.basicConfig(level=logging.INFO)
     >>> snpreader = Bed("../feature_selection/examples/toydata")
     >>> pheno_fn = "../feature_selection/examples/toydata.phe"
-    >>> results_dataframe = single_snp(test_snps=snpreader[:,5000:10000],pheno=pheno_fn,G0=snpreader[:,0:5000],log_delta=np.log(4.0))
+    >>> results_dataframe = single_snp(test_snps=snpreader[:,5000:10000],pheno=pheno_fn,G0=snpreader[:,0:5000],h2=.2)
     >>> print results_dataframe.iloc[0].SNP,round(results_dataframe.iloc[0].PValue,7),len(results_dataframe)
     null_7487 3.4e-06 5000
 
@@ -103,8 +95,8 @@ def single_snp(test_snps,pheno,
 
 
     frame =  _internal_single(G0_standardized=G0_standardized, test_snps=test_snps, pheno=pheno,
-                                covar=covar, G1_standardized=G1_standardized, mixing=mixing, 
-                                external_log_delta=log_delta, min_log_delta=min_log_delta, max_log_delta=max_log_delta,
+                                covar=covar, G1_standardized=G1_standardized, 
+                                mixing=mixing, h2=h2,
                                 cache_file = cache_file)
 
     frame.sort("PValue", inplace=True)
@@ -125,12 +117,12 @@ def single_snp(test_snps,pheno,
 
     
 
-#!!might one need to pre-compute log_delta for each chrom?
+#!!might one need to pre-compute h2 for each chrom?
 #!!clusterize????
 def single_snp_leave_out_one_chrom(test_snps, pheno,
                  G1=None, mixing=0.0, #!!test mixing and G1
                  covar=None,covar_by_chrom=None,
-                 log_delta=None, min_log_delta=-5, max_log_delta=10, output_file_name=None):
+                 h2=None, output_file_name=None):
     """
     Function performing single SNP GWAS via cross validation over the chromosomes with REML
 
@@ -162,18 +154,9 @@ def single_snp_leave_out_one_chrom(test_snps, pheno,
     :param output_file_name: Name of file to write results to, optional. If not given, no output file will be created.
     :type output_file_name: file name
 
-    :param log_delta: A parameter to LMM learning, optional
+    :param h2: A parameter to LMM learning, optional
             If not given will search for best value.
-    :type log_delta: number
-
-    :param min_log_delta: (default:-5)
-            When searching for log_delta, the lower bounds of the search.
-    :type min_log_delta: number
-
-    :param max_log_delta: (default:10)
-            When searching for log_delta, the upper bounds of the search.
-    :type max_log_delta: number
-
+    :type h2: number
 
     :rtype: Pandas dataframe with one row per test SNP. Columns include "PValue"
 
@@ -185,7 +168,7 @@ def single_snp_leave_out_one_chrom(test_snps, pheno,
     >>> from pysnptools.snpreader import Bed
     >>> logging.basicConfig(level=logging.INFO)
     >>> pheno_fn = "../feature_selection/examples/toydata.phe"
-    >>> results_dataframe = single_snp_leave_out_one_chrom(test_snps="../feature_selection/examples/toydata.5chrom", pheno=pheno_fn, log_delta=np.log(4.0))
+    >>> results_dataframe = single_snp_leave_out_one_chrom(test_snps="../feature_selection/examples/toydata.5chrom", pheno=pheno_fn, h2=.2)
     >>> print results_dataframe.iloc[0].SNP,round(results_dataframe.iloc[0].PValue,7),len(results_dataframe)
     null_576 1e-07 10000
 
@@ -211,7 +194,7 @@ def single_snp_leave_out_one_chrom(test_snps, pheno,
 
         frame_chrom = _internal_single(G0_standardized=G0_standardized_chrom, test_snps=test_snps_chrom, pheno=pheno,
                                 covar=covar_chrom, G1_standardized=G1_standardized_chrom, mixing=mixing,
-                                external_log_delta=log_delta, min_log_delta=min_log_delta, max_log_delta=max_log_delta, cache_file=None)
+                                h2=h2, cache_file=None)
 
         frame_list.append(frame_chrom)
 
@@ -232,7 +215,7 @@ def single_snp_leave_out_one_chrom(test_snps, pheno,
 
 def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
                  mixing, #!!test mixing and G1
-                 external_log_delta, min_log_delta, max_log_delta,
+                 h2,
                  cache_file):
 
 
@@ -271,15 +254,13 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
         lmm = fastLMM(X=covar, Y=y, G=G, K=None)
 
 
-    if external_log_delta is None:
-        result = lmm.find_log_delta(sid_count=1, min_log_delta=min_log_delta, max_log_delta=max_log_delta)
-        external_log_delta = result['log_delta']
-    internal_delta = np.exp(external_log_delta)
-    logging.info("internal_delta={0}".format(internal_delta))
-    logging.info("external_log_delta={0}".format(external_log_delta))
+    if h2 is None:
+        result = lmm.findH2()
+        h2 = result['h2']
+    logging.info("h2={0}".format(h2))
 
     snps_read = test_snps.read().standardize()
-    res = lmm.nLLeval(delta=internal_delta, dof=None, scale=1.0, penalty=0.0, snps=snps_read.val)
+    res = lmm.nLLeval(h2=h2, dof=None, scale=1.0, penalty=0.0, snps=snps_read.val)
 
     if cache_file is not None and not os.path.exists(cache_file):
         pstutil.create_directory_if_necessary(cache_file)
@@ -303,7 +284,7 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
                 ('PValue', p_values),
                 ('SnpWeight', beta[:,0]),
                 ('SnpWeightSE', np.sqrt(res['variance_beta'][:,0])),
-                ('NullLogDelta', np.zeros((snps_read.sid_count)) + external_log_delta)
+                ('NullH2', np.zeros((snps_read.sid_count)) + h2)
             ]
     frame = pd.DataFrame.from_items(items)
 
@@ -376,13 +357,13 @@ if __name__ == "__main__":
 
 
 
-    #log_delta = np.log(4.0)
-    #frame = single_snp(test_snps=snpreader[:,5000:10000], pheno=pheno_fn, G0=snpreader[:,0:5000], log_delta=log_delta,output_file_name=r"c:\deldir\toydata.out.txt")
+    #h2 = .2
+    #frame = single_snp(test_snps=snpreader[:,5000:10000], pheno=pheno_fn, G0=snpreader[:,0:5000], h2=h2,output_file_name=r"c:\deldir\toydata.out.txt")
     #print frame.iloc[0].SNP,round(frame.iloc[0].PValue,7),len(frame)
     ##null_7487 2.6e-06 5000
 
     #snpreader2 = "../feature_selection/examples/toydata.5chrom"
-    #frame2 = single_snp_leave_out_one_chrom(test_snps=snpreader2, pheno=pheno_fn, log_delta=log_delta,output_file_name=r"c:\deldir\toydata.2.out.txt")
+    #frame2 = single_snp_leave_out_one_chrom(test_snps=snpreader2, pheno=pheno_fn,h2=h2,output_file_name=r"c:\deldir\toydata.2.out.txt")
     #print frame2.iloc[0].SNP,round(frame2.iloc[0].PValue,7),len(frame2)
     ##null_576 1e-07 10000
 

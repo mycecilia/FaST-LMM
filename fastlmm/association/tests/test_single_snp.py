@@ -42,7 +42,7 @@ class TestSingleSnp(unittest.TestCase):
         test_sid = ["snp26250_m0_.19m1_.19","snp63751_m0_.23m1_.23","snp82500_m0_.28m1_.28","snp48753_m0_.4m1_.4","snp45001_m0_.26m1_.26","snp52500_m0_.05m1_.05","snp75002_m0_.39m1_.39","snp41253_m0_.07m1_.07","snp86250_m0_.33m1_.33","snp15002_m0_.11m1_.11","snp33752_m0_.31m1_.31","snp26252_m0_.19m1_.19","snp30001_m0_.28m1_.28","snp11253_m0_.2m1_.2","snp67501_m0_.15m1_.15","snp3753_m0_.23m1_.23","snp52502_m0_.35m1_.35","snp30000_m0_.39m1_.39","snp30002_m0_.25m1_.25"]
         test_idx = snps.sid_to_index(test_sid)
 
-        frame = single_snp(test_snps=snps[:,test_idx], pheno=pheno, G0=snps[:,sim_idx], covar=covar,log_delta=0)
+        frame = single_snp(test_snps=snps[:,test_idx], pheno=pheno, G0=snps[:,sim_idx], covar=covar,h2=.5)
 
         referenceOutfile = TestFeatureSelection.reference_file("single_snp/topsnps.single.txt")
 
@@ -361,10 +361,12 @@ if __name__ == '__main__':
     from fastlmm.association.tests.test_single_snp import TestSingleSnp
     suites = unittest.TestSuite([getTestSuite()])
 
-    if True: #Standard test run 
+    if False: #Standard test run  #!!!cmk
         r = unittest.TextTestRunner(failfast=True)
         r.run(suites)
     else: #Cluster test run
+        logging.basicConfig(level=logging.INFO) #!!!cmk
+
         from fastlmm.util.distributabletest import DistributableTest
 
 
