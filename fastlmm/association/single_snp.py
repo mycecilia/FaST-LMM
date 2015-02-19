@@ -157,6 +157,7 @@ def single_snp_leave_out_one_chrom(test_snps, pheno,
 
     :param h2: A parameter to LMM learning, optional
             If not given will search for best value.
+            If mixing is unspecified, then h2 must also be unspecified.
     :type h2: number
 
     :rtype: Pandas dataframe with one row per test SNP. Columns include "PValue"
@@ -214,12 +215,12 @@ def single_snp_leave_out_one_chrom(test_snps, pheno,
     return frame
 
 
-def find_mixing(G, covar, G0_standardized_val, G1_standardized_val, h2, y):
+def _find_mixing(G, covar, G0_standardized_val, G1_standardized_val, h2, y):
     import fastlmm.util.mingrid as mingrid
     assert h2 is None, "if mixing is None, expect h2 to also be None"
     resmin=[None]
     def f(mixing,G0_standardized_val=G0_standardized_val,G1_standardized_val=G1_standardized_val,covar=covar,y=y,**kwargs):
-        mix(G, G0_standardized_val,G1_standardized_val,mixing)
+        _mix(G, G0_standardized_val,G1_standardized_val,mixing)
         lmm = fastLMM(X=covar, Y=y, G=G, K=None, inplace=True)
         result = lmm.findH2()
         if (resmin[0] is None) or (result['nLL']<resmin[0]['nLL']):
@@ -259,8 +260,8 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
         else:
             G = np.empty((G0_standardized.iid_count,G0_standardized.sid_count+G1_standardized.sid_count))
             if mixing is None:
-                mixing, h2 = find_mixing(G, covar, G0_standardized_val, G1_standardized_val, h2, y)
-            mix(G, G0_standardized_val,G1_standardized_val,mixing)
+                mixing, h2 = _find_mixing(G, covar, G0_standardized_val, G1_standardized_val, h2, y)
+            _mix(G, G0_standardized_val,G1_standardized_val,mixing)
         
         #TODO: make sure low-rank case is handled correctly
         lmm = fastLMM(X=covar, Y=y, G=G, K=None, inplace=True)
@@ -302,7 +303,7 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
 
     return frame
 
-def mix(G, G0_standardized_val, G1_standardized_val, mixing):
+def _mix(G, G0_standardized_val, G1_standardized_val, mixing):
     #logging.info("concat G1, mixing {0}".format(mixing))
     G[:,0:G0_standardized_val.shape[1]] = G0_standardized_val
     G[:,0:G0_standardized_val.shape[1]] *= (np.sqrt(1.0-mixing))

@@ -335,12 +335,31 @@ class TestSingleSnpLeaveOutOneChrom(unittest.TestCase):
                 covar_by_chrom[chrom] = covar
             output_file = self.file_name("covar_by_chrom")
             frame = single_snp_leave_out_one_chrom(test_snps, pheno,
-                                      covar=covar,mixing=0,
+                                      covar=covar, mixing=0,
                                       covar_by_chrom=covar_by_chrom,
                                       output_file_name=output_file
                                       )
 
             self.compare_files(frame,"covar_by_chrom")
+
+    def test_covar_by_chrom_mixing(self):
+            logging.info("TestSingleSnpLeaveOutOneChrom test_covar_by_chrom_mixing")
+            from pysnptools.snpreader import Bed
+            test_snps = Bed(self.bedbase)
+            pheno = self.phen_fn
+            covar = self.cov_fn
+            covar_by_chrom = {}
+            for chrom in xrange(1,6):
+                covar_by_chrom[chrom] = covar
+            output_file = self.file_name("covar_by_chrom_mixing")
+            frame = single_snp_leave_out_one_chrom(test_snps, pheno,
+                                      covar=covar,
+                                      covar_by_chrom=covar_by_chrom,
+                                      output_file_name=output_file
+                                      )
+
+            self.compare_files(frame,"covar_by_chrom_mixing")
+
 
     def compare_files(self,frame,ref_base):
         reffile = TestFeatureSelection.reference_file("single_snp/"+ref_base+".txt")

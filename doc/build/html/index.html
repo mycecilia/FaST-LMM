@@ -54,7 +54,7 @@ This release contains the improvements described in Widmer <em>et al.</em>, <em>
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">single_snp</span></tt><a class="headerlink" href="#single-snp" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="fastlmm.association.single_snp">
-<tt class="descclassname">fastlmm.association.</tt><tt class="descname">single_snp</tt><big>(</big><em>test_snps</em>, <em>pheno</em>, <em>G0=None</em>, <em>G1=None</em>, <em>mixing=0.0</em>, <em>covar=None</em>, <em>output_file_name=None</em>, <em>log_delta=None</em>, <em>min_log_delta=-5</em>, <em>max_log_delta=10</em>, <em>cache_file=None</em><big>)</big><a class="headerlink" href="#fastlmm.association.single_snp" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">fastlmm.association.</tt><tt class="descname">single_snp</tt><big>(</big><em>test_snps</em>, <em>pheno</em>, <em>G0=None</em>, <em>G1=None</em>, <em>mixing=None</em>, <em>covar=None</em>, <em>output_file_name=None</em>, <em>h2=None</em>, <em>cache_file=None</em><big>)</big><a class="headerlink" href="#fastlmm.association.single_snp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function performing single SNP GWAS with REML</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -69,16 +69,13 @@ If you give a string, it should be the base name of a set of PLINK Bed-formatted
 <li><strong>G1</strong> (a <tt class="xref py py-class docutils literal"><span class="pre">SnpReader</span></tt> or a string) &#8211; SNPs from which to construct a second similarity kernel, optional. Also, see &#8216;mixing&#8217;).
 If you give a string, it should be the base name of a set of PLINK Bed-formatted files.</li>
 <li><strong>mixing</strong> (<em>number</em>) &#8211; Weight between 0.0 (inclusive, default) and 1.0 (inclusive) given to G1 relative to G0.
-If you give no mixing number, G0 will get all the weight and G1 will be ignored.</li>
+If you give no mixing number and a G1 is given, the best weight will be learned.</li>
 <li><strong>covar</strong> (<em>a &#8216;pheno dictionary&#8217; or a string</em>) &#8211; covariate information, optional: A &#8216;pheno dictionary&#8217; contains an ndarray on the &#8216;vals&#8217; key and a iid list on the &#8216;iid&#8217; key.
 If you give a string, it should be the file name of a PLINK phenotype-formatted file.</li>
 <li><strong>output_file_name</strong> (<em>file name</em>) &#8211; Name of file to write results to, optional. If not given, no output file will be created.</li>
-<li><strong>log_delta</strong> (<em>number</em>) &#8211; A parameter to LMM learning, optional
-If not given will search for best value.</li>
-<li><strong>min_log_delta</strong> (<em>number</em>) &#8211; (default:-5)
-When searching for log_delta, the lower bounds of the search.</li>
-<li><strong>max_log_delta</strong> (<em>number</em>) &#8211; (default:10)
-When searching for log_delta, the upper bounds of the search.</li>
+<li><strong>h2</strong> (<em>number</em>) &#8211; A parameter to LMM learning, optional
+If not given will search for best value.
+If mixing is unspecified, then h2 must also be unspecified.</li>
 <li><strong>cache_file</strong> (<em>file name</em>) &#8211; Name of  file to read or write cached precomputation values to, optional.
 If not given, no cache file will be used.
 If given and file does not exists, will write precomputation values to file.
@@ -103,7 +100,7 @@ If given and the file does exist then G0 and G1 need not be given.</li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">snpreader</span> <span class="o">=</span> <span class="n">Bed</span><span class="p">(</span><span class="s">&quot;../feature_selection/examples/toydata&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pheno_fn</span> <span class="o">=</span> <span class="s">&quot;../feature_selection/examples/toydata.phe&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results_dataframe</span> <span class="o">=</span> <span class="n">single_snp</span><span class="p">(</span><span class="n">test_snps</span><span class="o">=</span><span class="n">snpreader</span><span class="p">[:,</span><span class="mi">5000</span><span class="p">:</span><span class="mi">10000</span><span class="p">],</span><span class="n">pheno</span><span class="o">=</span><span class="n">pheno_fn</span><span class="p">,</span><span class="n">G0</span><span class="o">=</span><span class="n">snpreader</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">5000</span><span class="p">],</span><span class="n">log_delta</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">4.0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results_dataframe</span> <span class="o">=</span> <span class="n">single_snp</span><span class="p">(</span><span class="n">test_snps</span><span class="o">=</span><span class="n">snpreader</span><span class="p">[:,</span><span class="mi">5000</span><span class="p">:</span><span class="mi">10000</span><span class="p">],</span><span class="n">pheno</span><span class="o">=</span><span class="n">pheno_fn</span><span class="p">,</span><span class="n">G0</span><span class="o">=</span><span class="n">snpreader</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">5000</span><span class="p">],</span><span class="n">h2</span><span class="o">=.</span><span class="mi">2</span><span class="p">,</span><span class="n">mixing</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">results_dataframe</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">SNP</span><span class="p">,</span><span class="nb">round</span><span class="p">(</span><span class="n">results_dataframe</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">PValue</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">results_dataframe</span><span class="p">)</span>
 <span class="go">null_7487 3.4e-06 5000</span>
 </pre></div>
@@ -115,7 +112,7 @@ If given and the file does exist then G0 and G1 need not be given.</li>
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">single_snp_leave_out_one_chrom</span></tt><a class="headerlink" href="#single-snp-leave-out-one-chrom" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="fastlmm.association.single_snp_leave_out_one_chrom">
-<tt class="descclassname">fastlmm.association.</tt><tt class="descname">single_snp_leave_out_one_chrom</tt><big>(</big><em>test_snps</em>, <em>pheno</em>, <em>G1=None</em>, <em>mixing=0.0</em>, <em>covar=None</em>, <em>covar_by_chrom=None</em>, <em>log_delta=None</em>, <em>min_log_delta=-5</em>, <em>max_log_delta=10</em>, <em>output_file_name=None</em><big>)</big><a class="headerlink" href="#fastlmm.association.single_snp_leave_out_one_chrom" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">fastlmm.association.</tt><tt class="descname">single_snp_leave_out_one_chrom</tt><big>(</big><em>test_snps</em>, <em>pheno</em>, <em>G1=None</em>, <em>mixing=0.0</em>, <em>covar=None</em>, <em>covar_by_chrom=None</em>, <em>h2=None</em>, <em>output_file_name=None</em><big>)</big><a class="headerlink" href="#fastlmm.association.single_snp_leave_out_one_chrom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function performing single SNP GWAS via cross validation over the chromosomes with REML</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -135,12 +132,9 @@ If you give a string, it should be the file name of a PLINK phenotype-formatted 
 <li><strong>covar_by_chrom</strong> (<em>A dictionary from chromosome number to a &#8216;pheno dictionary&#8217; or a string</em>) &#8211; covariate information, optional: A way to give different covariate information for each chromosome.
 It is a dictionary from chromosome number to a &#8216;pheno dictionary&#8217; or a string</li>
 <li><strong>output_file_name</strong> (<em>file name</em>) &#8211; Name of file to write results to, optional. If not given, no output file will be created.</li>
-<li><strong>log_delta</strong> (<em>number</em>) &#8211; A parameter to LMM learning, optional
-If not given will search for best value.</li>
-<li><strong>min_log_delta</strong> (<em>number</em>) &#8211; (default:-5)
-When searching for log_delta, the lower bounds of the search.</li>
-<li><strong>max_log_delta</strong> (<em>number</em>) &#8211; (default:10)
-When searching for log_delta, the upper bounds of the search.</li>
+<li><strong>h2</strong> (<em>number</em>) &#8211; A parameter to LMM learning, optional
+If not given will search for best value.
+If mixing is unspecified, then h2 must also be unspecified.</li>
 </ul>
 </td>
 </tr>
@@ -157,7 +151,7 @@ When searching for log_delta, the upper bounds of the search.</li>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pysnptools.snpreader</span> <span class="kn">import</span> <span class="n">Bed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pheno_fn</span> <span class="o">=</span> <span class="s">&quot;../feature_selection/examples/toydata.phe&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results_dataframe</span> <span class="o">=</span> <span class="n">single_snp_leave_out_one_chrom</span><span class="p">(</span><span class="n">test_snps</span><span class="o">=</span><span class="s">&quot;../feature_selection/examples/toydata.5chrom&quot;</span><span class="p">,</span> <span class="n">pheno</span><span class="o">=</span><span class="n">pheno_fn</span><span class="p">,</span> <span class="n">log_delta</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">4.0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results_dataframe</span> <span class="o">=</span> <span class="n">single_snp_leave_out_one_chrom</span><span class="p">(</span><span class="n">test_snps</span><span class="o">=</span><span class="s">&quot;../feature_selection/examples/toydata.5chrom&quot;</span><span class="p">,</span> <span class="n">pheno</span><span class="o">=</span><span class="n">pheno_fn</span><span class="p">,</span> <span class="n">h2</span><span class="o">=.</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">results_dataframe</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">SNP</span><span class="p">,</span><span class="nb">round</span><span class="p">(</span><span class="n">results_dataframe</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">PValue</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">results_dataframe</span><span class="p">)</span>
 <span class="go">null_576 1e-07 10000</span>
 </pre></div>
@@ -239,7 +233,7 @@ If not given, the function is run locally.</li>
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">snp_set</span></tt><a class="headerlink" href="#snp-set" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="fastlmm.association.snp_set">
-<tt class="descclassname">fastlmm.association.</tt><tt class="descname">snp_set</tt><big>(</big><em>test_snps</em>, <em>set_list</em>, <em>pheno</em>, <em>covar=None</em>, <em>output_file_name=None</em>, <em>G0=None</em>, <em>test='lrt'</em>, <em>write_lrtperm=False</em>, <em>nperm=10</em>, <em>npermabs=None</em>, <em>mpheno=1</em>, <em>G0_fit='qq'</em>, <em>qmax=0.1</em>, <em>seed=None</em>, <em>minsetsize=None</em>, <em>maxsetsize=None</em>, <em>mindist=0</em>, <em>idist=1</em>, <em>standardizer=Unit()</em><big>)</big><a class="headerlink" href="#fastlmm.association.snp_set" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">fastlmm.association.</tt><tt class="descname">snp_set</tt><big>(</big><em>test_snps</em>, <em>set_list</em>, <em>pheno</em>, <em>covar=None</em>, <em>output_file_name=None</em>, <em>G0=None</em>, <em>test='lrt'</em>, <em>write_lrtperm=False</em>, <em>nperm=10</em>, <em>npermabs=None</em>, <em>mpheno=1</em>, <em>G0_fit='qq'</em>, <em>qmax=0.1</em>, <em>seed=None</em>, <em>minsetsize=None</em>, <em>maxsetsize=None</em>, <em>mindist=0</em>, <em>idist=1</em><big>)</big><a class="headerlink" href="#fastlmm.association.snp_set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function performing GWAS on sets of snps</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -266,7 +260,6 @@ If not given, the function is run locally.</li>
 <li><strong>idist</strong> (<em>number</em>) &#8211; (default: 1) the type of position to use with mindist
 1, genomic distance
 2, base-pair distance</li>
-<li><strong>standardizer</strong> (<em>a standardizer</em>) &#8211; (default pysnptools.standardizer.Unit()) How to standardize the SNPs, e.g. Unit(), Beta(a,b), Identity()</li>
 </ul>
 </td>
 </tr>

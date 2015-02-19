@@ -137,6 +137,7 @@
     <Content Include="expected-Windows\sc_mom_two_kernel_linear_qqfit.N300.txt" />
     <Content Include="expected-Windows\epistasis\topsnps.pairs.txt" />
     <Content Include="expected-Windows\single_snp\cid_intersect.txt" />
+    <Content Include="expected-Windows\single_snp\covar_by_chrom _mixing.txt" />
     <Content Include="expected-Windows\single_snp\covar_by_chrom.txt" />
     <Content Include="expected-Windows\single_snp\G0_has_reader.txt" />
     <Content Include="expected-Windows\single_snp\G1.txt" />
