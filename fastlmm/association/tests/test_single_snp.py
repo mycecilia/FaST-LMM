@@ -26,7 +26,7 @@ class TestSingleSnp(unittest.TestCase):
 
     tempout_dir = "tempout/single_snp"
 
-    def test_match_cpp(self):
+    def xcmktest_match_cpp(self):
         '''
         match
             FaSTLMM.207\Data\DemoData>..\.cd.\bin\windows\cpp_mkl\fastlmmc -bfile snps -extract topsnps.txt -bfileSim snps -extractSim ASout.snps.txt -pheno pheno.txt -covar covariate.txt -out topsnps.singlesnp.txt -logDelta 0 -verbose 100
@@ -63,7 +63,23 @@ class TestSingleSnp(unittest.TestCase):
             os.remove(temp_fn)
         return temp_fn
 
-    def test_one(self):
+    def test_mixing(self):
+        logging.info("TestSingleSnp test_mixing")
+        from pysnptools.snpreader import Bed
+        test_snps = Bed(self.bedbase)
+        pheno = self.phen_fn
+        covar = self.cov_fn
+
+        output_file_name = self.file_name("mixing")
+        frame = single_snp(test_snps=test_snps[:,:10], pheno=pheno,G0=test_snps[:,10:100], 
+                                      covar=covar, G1=test_snps[:,100:200],mixing=None, #!!!cmk .8 to None
+                                      output_file_name=output_file_name
+                                      )
+
+        self.compare_files(frame,"mixing")
+
+
+    def xcmktest_one(self):
         logging.info("TestSingleSnp test_one")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -71,15 +87,14 @@ class TestSingleSnp(unittest.TestCase):
         covar = self.cov_fn
 
         output_file = self.file_name("one")
-        frame = single_snp(test_snps=test_snps[:,:10], pheno=pheno,
+        frame = single_snp(test_snps=test_snps[:,:10], pheno=pheno, mixing=0,
                                   G0=test_snps, covar=covar, 
                                   output_file_name=output_file
                                   )
 
-        #Check the output file
         self.compare_files(frame,"one")
 
-    def test_preload_files(self):
+    def xcmktest_preload_files(self):
         logging.info("TestSingleSnp test_preload_files")
         from pysnptools.snpreader import Bed
         test_snps = self.bedbase
@@ -89,12 +104,12 @@ class TestSingleSnp(unittest.TestCase):
 
         output_file_name = self.file_name("preload_files")
 
-        frame = single_snp(test_snps=bed[:,:10], pheno=pheno, G0=test_snps, 
+        frame = single_snp(test_snps=bed[:,:10], pheno=pheno, G0=test_snps, mixing=0,
                                   covar=covar, output_file_name=output_file_name
                                   )
         self.compare_files(frame,"one")
         
-    def test_SNC(self):
+    def xcmktest_SNC(self):
         logging.info("TestSNC")
         from pysnptools.snpreader import Bed
         test_snps = self.bedbase
@@ -106,12 +121,12 @@ class TestSingleSnp(unittest.TestCase):
 
         output_file_name = self.file_name("snc")
 
-        frame = single_snp(test_snps=snc[:,:10], pheno=pheno, G0=snc, 
+        frame = single_snp(test_snps=snc[:,:10], pheno=pheno, G0=snc, mixing=0,
                                   covar=covar, output_file_name=output_file_name
                                   )
         self.compare_files(frame,"snc")
 
-    def test_G0_has_reader(self):
+    def xcmktest_G0_has_reader(self):
         logging.info("TestSingleSnp test_G0_has_reader")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -121,25 +136,25 @@ class TestSingleSnp(unittest.TestCase):
         output_file_name = self.file_name("G0_has_reader")
 
         frame = single_snp(test_snps=test_snps[:,:10], pheno=pheno, G0=test_snps, 
-                                  covar=covar, 
+                                  covar=covar, mixing=0,
                                   output_file_name=output_file_name
                                   )
         self.compare_files(frame,"one")
 
-    def test_no_cov(self):
+    def xcmktest_no_cov(self):
         logging.info("TestSingleSnp test_no_cov")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
         pheno = self.phen_fn
 
         output_file_name = self.file_name("no_cov")
-        frame = single_snp(test_snps=test_snps[:,:10], pheno=pheno, G0=test_snps, 
+        frame = single_snp(test_snps=test_snps[:,:10], pheno=pheno, G0=test_snps, mixing=0,
                                           output_file_name=output_file_name
                                           )
 
         self.compare_files(frame,"no_cov")
 
-    def test_no_cov_b(self):
+    def xcmktest_no_cov_b(self):
         logging.info("TestSingleSnp test_no_cov_b")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -150,13 +165,13 @@ class TestSingleSnp(unittest.TestCase):
         covar['vals'] = np.delete(covar['vals'], np.s_[:],1) #Remove all the columns
 
         frame = single_snp(test_snps=test_snps[:,:10], pheno=pheno, G0=test_snps, 
-                                  covar=covar,
+                                  covar=covar, mixing=0,
                                   output_file_name=output_file_name
                                   )
 
         self.compare_files(frame,"no_cov")
 
-    def test_G1(self):
+    def xcmktest_G1(self):
         logging.info("TestSingleSnp test_G1")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -173,7 +188,7 @@ class TestSingleSnp(unittest.TestCase):
         self.compare_files(frame,"G1")
 
 
-    def test_file_cache(self):
+    def xcmktest_file_cache(self):
         logging.info("TestSingleSnp test_file_cache")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -201,7 +216,7 @@ class TestSingleSnp(unittest.TestCase):
         self.compare_files(frame2,"G1")
 
 
-    def test_G1_mixing(self):
+    def xcmktest_G1_mixing(self):
         logging.info("TestSingleSnp test_G1_mixing")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -218,7 +233,7 @@ class TestSingleSnp(unittest.TestCase):
 
         self.compare_files(frame,"one")
 
-    def test_unknown_sid(self):
+    def xcmktest_unknown_sid(self):
         logging.info("TestSingleSnp test_unknown_sid")
 
         from pysnptools.snpreader import Bed
@@ -227,14 +242,14 @@ class TestSingleSnp(unittest.TestCase):
         covar = self.cov_fn
 
         try:
-            frame = single_snp(test_snps=test_snps,G0=test_snps,pheno=pheno,covar=covar,sid_list=['1_4','bogus sid','1_9'])
+            frame = single_snp(test_snps=test_snps,G0=test_snps,pheno=pheno,mixing=0,covar=covar,sid_list=['1_4','bogus sid','1_9'])
             failed = False
         except:
             failed = True
 
         assert(failed)
 
-    def test_cid_intersect(self):
+    def xcmktest_cid_intersect(self):
         logging.info("TestSingleSnp test_cid_intersect")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -246,7 +261,7 @@ class TestSingleSnp(unittest.TestCase):
         covar = self.cov_fn
         output_file_name = self.file_name("cid_intersect")
         frame = single_snp(test_snps=test_snps[:,:10], pheno=pheno, G0=test_snps, 
-                                  covar=covar, 
+                                  covar=covar, mixing=0,
                                   output_file_name=output_file_name
                                   )
 
@@ -268,7 +283,7 @@ class TestSingleSnp(unittest.TestCase):
             pvalue = frame[frame['SNP'] == sid].iloc[0].PValue
             assert abs(row.PValue - pvalue) < 1e-5, "pair {0} differs too much from file '{1}'".format(sid,reffile)
 
-    def test_doctest(self):
+    def xcmktest_doctest(self):
         old_dir = os.getcwd()
         os.chdir(os.path.dirname(os.path.realpath(__file__))+"/..")
         result = doctest.testfile("../single_snp.py")
@@ -294,7 +309,7 @@ class TestSingleSnpLeaveOutOneChrom(unittest.TestCase):
             os.remove(temp_fn)
         return temp_fn
 
-    def test_one_looc(self):
+    def xcmktest_one_looc(self):
         logging.info("TestSingleSnpLeaveOutOneChrom test_one_looc")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -303,13 +318,13 @@ class TestSingleSnpLeaveOutOneChrom(unittest.TestCase):
 
         output_file = self.file_name("one_looc")
         frame = single_snp_leave_out_one_chrom(test_snps, pheno,
-                                  covar=covar, 
+                                  covar=covar, mixing=0,
                                   output_file_name=output_file
                                   )
 
         self.compare_files(frame,"one_looc")
 
-    def test_covar_by_chrom(self):
+    def xcmktest_covar_by_chrom(self):
             logging.info("TestSingleSnpLeaveOutOneChrom test_covar_by_chrom")
             from pysnptools.snpreader import Bed
             test_snps = Bed(self.bedbase)
@@ -320,7 +335,7 @@ class TestSingleSnpLeaveOutOneChrom(unittest.TestCase):
                 covar_by_chrom[chrom] = covar
             output_file = self.file_name("covar_by_chrom")
             frame = single_snp_leave_out_one_chrom(test_snps, pheno,
-                                      covar=covar,
+                                      covar=covar,mixing=0,
                                       covar_by_chrom=covar_by_chrom,
                                       output_file_name=output_file
                                       )

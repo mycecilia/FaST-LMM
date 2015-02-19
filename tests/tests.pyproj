@@ -141,6 +141,7 @@
     <Content Include="expected-Windows\single_snp\G0_has_reader.txt" />
     <Content Include="expected-Windows\single_snp\G1.txt" />
     <Content Include="expected-Windows\single_snp\G1_mixing.txt" />
+    <Content Include="expected-Windows\single_snp\mixing.txt" />
     <Content Include="expected-Windows\single_snp\no_cov.txt" />
     <Content Include="expected-Windows\single_snp\no_cov_b.txt" />
     <Content Include="expected-Windows\single_snp\one.txt" />

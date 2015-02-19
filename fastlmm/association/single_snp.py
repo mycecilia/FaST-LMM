@@ -13,7 +13,7 @@ import pandas as pd
 from fastlmm.inference.lmm_cov import LMM as fastLMM
 
 def single_snp(test_snps,pheno,
-                 G0=None, G1=None, mixing=0.0, #!!test mixing and G1
+                 G0=None, G1=None, mixing=None,
                  covar=None, output_file_name=None, h2=None,
                  cache_file = None):
     """
@@ -73,7 +73,7 @@ def single_snp(test_snps,pheno,
     >>> logging.basicConfig(level=logging.INFO)
     >>> snpreader = Bed("../feature_selection/examples/toydata")
     >>> pheno_fn = "../feature_selection/examples/toydata.phe"
-    >>> results_dataframe = single_snp(test_snps=snpreader[:,5000:10000],pheno=pheno_fn,G0=snpreader[:,0:5000],h2=.2)
+    >>> results_dataframe = single_snp(test_snps=snpreader[:,5000:10000],pheno=pheno_fn,G0=snpreader[:,0:5000],h2=.2,mixing=0)
     >>> print results_dataframe.iloc[0].SNP,round(results_dataframe.iloc[0].PValue,7),len(results_dataframe)
     null_7487 3.4e-06 5000
 
@@ -224,7 +224,7 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
 
     from pysnptools.standardizer import DiagKtoN
 
-    assert 0.0 <= mixing <= 1.0
+    assert mixing is None or 0.0 <= mixing <= 1.0
 
     if cache_file is not None and os.path.exists(cache_file):
         lmm = fastLMM(X=covar, Y=y, G=None, K=None)
@@ -240,15 +240,30 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
             #G1_standardized_val = 1./np.sqrt((G1_standardized.val**2).sum() / float(G1_standardized.val.shape[0])) * G1_standardized.val
             G = DiagKtoN(G1_standardized.val.shape[0]).standardize(G1_standardized.val)
         else:
-            assert G1_standardized.sid_count > 0, "If a nonzero mixing weight is given, G1 is required"
-            logging.info("concat G1, mixing {0}".format(mixing))
-        
             G0_standardized_val = DiagKtoN(G0_standardized.val.shape[0]).standardize(G0_standardized.val)
             G1_standardized_val = DiagKtoN(G1_standardized.val.shape[0]).standardize(G1_standardized.val)
-         
-            G0_standardized_val *= (np.sqrt(1.0-mixing))
-            G1_standardized_val *= np.sqrt(mixing) 
-            G = np.concatenate((G0_standardized_val, G1_standardized_val),1)
+            assert G1_standardized.sid_count > 0, "If a nonzero mixing weight is given, G1 is required"
+
+            if mixing is None:
+                import fastlmm.util.mingrid as mingrid
+                assert h2 is None, "if mixing is none, expect h2 to also be none" #!!!cmk
+                def f(mixing,G0_standardized_val=G0_standardized_val,G1_standardized_val=G1_standardized_val,covar=covar,y=y,**kwargs):
+                    logging.info("concat G1, mixing {0}".format(mixing))
+                    G0_standardized_val_f = G0_standardized_val* (np.sqrt(1.0-mixing)) #!!!cmk over and over
+                    G1_standardized_val_f = G1_standardized_val* np.sqrt(mixing)       #!!!cmk over and over
+                    G = np.concatenate((G0_standardized_val_f, G1_standardized_val_f),1) #!!!cmking why copy this over and over?
+                    lmm = fastLMM(X=covar, Y=y, G=G, K=None)
+                    result = lmm.findH2()
+                    return result['nLL']
+                mixing,nLL = mingrid.minimize1D(f=f, nGrid=10, minval=0.0, maxval=1.0,verbose=False) #!!!why do extra h2 learning?
+                G0_standardized_val *= (np.sqrt(1.0-mixing)) #!!!cmk over and over
+                G1_standardized_val *= np.sqrt(mixing)       #!!!cmk over and over
+                G = np.concatenate((G0_standardized_val, G1_standardized_val),1) #!!!cmking why copy this over and over?
+            else:
+                logging.info("concat G1, mixing {0}".format(mixing))
+                G0_standardized_val *= (np.sqrt(1.0-mixing))
+                G1_standardized_val *= np.sqrt(mixing) 
+                G = np.concatenate((G0_standardized_val, G1_standardized_val),1)
         
         #TODO: make sure low-rank case is handled correctly
         lmm = fastLMM(X=covar, Y=y, G=G, K=None)
