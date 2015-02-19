@@ -249,24 +249,24 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
                 assert h2 is None, "if mixing is none, expect h2 to also be none" #!!!cmk
                 def f(mixing,G0_standardized_val=G0_standardized_val,G1_standardized_val=G1_standardized_val,covar=covar,y=y,**kwargs):
                     logging.info("concat G1, mixing {0}".format(mixing))
-                    G0_standardized_val_f = G0_standardized_val* (np.sqrt(1.0-mixing)) #!!!cmk over and over
-                    G1_standardized_val_f = G1_standardized_val* np.sqrt(mixing)       #!!!cmk over and over
-                    G = np.concatenate((G0_standardized_val_f, G1_standardized_val_f),1) #!!!cmking why copy this over and over?
-                    lmm = fastLMM(X=covar, Y=y, G=G, K=None)
+                    G = np.concatenate((G0_standardized_val, G1_standardized_val),1) #!!!cmking why copy this over and over?
+                    G[:,0:G0_standardized_val.shape[1]] *= (np.sqrt(1.0-mixing))
+                    G[:,G0_standardized_val.shape[1]:] *= np.sqrt(mixing)
+                    lmm = fastLMM(X=covar, Y=y, G=G, K=None, inplace=True)
                     result = lmm.findH2()
                     return result['nLL']
                 mixing,nLL = mingrid.minimize1D(f=f, nGrid=10, minval=0.0, maxval=1.0,verbose=False) #!!!why do extra h2 learning?
-                G0_standardized_val *= (np.sqrt(1.0-mixing)) #!!!cmk over and over
-                G1_standardized_val *= np.sqrt(mixing)       #!!!cmk over and over
                 G = np.concatenate((G0_standardized_val, G1_standardized_val),1) #!!!cmking why copy this over and over?
+                G[:,0:G0_standardized_val.shape[1]] *= (np.sqrt(1.0-mixing))
+                G[:,G0_standardized_val.shape[1]:] *= np.sqrt(mixing)
             else:
                 logging.info("concat G1, mixing {0}".format(mixing))
-                G0_standardized_val *= (np.sqrt(1.0-mixing))
-                G1_standardized_val *= np.sqrt(mixing) 
-                G = np.concatenate((G0_standardized_val, G1_standardized_val),1)
+                G = np.concatenate((G0_standardized_val, G1_standardized_val),1) #!!!cmking why copy this over and over?
+                G[:,0:G0_standardized_val.shape[1]] *= (np.sqrt(1.0-mixing))
+                G[:,G0_standardized_val.shape[1]:] *= np.sqrt(mixing)
         
         #TODO: make sure low-rank case is handled correctly
-        lmm = fastLMM(X=covar, Y=y, G=G, K=None)
+        lmm = fastLMM(X=covar, Y=y, G=G, K=None, inplace=True)
 
 
     if h2 is None:
