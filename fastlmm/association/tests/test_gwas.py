@@ -161,7 +161,7 @@ class TestGwas(unittest.TestCase):
         from pysnptools.snpreader import Bed as BedSnpReader
         from fastlmm.association.single_snp import single_snp
         snpreader = BedSnpReader(bed_fn)
-        frame = single_snp(test_snps=snpreader[:,idx_test], pheno=pheno_fn, G0=snpreader[:,idx_sim],log_delta=np.log(delta))
+        frame = single_snp(test_snps=snpreader[:,idx_test], pheno=pheno_fn, G0=snpreader[:,idx_sim],h2=1.0/(delta+1.0))
         sid_list,pvalue_list = frame['SNP'].as_matrix(),frame['PValue'].as_matrix()
         np.testing.assert_allclose(gwas_f.sorted_p_values_F, pvalue_list, rtol=1e-10)
 
@@ -175,7 +175,7 @@ class TestGwas(unittest.TestCase):
         gwas_c_reml_search = GwasTest(bed_fn, pheno_fn, snp_pos_sim, snp_pos_test, delta=None, REML=True)
         gwas_c_reml_search.run_gwas()
 
-        frame_search = single_snp(test_snps=snpreader[:,idx_test], pheno=pheno_fn, G0=snpreader[:,idx_sim],log_delta=None)
+        frame_search = single_snp(test_snps=snpreader[:,idx_test], pheno=pheno_fn, G0=snpreader[:,idx_sim],h2=None)
         _,pvalue_list_search = frame_search['SNP'].as_matrix(),frame_search['PValue'].as_matrix()
 
         p_vals_by_genomic_pos = frame_search.sort(["Chr", "ChrPos"])["PValue"].tolist()
