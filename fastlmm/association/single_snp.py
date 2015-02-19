@@ -35,7 +35,7 @@ def single_snp(test_snps,pheno,
     :type G1: a :class:`.SnpReader` or a string
 
     :param mixing: Weight between 0.0 (inclusive, default) and 1.0 (inclusive) given to G1 relative to G0.
-            If you give no mixing number, G0 will get all the weight and G1 will be ignored.
+            If you give no mixing number and a G1 is given, the best weight will be learned.
     :type mixing: number
 
     :param covar: covariate information, optional: A 'pheno dictionary' contains an ndarray on the 'vals' key and a iid list on the 'iid' key.
@@ -47,6 +47,7 @@ def single_snp(test_snps,pheno,
 
     :param h2: A parameter to LMM learning, optional
             If not given will search for best value.
+            If mixing is unspecified, then h2 must also be unspecified.
     :type h2: number
 
     :param cache_file: Name of  file to read or write cached precomputation values to, optional.
@@ -213,6 +214,21 @@ def single_snp_leave_out_one_chrom(test_snps, pheno,
     return frame
 
 
+def find_mixing(G, covar, G0_standardized_val, G1_standardized_val, h2, y):
+    import fastlmm.util.mingrid as mingrid
+    assert h2 is None, "if mixing is None, expect h2 to also be None"
+    resmin=[None]
+    def f(mixing,G0_standardized_val=G0_standardized_val,G1_standardized_val=G1_standardized_val,covar=covar,y=y,**kwargs):
+        mix(G, G0_standardized_val,G1_standardized_val,mixing)
+        lmm = fastLMM(X=covar, Y=y, G=G, K=None, inplace=True)
+        result = lmm.findH2()
+        if (resmin[0] is None) or (result['nLL']<resmin[0]['nLL']):
+            resmin[0]=result
+        return result['nLL']
+    mixing,nLL = mingrid.minimize1D(f=f, nGrid=10, minval=0.0, maxval=1.0,verbose=False)
+    h2 = resmin[0]['h2']
+    return mixing, h2
+
 def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
                  mixing, #!!test mixing and G1
                  h2,
@@ -233,37 +249,18 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
             lmm.S = data['arr_1']
     else:
         # combine two kernels (normalize kernels to diag(K)=N
-        if mixing == 0.0:
-            #G0_standardized_val = 1./np.sqrt((G0_standardized.val**2).sum() / float(G0_standardized.val.shape[0])) * G0_standardized.val
-            G = DiagKtoN(G0_standardized.val.shape[0]).standardize(G0_standardized.val)
-        elif mixing == 1.0:
-            #G1_standardized_val = 1./np.sqrt((G1_standardized.val**2).sum() / float(G1_standardized.val.shape[0])) * G1_standardized.val
-            G = DiagKtoN(G1_standardized.val.shape[0]).standardize(G1_standardized.val)
-        else:
-            G0_standardized_val = DiagKtoN(G0_standardized.val.shape[0]).standardize(G0_standardized.val)
-            G1_standardized_val = DiagKtoN(G1_standardized.val.shape[0]).standardize(G1_standardized.val)
-            assert G1_standardized.sid_count > 0, "If a nonzero mixing weight is given, G1 is required"
+        G0_standardized_val = DiagKtoN(G0_standardized.val.shape[0]).standardize(G0_standardized.val)
+        G1_standardized_val = DiagKtoN(G1_standardized.val.shape[0]).standardize(G1_standardized.val)
 
+        if mixing == 0.0 or G1_standardized.sid_count == 0:
+            G = G0_standardized.val
+        elif mixing == 1.0 or G0_standardized.sid_count == 0:
+            G = G1_standardized.val
+        else:
+            G = np.empty((G0_standardized.iid_count,G0_standardized.sid_count+G1_standardized.sid_count))
             if mixing is None:
-                import fastlmm.util.mingrid as mingrid
-                assert h2 is None, "if mixing is none, expect h2 to also be none" #!!!cmk
-                def f(mixing,G0_standardized_val=G0_standardized_val,G1_standardized_val=G1_standardized_val,covar=covar,y=y,**kwargs):
-                    logging.info("concat G1, mixing {0}".format(mixing))
-                    G = np.concatenate((G0_standardized_val, G1_standardized_val),1) #!!!cmking why copy this over and over?
-                    G[:,0:G0_standardized_val.shape[1]] *= (np.sqrt(1.0-mixing))
-                    G[:,G0_standardized_val.shape[1]:] *= np.sqrt(mixing)
-                    lmm = fastLMM(X=covar, Y=y, G=G, K=None, inplace=True)
-                    result = lmm.findH2()
-                    return result['nLL']
-                mixing,nLL = mingrid.minimize1D(f=f, nGrid=10, minval=0.0, maxval=1.0,verbose=False) #!!!why do extra h2 learning?
-                G = np.concatenate((G0_standardized_val, G1_standardized_val),1) #!!!cmking why copy this over and over?
-                G[:,0:G0_standardized_val.shape[1]] *= (np.sqrt(1.0-mixing))
-                G[:,G0_standardized_val.shape[1]:] *= np.sqrt(mixing)
-            else:
-                logging.info("concat G1, mixing {0}".format(mixing))
-                G = np.concatenate((G0_standardized_val, G1_standardized_val),1) #!!!cmking why copy this over and over?
-                G[:,0:G0_standardized_val.shape[1]] *= (np.sqrt(1.0-mixing))
-                G[:,G0_standardized_val.shape[1]:] *= np.sqrt(mixing)
+                mixing, h2 = find_mixing(G, covar, G0_standardized_val, G1_standardized_val, h2, y)
+            mix(G, G0_standardized_val,G1_standardized_val,mixing)
         
         #TODO: make sure low-rank case is handled correctly
         lmm = fastLMM(X=covar, Y=y, G=G, K=None, inplace=True)
@@ -304,6 +301,14 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
     frame = pd.DataFrame.from_items(items)
 
     return frame
+
+def mix(G, G0_standardized_val, G1_standardized_val, mixing):
+    #logging.info("concat G1, mixing {0}".format(mixing))
+    G[:,0:G0_standardized_val.shape[1]] = G0_standardized_val
+    G[:,0:G0_standardized_val.shape[1]] *= (np.sqrt(1.0-mixing))
+    G[:,G0_standardized_val.shape[1]:] = G1_standardized_val
+    G[:,G0_standardized_val.shape[1]:] *= np.sqrt(mixing)
+
 
 def _create_covar_chrom(covar, covar_by_chrom, chrom):
     if covar_by_chrom is not None:

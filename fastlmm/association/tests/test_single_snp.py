@@ -26,7 +26,7 @@ class TestSingleSnp(unittest.TestCase):
 
     tempout_dir = "tempout/single_snp"
 
-    def xcmktest_match_cpp(self):
+    def test_match_cpp(self):
         '''
         match
             FaSTLMM.207\Data\DemoData>..\.cd.\bin\windows\cpp_mkl\fastlmmc -bfile snps -extract topsnps.txt -bfileSim snps -extractSim ASout.snps.txt -pheno pheno.txt -covar covariate.txt -out topsnps.singlesnp.txt -logDelta 0 -verbose 100
@@ -72,14 +72,14 @@ class TestSingleSnp(unittest.TestCase):
 
         output_file_name = self.file_name("mixing")
         frame = single_snp(test_snps=test_snps[:,:10], pheno=pheno,G0=test_snps[:,10:100], 
-                                      covar=covar, G1=test_snps[:,100:200],mixing=None, #!!!cmk .8 to None
+                                      covar=covar, G1=test_snps[:,100:200],mixing=None,
                                       output_file_name=output_file_name
                                       )
 
         self.compare_files(frame,"mixing")
 
 
-    def xcmktest_one(self):
+    def test_one(self):
         logging.info("TestSingleSnp test_one")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -94,7 +94,7 @@ class TestSingleSnp(unittest.TestCase):
 
         self.compare_files(frame,"one")
 
-    def xcmktest_preload_files(self):
+    def test_preload_files(self):
         logging.info("TestSingleSnp test_preload_files")
         from pysnptools.snpreader import Bed
         test_snps = self.bedbase
@@ -109,7 +109,7 @@ class TestSingleSnp(unittest.TestCase):
                                   )
         self.compare_files(frame,"one")
         
-    def xcmktest_SNC(self):
+    def test_SNC(self):
         logging.info("TestSNC")
         from pysnptools.snpreader import Bed
         test_snps = self.bedbase
@@ -126,7 +126,7 @@ class TestSingleSnp(unittest.TestCase):
                                   )
         self.compare_files(frame,"snc")
 
-    def xcmktest_G0_has_reader(self):
+    def test_G0_has_reader(self):
         logging.info("TestSingleSnp test_G0_has_reader")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -141,7 +141,7 @@ class TestSingleSnp(unittest.TestCase):
                                   )
         self.compare_files(frame,"one")
 
-    def xcmktest_no_cov(self):
+    def test_no_cov(self):
         logging.info("TestSingleSnp test_no_cov")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -154,7 +154,7 @@ class TestSingleSnp(unittest.TestCase):
 
         self.compare_files(frame,"no_cov")
 
-    def xcmktest_no_cov_b(self):
+    def test_no_cov_b(self):
         logging.info("TestSingleSnp test_no_cov_b")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -171,7 +171,7 @@ class TestSingleSnp(unittest.TestCase):
 
         self.compare_files(frame,"no_cov")
 
-    def xcmktest_G1(self):
+    def test_G1(self):
         logging.info("TestSingleSnp test_G1")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -188,7 +188,7 @@ class TestSingleSnp(unittest.TestCase):
         self.compare_files(frame,"G1")
 
 
-    def xcmktest_file_cache(self):
+    def test_file_cache(self):
         logging.info("TestSingleSnp test_file_cache")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -216,7 +216,7 @@ class TestSingleSnp(unittest.TestCase):
         self.compare_files(frame2,"G1")
 
 
-    def xcmktest_G1_mixing(self):
+    def test_G1_mixing(self):
         logging.info("TestSingleSnp test_G1_mixing")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -233,7 +233,7 @@ class TestSingleSnp(unittest.TestCase):
 
         self.compare_files(frame,"one")
 
-    def xcmktest_unknown_sid(self):
+    def test_unknown_sid(self):
         logging.info("TestSingleSnp test_unknown_sid")
 
         from pysnptools.snpreader import Bed
@@ -249,7 +249,7 @@ class TestSingleSnp(unittest.TestCase):
 
         assert(failed)
 
-    def xcmktest_cid_intersect(self):
+    def test_cid_intersect(self):
         logging.info("TestSingleSnp test_cid_intersect")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -283,7 +283,7 @@ class TestSingleSnp(unittest.TestCase):
             pvalue = frame[frame['SNP'] == sid].iloc[0].PValue
             assert abs(row.PValue - pvalue) < 1e-5, "pair {0} differs too much from file '{1}'".format(sid,reffile)
 
-    def xcmktest_doctest(self):
+    def test_doctest(self):
         old_dir = os.getcwd()
         os.chdir(os.path.dirname(os.path.realpath(__file__))+"/..")
         result = doctest.testfile("../single_snp.py")
@@ -309,7 +309,7 @@ class TestSingleSnpLeaveOutOneChrom(unittest.TestCase):
             os.remove(temp_fn)
         return temp_fn
 
-    def xcmktest_one_looc(self):
+    def test_one_looc(self):
         logging.info("TestSingleSnpLeaveOutOneChrom test_one_looc")
         from pysnptools.snpreader import Bed
         test_snps = Bed(self.bedbase)
@@ -324,7 +324,7 @@ class TestSingleSnpLeaveOutOneChrom(unittest.TestCase):
 
         self.compare_files(frame,"one_looc")
 
-    def xcmktest_covar_by_chrom(self):
+    def test_covar_by_chrom(self):
             logging.info("TestSingleSnpLeaveOutOneChrom test_covar_by_chrom")
             from pysnptools.snpreader import Bed
             test_snps = Bed(self.bedbase)
@@ -376,11 +376,11 @@ if __name__ == '__main__':
     from fastlmm.association.tests.test_single_snp import TestSingleSnp
     suites = unittest.TestSuite([getTestSuite()])
 
-    if False: #Standard test run  #!!!cmk
+    if True: #Standard test run
         r = unittest.TextTestRunner(failfast=True)
         r.run(suites)
     else: #Cluster test run
-        logging.basicConfig(level=logging.INFO) #!!!cmk
+        logging.basicConfig(level=logging.INFO)
 
         from fastlmm.util.distributabletest import DistributableTest
 
