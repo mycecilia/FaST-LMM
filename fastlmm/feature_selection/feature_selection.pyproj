@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="feature_selection_cv.py" />
     <Compile Include="feature_selection_example.py" />
+    <Compile Include="feature_selection_two_kernel.py" />
     <Compile Include="kernel_ridge_cv.py" />
     <Compile Include="PerformSelectionDistributable.py" />
     <Compile Include="test.py" />

@@ -42,20 +42,17 @@ class TestSingleSnp(unittest.TestCase):
         test_sid = ["snp26250_m0_.19m1_.19","snp63751_m0_.23m1_.23","snp82500_m0_.28m1_.28","snp48753_m0_.4m1_.4","snp45001_m0_.26m1_.26","snp52500_m0_.05m1_.05","snp75002_m0_.39m1_.39","snp41253_m0_.07m1_.07","snp86250_m0_.33m1_.33","snp15002_m0_.11m1_.11","snp33752_m0_.31m1_.31","snp26252_m0_.19m1_.19","snp30001_m0_.28m1_.28","snp11253_m0_.2m1_.2","snp67501_m0_.15m1_.15","snp3753_m0_.23m1_.23","snp52502_m0_.35m1_.35","snp30000_m0_.39m1_.39","snp30002_m0_.25m1_.25"]
         test_idx = snps.sid_to_index(test_sid)
 
-        frame = single_snp(test_snps=snps[:,test_idx], pheno=pheno, G0=snps[:,sim_idx], covar=covar,h2=.5)
-
-        referenceOutfile = TestFeatureSelection.reference_file("single_snp/topsnps.single.txt")
-
-        reference = pd.read_table(referenceOutfile,sep="\t") # We've manually remove all comments and blank lines from this file
-        assert len(frame) == len(reference)
-
-
-
-        for _, row in reference.iterrows():
-            sid = row.SNP
-            pvalue = frame[frame['SNP'] == sid].iloc[0].PValue
-            reldiff = abs(row.Pvalue - pvalue)/row.Pvalue
-            assert reldiff < .035, "'{0}' pvalue_list differ too much {4} -- {2} vs {3}".format(sid,None,row.PValue,pvalue,reldiff)
+        frame_h2 = single_snp(test_snps=snps[:,test_idx], pheno=pheno, G0=snps[:,sim_idx], covar=covar,h2=.5)
+        frame_log_delta = frame = single_snp(test_snps=snps[:,test_idx], pheno=pheno, G0=snps[:,sim_idx], covar=covar,log_delta=0)
+        for frame in [frame_h2, frame_log_delta]:
+            referenceOutfile = TestFeatureSelection.reference_file("single_snp/topsnps.single.txt")
+            reference = pd.read_table(referenceOutfile,sep="\t") # We've manually remove all comments and blank lines from this file
+            assert len(frame) == len(reference)
+            for _, row in reference.iterrows():
+                sid = row.SNP
+                pvalue = frame[frame['SNP'] == sid].iloc[0].PValue
+                reldiff = abs(row.Pvalue - pvalue)/row.Pvalue
+                assert reldiff < .035, "'{0}' pvalue_list differ too much {4} -- {2} vs {3}".format(sid,None,row.PValue,pvalue,reldiff)
  
     def file_name(self,testcase_name):
         temp_fn = os.path.join(self.tempout_dir,testcase_name+".txt")
