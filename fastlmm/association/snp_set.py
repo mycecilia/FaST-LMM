@@ -36,7 +36,7 @@ def snp_set(
     :param test_snps: The base name of the file containing the SNPs for alternative kernel. The file must be in PLINK Bed format.
     :type test_snps: a string
 
-    :param set_list: The name of a tab-delimited file defining the sets. The file should contain two-column 'snp' and 'set'.
+    :param set_list: The name of a tab-delimited file defining the sets. The file should contain two-columns 'snp' and 'set'.
     :type set_list: a string
 
     :param pheno: The name of a file containing the phenotype. The file must be in PLINK phenotype format.

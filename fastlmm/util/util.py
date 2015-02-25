@@ -4,13 +4,14 @@ import scipy.stats as st
 import pdb
 import warnings
 import logging
+import sys
 
 def thin_results_file(myfile,dup_postfix="v2"):
     '''
     Used in score vs lrt to remove any lines in the results
     ending with "v2", as these were replicate gene set entries.
     '''    
-    sets = np.loadtxt(myfile,dtype=str,comments=None)	
+    sets = np.loadtxt(myfile,dtype=str,comments=None)                
     nodup_ind = []
     dup_ind = []
 
@@ -20,7 +21,7 @@ def thin_results_file(myfile,dup_postfix="v2"):
         if tmpset[-2:]!=dup_postfix:
             nodup_ind.append(i)
         else:
-            dup_ind.append(i)	    
+            dup_ind.append(i)                  
 
     sets_nodup = sets[nodup_ind]
     print "%i reps, and %i non-reps" % (len(dup_ind),len(nodup_ind))
@@ -325,7 +326,7 @@ def generatePermutation(numbersamples,randomSeedOrState):
     if isinstance(randomSeedOrState,RandomState):
         randomstate = randomSeedOrState
     else:
-        randomstate = RandomState(randomSeedOrState)
+        randomstate = RandomState(int(randomSeedOrState % sys.maxint))
 
     perm = randomstate.permutation(numbersamples)
     return perm
@@ -364,14 +365,14 @@ def dotDotRange(dotDotString):
     For example:
 
 > for i in util.dotDotRange("1..4,100,-1..1"): print i
- 1
- 2
- 3
- 4
- 100
- -1
- 0
- 1
+1
+2
+3
+4
+100
+-1
+0
+1
 
     '''
     for intervalString in dotDotString.split(","):
