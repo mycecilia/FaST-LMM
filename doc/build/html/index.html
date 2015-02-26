@@ -54,7 +54,7 @@ This release contains the improvements described in Widmer <em>et al.</em>, <em>
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">single_snp</span></tt><a class="headerlink" href="#single-snp" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="fastlmm.association.single_snp">
-<tt class="descclassname">fastlmm.association.</tt><tt class="descname">single_snp</tt><big>(</big><em>test_snps</em>, <em>pheno</em>, <em>G0=None</em>, <em>G1=None</em>, <em>mixing=None</em>, <em>covar=None</em>, <em>output_file_name=None</em>, <em>h2=None</em>, <em>cache_file=None</em><big>)</big><a class="headerlink" href="#fastlmm.association.single_snp" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">fastlmm.association.</tt><tt class="descname">single_snp</tt><big>(</big><em>test_snps</em>, <em>pheno</em>, <em>G0=None</em>, <em>G1=None</em>, <em>mixing=None</em>, <em>covar=None</em>, <em>output_file_name=None</em>, <em>h2=None</em>, <em>log_delta=None</em>, <em>cache_file=None</em><big>)</big><a class="headerlink" href="#fastlmm.association.single_snp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function performing single SNP GWAS with REML</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -76,6 +76,7 @@ If you give a string, it should be the file name of a PLINK phenotype-formatted 
 <li><strong>h2</strong> (<em>number</em>) &#8211; A parameter to LMM learning, optional
 If not given will search for best value.
 If mixing is unspecified, then h2 must also be unspecified.</li>
+<li><strong>log_delta</strong> (<em>number</em>) &#8211; a re-parameterization of h2 provided for backwards compatibility.</li>
 <li><strong>cache_file</strong> (<em>file name</em>) &#8211; Name of  file to read or write cached precomputation values to, optional.
 If not given, no cache file will be used.
 If given and file does not exists, will write precomputation values to file.
@@ -112,7 +113,7 @@ If given and the file does exist then G0 and G1 need not be given.</li>
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">single_snp_leave_out_one_chrom</span></tt><a class="headerlink" href="#single-snp-leave-out-one-chrom" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="fastlmm.association.single_snp_leave_out_one_chrom">
-<tt class="descclassname">fastlmm.association.</tt><tt class="descname">single_snp_leave_out_one_chrom</tt><big>(</big><em>test_snps</em>, <em>pheno</em>, <em>G1=None</em>, <em>mixing=0.0</em>, <em>covar=None</em>, <em>covar_by_chrom=None</em>, <em>h2=None</em>, <em>output_file_name=None</em><big>)</big><a class="headerlink" href="#fastlmm.association.single_snp_leave_out_one_chrom" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">fastlmm.association.</tt><tt class="descname">single_snp_leave_out_one_chrom</tt><big>(</big><em>test_snps</em>, <em>pheno</em>, <em>G1=None</em>, <em>mixing=0.0</em>, <em>covar=None</em>, <em>covar_by_chrom=None</em>, <em>h2=None</em>, <em>log_delta=None</em>, <em>output_file_name=None</em><big>)</big><a class="headerlink" href="#fastlmm.association.single_snp_leave_out_one_chrom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function performing single SNP GWAS via cross validation over the chromosomes with REML</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -135,6 +136,7 @@ It is a dictionary from chromosome number to a &#8216;pheno dictionary&#8217; or
 <li><strong>h2</strong> (<em>number</em>) &#8211; A parameter to LMM learning, optional
 If not given will search for best value.
 If mixing is unspecified, then h2 must also be unspecified.</li>
+<li><strong>log_delta</strong> (<em>number</em>) &#8211; a re-parameterization of h2 provided for backwards compatibility.</li>
 </ul>
 </td>
 </tr>
@@ -241,7 +243,7 @@ If not given, the function is run locally.</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>test_snps</strong> (<em>a string</em>) &#8211; The base name of the file containing the SNPs for alternative kernel. The file must be in PLINK Bed format.</li>
-<li><strong>set_list</strong> (<em>a string</em>) &#8211; The name of a tab-delimited file defining the sets. The file should contain two-column &#8216;snp&#8217; and &#8216;set&#8217;.</li>
+<li><strong>set_list</strong> (<em>a string</em>) &#8211; The name of a tab-delimited file defining the sets. The file should contain two-columns &#8216;snp&#8217; and &#8216;set&#8217;.</li>
 <li><strong>pheno</strong> (<em>a string</em>) &#8211; The name of a file containing the phenotype. The file must be in PLINK phenotype format.</li>
 <li><strong>covar</strong> (<em>a &#8216;pheno dictionary&#8217; or a string</em>) &#8211; covariate information, optional: The name of a file in PLINK phenotype format.</li>
 <li><strong>output_file_name</strong> (<em>file name</em>) &#8211; Name of file to write results to, optional. If not given, no output file will be created.</li>

@@ -308,7 +308,7 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
                 ('PValue', p_values),
                 ('SnpWeight', beta[:,0]),
                 ('SnpWeightSE', np.sqrt(res['variance_beta'][:,0])),
-                ('NullH2', np.zeros((snps_read.sid_count)) + h2)
+                ('Nullh2', np.zeros((snps_read.sid_count)) + h2)
             ]
     frame = pd.DataFrame.from_items(items)
 
