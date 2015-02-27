@@ -370,35 +370,11 @@ def _pheno_fixup(pheno_input, iid_source_if_none=None):
     return pheno_input
 
 
+
 if __name__ == "__main__":
 
     logging.basicConfig(level=logging.INFO)
+
     import doctest
     doctest.testmod()
-
-    ##import logging
-    #from pysnptools.snpreader import Bed
-    #logging.basicConfig(level=logging.INFO)
-    #snpreader = Bed("../feature_selection/examples/toydata")
-    #pheno_fn = "../feature_selection/examples/toydata.phe"
-
-    ##null_9930 = snpreader[:,snpreader.sid_to_index(['null_9930'])].read()
-    ##from pysnptools.snpreader import Dat
-    ##Dat.write(null_9930,r"c:\deldir\9930.dat")
-
-
-
-
-    #h2 = .2
-    #frame = single_snp(test_snps=snpreader[:,5000:10000], pheno=pheno_fn, G0=snpreader[:,0:5000], h2=h2,output_file_name=r"c:\deldir\toydata.out.txt")
-    #print frame.iloc[0].SNP,round(frame.iloc[0].PValue,7),len(frame)
-    ##null_7487 2.6e-06 5000
-
-    #snpreader2 = "../feature_selection/examples/toydata.5chrom"
-    #frame2 = single_snp_leave_out_one_chrom(test_snps=snpreader2, pheno=pheno_fn,h2=h2,output_file_name=r"c:\deldir\toydata.2.out.txt")
-    #print frame2.iloc[0].SNP,round(frame2.iloc[0].PValue,7),len(frame2)
-    ##null_576 1e-07 10000
-
-
-    print "done"
 
