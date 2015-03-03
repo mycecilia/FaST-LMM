@@ -18,9 +18,18 @@ class LMM(object):
 
 	def __init__(self, forcefullrank=False, X=None, linreg=None, Y=None, G=None, K=None, regressX=True, inplace=False):
 		'''
-		Input:
-		forcefullrank   : if True, then the code always computes K and runs cubically
-							(False)
+
+		Args:
+		    forcefullrank   : if True, then the code always computes K and runs cubically (default: False)
+		     X              : [N x D] np.array of D covariates for N individuals (including bias term).
+		                          If None is given, only a bias term is used. (Default: None)
+		     linreg         : optionally allows to provide pre-computed Linreg object instead of covariates
+		                         (default: None)
+		     Y              : [N x P] np.array holding P phenotypes for N individuals
+		     G              : [N x k] np.array holding k design vectors for building linear kernel K
+		     K              : [N x N] np.array positive semi-definite Kernel matrix
+		     regressX       : regress out covariates to speed up computations? (default: True)
+		     inplace        : set kernel without copying? (default: False)
 		'''
 		self.numcalls = 0
 		self.setX(X=X, regressX=regressX, linreg=linreg)    #set the covariates (needs to be first)
@@ -31,10 +40,9 @@ class LMM(object):
 	def setY(self, Y):
 		'''
 		set the phenotype y.
-		--------------------------------------------------------------------------
-		Input:
-		y       : [N] 1-dimensional array of phenotype values
-		--------------------------------------------------------------------------
+		
+		Args:
+		    Y              : [N x P] np.array holding P phenotypes for N individuals
 		'''
 		self.Y = Y
 		self.UY = None
