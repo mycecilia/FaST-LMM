@@ -5,6 +5,7 @@ import pdb
 import warnings
 import logging
 import sys
+import matplotlib.pyplot as plt
 
 def thin_results_file(myfile,dup_postfix="v2"):
     '''
@@ -385,3 +386,85 @@ def dotDotRange(dotDotString):
             lastInclusive = int(parts[1])
             for i in xrange(start,lastInclusive+1):
                 yield i
+
+
+def _run_length_encode(seq):
+    count = 0
+    previous = None
+    for item in seq:
+        if count == 0:
+            count = 1
+            previous = item
+        elif item == previous:
+            count += 1
+        else:
+            yield previous, count
+            previous = item
+            count =1
+    if count > 0:
+        yield previous, count
+       
+def _rel_to_midpoint(rle):
+    previous_count = 0
+    for item, count in rle:
+        yield previous_count + count // 2
+        previous_count += count
+
+def _color_list(chr_list,rle):
+    chr_to_index = dict((chr,index) for index,(chr,count) in enumerate(rle))
+    index_to_color = {0:"b",1:"g"}
+    result = [index_to_color[chr_to_index[chr]%len(index_to_color)] for chr in chr_list]
+    return result
+
+def manhattan_plot(chr_pos_pvalue_array,pvalue_line=None):
+    """
+    Function to create a Manhattan plot.  See http://en.wikipedia.org/wiki/Manhattan_plot.
+
+    :param chr_pos_pvalue_array: an n x 3 numpy array. The three columns are the chrom number (as a number), the position, and pvalue.
+    :type chr_pos_pvalue_array: numpy array
+
+    :param pvalue_line: (Default: None). If given, draws a line at that PValue.
+    :type pvalue_line: a 'pheno dictionary' or a string
+
+    :rtype: none, but changes the global current figure.
+
+    :Example:
+
+    >>> from fastlmm.association import single_snp_leave_out_one_chrom
+    >>> from pysnptools.snpreader import Bed
+    >>> import matplotlib.pyplot as plt
+    >>> import fastlmm.util.util as flutil
+    >>> pheno_fn = "../feature_selection/examples/toydata.phe"
+    >>> results_dataframe = single_snp_leave_out_one_chrom(test_snps="../feature_selection/examples/toydata.5chrom", pheno=pheno_fn, h2=.2)
+    >>> flutil.manhattan_plot(results_dataframe.as_matrix(["Chr", "ChrPos", "PValue"]),pvalue_line=1e-7)
+    >>> #plt.show()
+
+    """
+
+    # create a copy of the data and sort it by chrom and then position
+    array = np.array(chr_pos_pvalue_array)
+    array=array[np.argsort(array[:,1]),:] #sort by ChrPos
+    array=array[np.argsort(array[:,0],kind='mergesort'),:] #Finally, sort by Chr (but keep ChrPos in case of ties)
+
+    chr_pos_list = np.arange(array.shape[0])
+    rle = list(_run_length_encode(array[:,0]))
+    xTickMarks = [str(int(item)) for item,count in rle]
+    y = -np.log10(array[:,2])
+    max_y = y.max()
+    plt.scatter(chr_pos_list,y,marker="o",c=_color_list(array[:,0],rle),edgecolor='none',s=y/max_y*80+2)
+    plt.xlabel("chromosome")
+    plt.ylabel("-log10(P value)")
+    plt.xlim([0,array.shape[0]])
+    plt.xticks(list(_rel_to_midpoint(rle)), xTickMarks)
+    if pvalue_line:
+        plt.plot([0,array.shape[0]],[-np.log10(pvalue_line)]*2,"--",color='gray')
+    plt.ylim([0,None])
+
+
+if __name__ == "__main__":
+
+    logging.basicConfig(level=logging.INFO)
+
+    import doctest
+    doctest.testmod()
+
