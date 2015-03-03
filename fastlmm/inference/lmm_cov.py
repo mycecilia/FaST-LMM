@@ -41,6 +41,16 @@ class LMM(object):
 		self.UUY = None
 
 	def setX(self, X=None, regressX=True, linreg=None):
+		"""
+		set the covariates.
+		
+		Args:
+		     X:           [N x D] np.array of D covariates for N individuals (including bias term).
+		                      If None is given, only a bias term is used. (Default: None)
+		     regressX:    regress out covariates to speed up computations? (default: True)
+		     linreg:      optionally allows to provide pre-computed Linreg object instead of covariates
+		                      (default: None)
+		"""
 		self.X = X
 		self.UX = None
 		self.UUX = None
@@ -51,6 +61,9 @@ class LMM(object):
 
 
 	def setSU_fromK(self):
+		"""
+		compute the spectral decomposition from full kernel (full rank computations).
+		"""
 		N = self.K.shape[0]
 		D = self.linreg.D
 		ar = np.arange(self.K.shape[0])
@@ -63,6 +76,10 @@ class LMM(object):
 
 
 	def setSU_fromG(self):
+		"""
+		compute the spectral decomposition from design matrix G for linear kernel
+		        (allows low rank computations, if G has more rows than columns) 
+		"""
 		k = self.G.shape[1]
 		N = self.G.shape[0]
 		if k:
@@ -96,7 +113,7 @@ class LMM(object):
 
 	def getSU(self):
 		"""
-		get the spectral decomposition of K.
+		get the spectral decomposition of the kernel matrix. Computes it if needed.
 		"""
 		if self.U is None or self.S is None:
 			if self.K is not None:
@@ -108,6 +125,15 @@ class LMM(object):
 		return self.S, self.U
 
 	def rotate(self, A):
+		"""
+		rotate a matrix A with the eigenvalues of the kernel matrix.
+		
+		Args:
+		           A:     [N x D] np.array
+		Returns:
+		           U.T.dot(A)
+			   A - U.dot(U.T.dot(A))    (if kernel is full rank this is None)
+		"""
 		S,U = self.getSU()
 		N = A.shape[0]
 		D = self.linreg.D
@@ -128,10 +154,12 @@ class LMM(object):
 
 	def getUY(self, idx_pheno=None):
 		"""
-		params:
+		get the rotated phenotype matrix
+
+		Args:
 			idx_pheno	boolean numpy.array of phenotype indices to use
 						(default None, returns all)	
-		returns:
+		Returns:
 			UY		U.T.dot(Y) rotated phenotypes
 			UUY		None if kernel is full rank, otherwise Y-U.dot(U.T.dot(Y))
 		"""
@@ -151,10 +179,11 @@ class LMM(object):
 	def setK(self, K=None, G=None, inplace=False):
 		'''
 		set the Kernel K.
-		--------------------------------------------------------------------------
-		Input:
-		K : [N*N] array, random effects covariance (positive semi-definite)
-		--------------------------------------------------------------------------
+		
+		Args:
+		        K :       [N*N] array, random effects covariance (positive semi-definite)
+			G :       [NxS] array of random effects (will be used for linear kernel)
+			inplace:  set kernel without copying? (default: False)
 		'''
 		self.clear_cache()
 		if K is not None:
@@ -169,30 +198,48 @@ class LMM(object):
 				self.G = G.copy()
         
 
-	def clear_cache(self):
+	def clear_cache(self, reset_K=True):
+		"""
+		delete all cached objects
+		
+		Args:
+		       reset_K: also delete the kernel matrix and the kernel design matrix G? (default: True)
+		"""
 		self.U = None
 		self.S = None
 		self.UY = None
 		self.UUY = None
 		self.UX = None
-		self.UUX = None           
-		self.G = None
-		self.K = None
+		self.UUX = None          
+		if reset_K:
+			self.G = None
+			self.K = None
 
 
 	def innerLoop_2K(self, h2=0.5, nGridA2=10, minA2=0.0, maxA2=1.0, i_up=None, i_G1=None, UW=None, UUW=None, **kwargs):
 		'''
-		For a given h2, finds the optimal a2 and returns the negative log-likelihood
-		--------------------------------------------------------------------------
-		Input:
-		a2      : mixture weight between K0 and K1
-		nGridA2 : number of a2-grid points to evaluate the negative log-likelihood at
-		minA2   : minimum value for a2 optimization
-		maxA2   : maximum value for a2 optimization
-		--------------------------------------------------------------------------
-		Output:
-		dictionary containing the model parameters at the optimal a2
-		--------------------------------------------------------------------------
+		For a given h2, finds the optimal kernel mixture weight a2 and returns the negative log-likelihood
+		
+		Find the optimal a2 given h2, such that K=(1.0-a2)*K0+a2*K1. Performs a double loop optimization (could be expensive for large grid-sizes)
+		(default maxA2 value is set to 1 as loss of positive definiteness of the final model covariance only depends on h2, not a2)
+		
+		Allows to provide a second "low-rank" kernel matrix in form of a rotated design matrix W
+		second kernel K2 = W.dot(W.T))
+
+		W may hold a design matrix G2 of a second kernel and some columns that are identical to columns of the design matrix of the first kernel to enable subtracting out sub kernels (as for correcting for proximal contamination)
+
+                Args:
+		    h2      : "heritabiliy" of the kernel matrix
+		    nGridA2 : number of a2-grid points to evaluate the negative log-likelihood at. Number of grid points for Brent search intervals (default: 10)
+		    minA2   : minimum value for a2 optimization
+		    maxA2   : maximum value for a2 optimization
+		    i_up    : indices of columns in W corresponding to columns from first kernel that are subtracted of
+		    i_G1    : indeces of columns in W corresponding to columns of the design matrix for second kernel G2
+		    UW      : U.T.dot(W), where W is [N x S2] np.array holding the design matrix of the second kernel
+		    UUW     : W - U.dot(U.T.dot(W))     (provide None if U is full rank)
+
+		Returns:
+		    dictionary containing the model parameters at the optimal a2
 		'''
 
 		#TODO: ckw: is this method needed?  seems like a wrapper around findA2_2K!
@@ -211,20 +258,29 @@ class LMM(object):
 
 	def findA2_2K(self, nGridA2=10, minA2=0.0, maxA2=1.0, verbose=False, i_up=None, i_G1=None, UW=None, UUW=None, h2=0.5, **kwargs):
 		'''
-		Find the optimal a2 and h2, such that K=(1.0-a2)*K0+a2*K1. Performs a double loop optimization (could be expensive for large grid-sizes)
+		For a given h2, finds the optimal kernel mixture weight a2 and returns the negative log-likelihood
+		
+		Find the optimal a2 given h2, such that K=(1.0-a2)*K0+a2*K1. Performs a double loop optimization (could be expensive for large grid-sizes)
 		(default maxA2 value is set to 1 as loss of positive definiteness of the final model covariance only depends on h2, not a2)
-		--------------------------------------------------------------------------
-		Input:
-		nGridA2 : number of a2-grid points to evaluate the negative log-likelihood at
-		minA2   : minimum value for a2 optimization
-		maxA2   : maximum value for a2 optimization
-        
-		#TODO: complete doc-string!
+		
+		Allows to provide a second "low-rank" kernel matrix in form of a rotated design matrix W
+		second kernel K2 = W.dot(W.T))
 
-		--------------------------------------------------------------------------
-		Output:
-		dictionary containing the model parameters at the optimal a2
-		--------------------------------------------------------------------------
+		W may hold a design matrix G2 of a second kernel and some columns that are identical to columns of the design matrix of the first kernel to enable subtracting out sub kernels (as for correcting for proximal contamination)
+
+                Args:
+		    h2      : "heritabiliy" of the kernel matrix
+		    nGridA2 : number of a2-grid points to evaluate the negative log-likelihood at. Number of grid points for Brent search intervals (default: 10)
+		    minA2   : minimum value for a2 optimization
+		    maxA2   : maximum value for a2 optimization
+		    verbose : verbose output? (default: False)
+		    i_up    : indices of columns in W corresponding to columns from first kernel that are subtracted of
+		    i_G1    : indeces of columns in W corresponding to columns of the design matrix for second kernel G2
+		    UW      : U.T.dot(W), where W is [N x S2] np.array holding the design matrix of the second kernel
+		    UUW     : W - U.dot(U.T.dot(W))     (provide None if U is full rank)
+
+		Returns:
+		    dictionary containing the model parameters at the optimal a2
 		'''
 		if self.Y.shape[1] > 1:
 			print "not implemented"
@@ -251,23 +307,28 @@ class LMM(object):
 
 	def findH2_2K(self, nGridH2=10, minH2=0.0, maxH2=0.99999, nGridA2=10, minA2=0.0, maxA2=1.0, i_up=None, i_G1=None, UW=None, UUW=None, **kwargs):
 		'''
-		Find the optimal h2 and a2 for a given K. Note that this is the single kernel case. So there is no a2.
+		Find the optimal h2 and a2 for a given K (and G2 - if provided in W).
 		(default maxH2 value is set to a value smaller than 1 to avoid loss of positive definiteness of the final model covariance)
-		--------------------------------------------------------------------------
-		Input:
-		nGridH2 : number of h2-grid points to evaluate the negative log-likelihood at
-		minH2   : minimum value for h2 optimization
-		maxH2   : maximum value for h2 optimization
-		nGridA2 : number of a2-grid points to evaluate the negative log-likelihood at
-		minA2   : minimum value for a2 optimization
-		maxA2   : maximum value for a2 optimization
 
-		#TODO: complete doc-string
+		Allows to provide a second "low-rank" kernel matrix in form of a rotated design matrix W
+		second kernel K2 = W.dot(W.T))
 
-		--------------------------------------------------------------------------
-		Output:
-		dictionary containing the model parameters at the optimal h2 and a2
-		--------------------------------------------------------------------------
+		W may hold a design matrix G2 of a second kernel and some columns that are identical to columns of the design matrix of the first kernel to enable subtracting out sub kernels (as for correcting for proximal contamination)
+
+		Args:
+		    nGridH2 : number of h2-grid points to evaluate the negative log-likelihood at. Number of grid points for Brent search intervals (default: 10)
+		    minH2   : minimum value for h2 optimization
+		    maxH2   : maximum value for h2 optimization
+		    nGridA2 : number of a2-grid points to evaluate the negative log-likelihood at. Number of grid points for Brent search intervals (default: 10)
+		    minA2   : minimum value for a2 optimization
+		    maxA2   : maximum value for a2 optimization
+		    i_up    : indices of columns in W corresponding to columns from first kernel that are subtracted of
+		    i_G1    : indeces of columns in W corresponding to columns of the design matrix for second kernel G2
+		    UW      : U.T.dot(W), where W is [N x S2] np.array holding the design matrix of the second kernel
+		    UUW     : W - U.dot(U.T.dot(W))     (provide None if U is full rank)
+
+		Returns:
+		    dictionary containing the model parameters at the optimal h2 (and a2 if a G1 is provided in W)
 		'''
 		#f = lambda x : (self.nLLeval(h2=x,**kwargs)['nLL'])
 		if self.Y.shape[1] > 1:
@@ -288,9 +349,18 @@ class LMM(object):
 		min = minimize1D(f=f, nGrid=nGridH2, minval=minH2, maxval=maxH2)
 		return resmin[0]
         
-	def find_log_delta(self, sid_count, min_log_delta=-5, max_log_delta=10, nGrid=10, **kwargs):
+	def find_log_delta(self, sid_count=1, min_log_delta=-5, max_log_delta=10, nGrid=10, **kwargs):
 		'''
-		#Need comments
+		perform search for optimal log delta (single kernel case)
+
+		Args:
+		     sid_count:      number of log delta grid points to evaluate the negative log-likelihood at. Number of columns in design matrix for kernel for normalization (default: 10)
+		     min_log_delta:  minimum value for log delta search (default: -5)
+		     max_log_delta:  maximum value for log delta search (default: 5)
+		     nGrid:          number of grid points for Brent search intervals (default: 10)
+		     
+		Returns:
+		    dictionary containing the model parameters at the optimal log delta
 		'''
 		#f = lambda x : (self.nLLeval(h2=x,**kwargs)['nLL'])
 		resmin = [None]
@@ -315,17 +385,14 @@ class LMM(object):
 		'''
 		Find the optimal h2 for a given K. Note that this is the single kernel case. So there is no a2.
 		(default maxH2 value is set to a value smaller than 1 to avoid loss of positive definiteness of the final model covariance)
-		--------------------------------------------------------------------------
-		Input:
-		nGridH2 : number of h2-grid points to evaluate the negative log-likelihood at
-		minH2   : minimum value for h2 optimization
-		maxH2   : maximum value for h2 optimization
+		Args:
+		    nGridH2 : number of h2-grid points to evaluate the negative log-likelihood at. Number of columns in design matrix for kernel for normalization (default: 10)
+		    minH2   : minimum value for h2 optimization (default: 0.0)
+		    maxH2   : maximum value for h2 optimization (default: 0.99999)
+		    estimate_Bayes: implement me!   (default: False)
 
-		#TODO: complete doc-string
-		--------------------------------------------------------------------------
-		Output:
-		dictionary containing the model parameters at the optimal h2
-		--------------------------------------------------------------------------
+		Returns:
+		    dictionary containing the model parameters at the optimal h2
 		'''
 		#f = lambda x : (self.nLLeval(h2=x,**kwargs)['nLL'])
 		resmin = [None for i in xrange(self.Y.shape[1])]
@@ -369,30 +436,45 @@ class LMM(object):
 
 	def nLLeval_2K(self, h2=0.0, h2_1=0.0, dof=None, scale=1.0, penalty=0.0, snps=None, UW=None, UUW=None, i_up=None, i_G1=None, subset=False):
 		'''
-		evaluate -ln( N( U^T*y | U^T*X*beta , h2*S + (1-h2)*I ) ),
-		where ((1-a2)*K0 + a2*K1) = USU^T
-		--------------------------------------------------------------------------
-		Input:
-		h2      : mixture weight between K and Identity (environmental noise)
-		REML    : boolean
+		evaluate -ln( N( y | X*beta , h2*K + h2_1*G1*G1.T (1-h2-h2_1)*I ) ),
+		where h2>0, h2_1>=0, h2+h2_1 <= 0.99999
+
+		Allows to provide a second "low-rank" kernel matrix in form of a rotated design matrix W
+		second kernel K2 = W.dot(W.T))
+
+		G1 is provided as columns in W.
+		W is provided in rotated form: UW = U.T*W and UUW =  (W - U*U.T*W)
+		W may hold a design matrix G2 of a second kernel and some columns that are identical to columns of the design matrix of the first kernel to enable subtracting out sub kernels (as for correcting for proximal contamination)
+
+		(nice interface wrapper for nLLcore)
+		
+		Args:
+		    h2      : mixture weight between K and Identity (environmental noise)
+		    REML    : boolean
 					if True   : compute REML
 					if False  : compute ML
-		dof     : Degrees of freedom of the Multivariate student-t
+		    dof     : Degrees of freedom of the Multivariate student-t
 						(default None uses multivariate Normal likelihood)
-		logdelta: log(delta) allows to optionally parameterize in delta space
-        delta   : delta     allows to optionally parameterize in delta space
-		scale   : Scale parameter the multiplies the Covariance matrix (default 1.0)
-		--------------------------------------------------------------------------
-		Output dictionary:
-		'nLL'       : negative log-likelihood
-		'sigma2'    : the model variance sigma^2
-		'beta'      : [D*1] array of fixed effects weights beta
-		'h2'        : mixture weight between Covariance and noise
-		'REML'      : True: REML was computed, False: ML was computed
-		'dof'       : Degrees of freedom of the Multivariate student-t
+		    logdelta: log(delta) allows to optionally parameterize in delta space
+		    delta   : delta     allows to optionally parameterize in delta space
+		    scale   : Scale parameter the multiplies the Covariance matrix (default 1.0)
+		    penalty : L2 penalty for SNP effects (default: 0.0)
+		    snps    : [N x S] np.array holding S SNPs for N individuals to be tested
+		    i_up    : indices of columns in W corresponding to columns from first kernel that are subtracted of
+		    i_G1    : indeces of columns in W corresponding to columns of the design matrix for second kernel G2
+		    UW      : U.T.dot(W), where W is [N x S2] np.array holding the design matrix of the second kernel
+		    UUW     : W - U.dot(U.T.dot(W))     (provide None if U is full rank)
+		    subset  : if G1 is a complete subset of G, then we don't need to subtract and add separately (default: False) 
+		Returns:
+		    Output dictionary:
+		        'nLL'       : negative log-likelihood
+			'sigma2'    : the model variance sigma^2
+			'beta'      : [D*1] array of fixed effects weights beta
+			'h2'        : mixture weight between Covariance and noise
+			'REML'      : True: REML was computed, False: ML was computed
+			'dof'       : Degrees of freedom of the Multivariate student-t
 						(default None uses multivariate Normal likelihood)
-		'scale'     : Scale parameter that multiplies the Covariance matrix (default 1.0)
-		--------------------------------------------------------------------------
+			'scale'     : Scale parameter that multiplies the Covariance matrix (default 1.0)
 		'''
 
 		N = self.Y.shape[0] - self.linreg.D
@@ -408,7 +490,7 @@ class LMM(object):
 		Sd = (h2 * self.S + (1.0 - h2 - h2_1)) * scale#?(1.0-h2-h2_1)?
 		#Sd = (h2*self.S + (1.0-h2))*scale#?(1.0-h2-h2_1)?
 		denom = (1.0 - h2 - h2_1) * scale      # determine normalization factor
-		if subset: #if G1 is a subset of G, then we don't need to 
+		if subset: #if G1 is a complete subset of G, then we don't need to subtract and add separately
 			h2_1 = h2_1 - h2
 
 		#UY,UUY = self.getUY()
@@ -443,27 +525,45 @@ class LMM(object):
 		'''
 		evaluate -ln( N( U^T*y | U^T*X*beta , h2*S + (1-h2)*I ) ),
 		where ((1-a2)*K0 + a2*K1) = USU^T
-		--------------------------------------------------------------------------
-		Input:
-		h2      : mixture weight between K and Identity (environmental noise)
-		REML    : boolean
+
+		Allows to provide a second "low-rank" kernel matrix in form of a rotated design matrix W
+		second kernel K2 = W.dot(W.T))
+
+		G1 is provided as columns in W.
+		W is provided in rotated form: UW = U.T*W and UUW =  (W - U*U.T*W)
+		W may hold a design matrix G2 of a second kernel and some columns that are identical to columns of the design matrix of the first kernel to enable subtracting out sub kernels (as for correcting for proximal contamination)
+
+		(nice interface wrapper for nLLcore)
+
+		Args:
+		    h2      : mixture weight between K and Identity (environmental noise)
+		    REML    : boolean
 					if True   : compute REML
 					if False  : compute ML
-		dof     : Degrees of freedom of the Multivariate student-t
+		    dof     : Degrees of freedom of the Multivariate Student-t
 						(default None uses multivariate Normal likelihood)
-		logdelta: log(delta) allows to optionally parameterize in delta space
-		delta   : delta     allows to optionally parameterize in delta space
-		scale   : Scale parameter the multiplies the Covariance matrix (default 1.0)
-		--------------------------------------------------------------------------
-		Output dictionary:
-		'nLL'       : negative log-likelihood
-		'sigma2'    : the model variance sigma^2
-		'beta'      : [D*1] array of fixed effects weights beta
-		'h2'        : mixture weight between Covariance and noise
-		'REML'      : True: REML was computed, False: ML was computed
-		'dof'       : Degrees of freedom of the Multivariate student-t
+		    logdelta: log(delta) allows to optionally parameterize in delta space
+		    delta   : delta     allows to optionally parameterize in delta space
+		    scale   : Scale parameter the multiplies the Covariance matrix (default 1.0)
+		    penalty : L2 penalty for SNP effects (default: 0.0)
+		    snps    : [N x S] np.array holding S SNPs for N individuals to be tested
+		    Usnps   : [k x S] np.array holding S rotated SNPs (U.T.dot(snps)) for N individuals to be tested, where k is rank of the kernel used
+		    UUsnps  : [N x S] np.array holding S rotated SNPs (snps - U.dot(U.T.dot(snps))), None in full rnak case (k=N)
+		    UW      : U.T.dot(W), where W is [N x S2] np.array holding the design matrix of the second kernel
+		    UUW     : W - U.dot(U.T.dot(W))     (provide None if U is full rank)
+		    weightW : vector of weights for columns in W 
+		    idx_pheno: index of the phenotype(s) to be tested
+
+		Returns:
+		    Output dictionary:
+		        'nLL'       : negative log-likelihood
+			'sigma2'    : the model variance sigma^2
+			'beta'      : [D*1] array of fixed effects weights beta
+			'h2'        : mixture weight between Covariance and noise
+			'REML'      : True: REML was computed, False: ML was computed
+			'dof'       : Degrees of freedom of the Multivariate student-t
 						(default None uses multivariate Normal likelihood)
-		'scale'     : Scale parameter that multiplies the Covariance matrix (default 1.0)
+		        'scale'     : Scale parameter that multiplies the Covariance matrix (default 1.0)
 		--------------------------------------------------------------------------
 		'''
 
@@ -510,36 +610,38 @@ class LMM(object):
 		evaluate -ln( N( U^T*y | U^T*X*beta , h2*S + (1-h2)*I ) ),
 		where ((1-a2)*K0 + a2*K1) = USU^T
 		--------------------------------------------------------------------------
-		Input:
-		h2      : mixture weight between K and Identity (environmental noise)
-		REML    : boolean
-					if True   : compute REML
-					if False  : compute ML
-		dof     : Degrees of freedom of the Multivariate student-t
-						(default None uses multivariate Normal likelihood)
-		logdelta: log(delta) allows to optionally parameterize in delta space
-		delta   : delta     allows to optionally parameterize in delta space
-		scale   : Scale parameter the multiplies the Covariance matrix (default 1.0)
+		Args:
+		    Sd      : Diagonal scaling for inverse kernel in rotated space (e.g. Sd = 1.0/(delta*S+1.0))
+		    dof     : Degrees of freedom of the Multivariate student-t
+						(default None - uses multivariate Normal likelihood)
+		    denom   : denominator for low rank part (delta*scale for delta scaling of Sd, (1.0-h2)*scale for h2 scaling)
+		    scale   : Scale parameter the multiplies the Covariance matrix (default 1.0)
+		    penalty : L2 penalty for SNP effects (default: 0.0)
+		    Usnps   : [k x S] np.array holding S rotated SNPs (U.T.dot(snps)) for N individuals to be tested, where k is rank of the kernel used
+		    UUsnps  : [N x S] np.array holding S rotated SNPs (snps - U.dot(U.T.dot(snps))), None in full rnak case (k=N)
+		    UW      : U.T.dot(W), where W is [N x S2] np.array holding the design matrix of the second kernel
+		    UUW     : W - U.dot(U.T.dot(W))     (provide None if U is full rank)
+		    weightW : vector of weights for columns in W 
+		    idx_pheno: index of the phenotype(s) to be tested
 
-		#TODO: complete doc-string (clean up!)
-
-		--------------------------------------------------------------------------
-		Output dictionary:
-		'nLL'       : negative log-likelihood
-		'sigma2'    : the model variance sigma^2
-		'beta'      : [D*1] array of fixed effects weights beta
-		'h2'        : mixture weight between Covariance and noise
-		'REML'      : True: REML was computed, False: ML was computed
-		'dof'       : Degrees of freedom of the Multivariate student-t
+		Returns:
+		    Output dictionary:
+		        'nLL'       : negative log-likelihood
+			'sigma2'    : the model variance sigma^2
+			'beta'      : [D*1] array of fixed effects weights beta
+			'h2'        : mixture weight between Covariance and noise
+			'REML'      : True: REML was computed, False: ML was computed
+			'dof'       : Degrees of freedom of the Multivariate student-t
 						(default None uses multivariate Normal likelihood)
-		'scale'     : Scale parameter that multiplies the Covariance matrix (default 1.0)
+		        'scale'     : Scale parameter that multiplies the Covariance matrix (default 1.0)
 		--------------------------------------------------------------------------
 		'''
 
 		N = self.Y.shape[0] - self.linreg.D
         
-		S,U = self.getSU()
+		S,U = self.getSU()#not used, as provided from outside. Remove???
 		k = S.shape[0]
+		assert Sd.shape[0] == k, "shape missmatch"
 
 		UY,UUY = self.getUY(idx_pheno = idx_pheno)
 		P = UY.shape[1]	#number of phenotypes used
@@ -620,13 +722,15 @@ class LMM(object):
 			########
 
 		if Usnps is not None:
-			beta = snpsKY / (snpsKsnps + (penalty or 0))
+			penalty_ = penalty or 0.0
+			assert (penalty_ >= 0.0), "penalty has to be positive"
+			beta = snpsKY / (snpsKsnps + penalty_)
 			if np.isnan(beta.min()):
 			    logging.warning("NaN beta value seen, may be due to an SNC (a constant SNP)")
 			    beta[snpsKY==0] = 0.0
 			r2 = -(snpsKY * beta - YKY[np.newaxis,:])
 			if penalty:
-				variance_beta = r2 / (N - 1) * snpsKsnps / ((snpsKsnps + penalty) * (snpsKsnps + penalty))#note that we assume the loss in DOF is 1 here, even though it is less, so the
+				variance_beta = r2 / (N - 1) * (snpsKsnps / ((snpsKsnps + penalty_) * (snpsKsnps + penalty_)))#note that we assume the loss in DOF is 1 here, even though it is less, so the
                                                                                               #variance estimate is conservative
 			else:
 				variance_beta = r2 / (N - 1) / snpsKsnps
@@ -653,6 +757,7 @@ class LMM(object):
 
 
 class Linreg(object):
+    """ linear regression class"""
     __slots__ = ["X", "Xdagger", "beta", "N", "D"]
 
     def __init__(self,X=None, Xdagger=None):
@@ -693,18 +798,28 @@ class Linreg(object):
         return Xstar.dot(self.beta)
 
 def computeAKB(Sd, denom, UA, UB, UUA=None, UUB=None):
-    UAS = UA / np.lib.stride_tricks.as_strided(Sd, (Sd.size,UA.shape[1]), (Sd.itemsize,0))
-    AKB = UAS.T.dot(UB)
-    if UUA is not None:
-        AKB += UUA.T.dot(UUB) / denom
-    return AKB
+	"""
+	compute asymmetric squared form
+
+	A.T.dot( f(K) ).dot(B)
+	"""
+	UAS = UA / np.lib.stride_tricks.as_strided(Sd, (Sd.size,UA.shape[1]), (Sd.itemsize,0))
+	AKB = UAS.T.dot(UB)
+	if UUA is not None:
+	    AKB += UUA.T.dot(UUB) / denom
+	return AKB
 
 def computeAKA(Sd, denom, UA, UUA=None):
-    UAS = UA / np.lib.stride_tricks.as_strided(Sd, (Sd.size,UA.shape[1]), (Sd.itemsize,0))
-    AKA = (UAS * UA).sum(0)
-    if UUA is not None:
-        AKA += (UUA * UUA).sum(0) / denom
-    return AKA
+	"""
+	compute symmetric squared form
+    
+	A.T.dot( f(K) ).dot(A)
+	"""
+	UAS = UA / np.lib.stride_tricks.as_strided(Sd, (Sd.size,UA.shape[1]), (Sd.itemsize,0))
+	AKA = (UAS * UA).sum(0)
+	if UUA is not None:
+		AKA += (UUA * UUA).sum(0) / denom
+	return AKA
 
 if 0:
     import scipy as sp
