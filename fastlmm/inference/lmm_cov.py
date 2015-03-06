@@ -17,6 +17,12 @@ class LMM(object):
 
 	Relative to lmm.py, lmm_cov handles multiple phenotypes, and regresses out covariates before GWAS testing (which makes it O(#covs^3) faster).
 	Currently, h2 for each phenotype is the same, but much of the code is written to allow h2 to be different (see e.g. nlleval_2k).
+
+    This class is intended for a single full-rank kernel (and optionally a low-rank kernel). If two full-rank kernels are at hand, 
+    they must first be combined into a single full-rank kernel.
+
+    TODO: Add full support for multiple phenotypes by extending h2 and a2
+    TODO: Deal with h2_1 parameterization more eloquently (see comments below)
 	'''
 	__slots__ = ["linreg","G","Y","X","K","U","S","UX","UY","UUX","UUY","forcefullrank","regressX","numcalls"]
 

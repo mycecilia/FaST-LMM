@@ -84,7 +84,7 @@ setup(
         "fastlmm/util",
         "fastlmm"
 	],
-    install_requires=['cython', 'numpy', 'scipy', 'pandas', 'sklearn', 'matplotlib'],
+    install_requires=['cython', 'numpy', 'scipy', 'pandas', 'scikit-learn', 'matplotlib'],
     #zip_safe=False,
     # extensions
     cmdclass = {'build_ext': build_ext, 'clean': CleanCommand},
