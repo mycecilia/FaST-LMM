@@ -488,7 +488,7 @@ class LMM(object):
 
     def getPosteriorWeights(self,beta,h2=0.0,logdelta=None,delta=None,scale=1.0):
         '''
-        compute posterior mean over the feature weights:
+        compute posterior mean over the feature weights (effect sizes of SNPs in the kernel, not the SNPs being tested):
         w = G.T (GG.T + delta*I)^(-1) (y - Xbeta)
         --------------------------------------------------------------------------
         Input:

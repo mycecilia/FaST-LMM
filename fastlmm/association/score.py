@@ -29,6 +29,8 @@ class scoretest(association.varcomp_test):
     def _score(self,G1):
         '''
         This calls the score computation for a single kernel
+		Christoph guess: varsqform is the variance of sigma_g, and is the inverse of the Fisher information wrt sigma_g
+		Christoph: should compute variance of h2 (and test h2>0), which eliminates one nusiance parameter and yields a better test
         '''
         self.squaredform, self.expectationsqform, self.varsqform, self.GPG, self.GPY= scoreNoK( Y=self.Y, X = self.X, Xdagger=None, G = G1, sigma2=None,Bartletcorrection=True)
         if self.GPG.shape[0]==0:
