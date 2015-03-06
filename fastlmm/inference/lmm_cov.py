@@ -246,7 +246,7 @@ class LMM(object):
 		    minA2   : minimum value for a2 optimization
 		    maxA2   : maximum value for a2 optimization
 		    i_up    : indices of columns in W corresponding to columns from first kernel that are subtracted of
-		    i_G1    : indeces of columns in W corresponding to columns of the design matrix for second kernel G2
+		    i_G1    : indeces of columns in W corresponding to columns of the design matrix for second kernel G1
 		    UW      : U.T.dot(W), where W is [N x S2] np.array holding the design matrix of the second kernel
 		    UUW     : W - U.dot(U.T.dot(W))     (provide None if U is full rank)
 
@@ -255,7 +255,7 @@ class LMM(object):
 		'''
 
 		#TODO: ckw: is this method needed?  seems like a wrapper around findA2_2K!
-		#Christoph: probably not needed
+		#Christoph and Chris: probably not needed
 		if self.Y.shape[1] > 1:
 			print "not implemented"
 			raise NotImplementedError("only single pheno case implemented")
@@ -288,7 +288,7 @@ class LMM(object):
 		    maxA2   : maximum value for a2 optimization
 		    verbose : verbose output? (default: False)
 		    i_up    : indices of columns in W corresponding to columns from first kernel that are subtracted of
-		    i_G1    : indeces of columns in W corresponding to columns of the design matrix for second kernel G2
+		    i_G1    : indeces of columns in W corresponding to columns of the design matrix for second kernel G1
 		    UW      : U.T.dot(W), where W is [N x S2] np.array holding the design matrix of the second kernel
 		    UUW     : W - U.dot(U.T.dot(W))     (provide None if U is full rank)
 
@@ -320,7 +320,7 @@ class LMM(object):
 
 	def findH2_2K(self, nGridH2=10, minH2=0.0, maxH2=0.99999, nGridA2=10, minA2=0.0, maxA2=1.0, i_up=None, i_G1=None, UW=None, UUW=None, **kwargs):
 		'''
-		Find the optimal h2 and a2 for a given K (and G2 - if provided in W).
+		Find the optimal h2 and a2 for a given K (and G1 - if provided in W).
 		(default maxH2 value is set to a value smaller than 1 to avoid loss of positive definiteness of the final model covariance)
 
 		Allows to provide a second "low-rank" kernel matrix in form of a rotated design matrix W
@@ -336,7 +336,7 @@ class LMM(object):
 		    minA2   : minimum value for a2 optimization
 		    maxA2   : maximum value for a2 optimization
 		    i_up    : indices of columns in W corresponding to columns from first kernel that are subtracted of
-		    i_G1    : indeces of columns in W corresponding to columns of the design matrix for second kernel G2
+		    i_G1    : indeces of columns in W corresponding to columns of the design matrix for second kernel G1
 		    UW      : U.T.dot(W), where W is [N x S2] np.array holding the design matrix of the second kernel
 		    UUW     : W - U.dot(U.T.dot(W))     (provide None if U is full rank)
 
@@ -449,19 +449,23 @@ class LMM(object):
 
 	def nLLeval_2K(self, h2=0.0, h2_1=0.0, dof=None, scale=1.0, penalty=0.0, snps=None, UW=None, UUW=None, i_up=None, i_G1=None, subset=False):
 		'''
-		written by Christoph
+		TODO: rename to nLLeval
 
 		currently h2 is a scalar, but could be modified to be a vector (i.e., a separate h2 for each phenotype); only if-then-elses need to be modified
 
-		evaluate -ln( N( y | X*beta , h2*K + h2_1*G1*G1.T (1-h2-h2_1)*I ) ),
+		evaluate -ln( N( y | X*beta , sigma^2(h2*K + h2_1*G1*G1.T (1-h2-h2_1)*I ) )),
 		where h2>0, h2_1>=0, h2+h2_1 <= 0.99999
+
+		If scale is not equal to 1, then the above is generalized from a Normal to a multivariate Student's t distribution.
 
 		Allows to provide a second "low-rank" kernel matrix in form of a rotated design matrix W
 		second kernel K2 = W.dot(W.T))
 
 		G1 is provided as columns in W.
 		W is provided in rotated form: UW = U.T*W and UUW =  (W - U*U.T*W)
-		W may hold a design matrix G1 of a second kernel and some columns that are identical to columns of the design matrix of the first kernel to enable subtracting out sub kernels (as for correcting for proximal contamination)
+		W may hold a design matrix G1 of a second kernel and some columns that are identical to columns of the design matrix of the first kernel 
+		to enable subtracting out sub kernels (as for correcting for proximal contamination) -- see i_up and i_G1 below.
+		UW and UUW can be obtainted by calling rotate on W
 
 		(nice interface wrapper for nLLcore)
 		
@@ -472,20 +476,18 @@ class LMM(object):
 					if False  : compute ML
 		    dof     : Degrees of freedom of the Multivariate student-t
 						(default None uses multivariate Normal likelihood)
-		    logdelta: log(delta) allows to optionally parameterize in delta space
-		    delta   : delta     allows to optionally parameterize in delta space
-		    scale   : Scale parameter the multiplies the Covariance matrix (default 1.0)
+		    scale   : Scale parameter that multiplies the shape matrix in Student's multivariate t (default 1.0, corresponding to a Gaussian)
 		    penalty : L2 penalty for the fixed-effect SNPs being tested (default: 0.0)
 		    snps    : [N x S] np.array holding S SNPs for N individuals to be tested
 		    i_up    : indices of columns in W corresponding to columns from first kernel that are subtracted off
-		    i_G1    : indeces of columns in W corresponding to columns of the design matrix for second kernel G1
+		    i_G1    : indices of columns in W corresponding to columns of the design matrix for second kernel G1
 		    UW      : U.T.dot(W), where W is [N x S2] np.array holding the design matrix of the second kernel
 		    UUW     : W - U.dot(U.T.dot(W))     (provide None if U is full rank)
 		    subset  : if G1 is a subset of G, then we don't need to subtract and add separately (default: False) 
 		Returns:
 		    Output dictionary:
 		    'nLL'       : negative log-likelihood
-			'sigma2'    : the model variance sigma^2
+			'sigma2'    : the model variance sigma^2 (sigma^2_g+sigma^2_g1+sigma^2_e)
 			'beta'      : [D*1] array of fixed effects weights beta
 			'h2'        : mixture weight between Covariance and noise
 			'REML'      : True: REML was computed, False: ML was computed
@@ -540,9 +542,14 @@ class LMM(object):
 
 	def nLLeval(self, h2=0.0, logdelta=None, delta=None, dof=None, scale=1.0, penalty=0.0, snps=None, Usnps=None, UUsnps=None, UW=None, UUW=None, weightW=None, idx_pheno=None):
 		'''
-		written by Chris Widmer
+		TODO: rename to be a private function
+		This function is a hack to fix a parameterization bug regarding h2_1 parameterization in findA2 or findH2 or innerLoop.
+		Also, it is a different way of parameterizing nLLeval_2k (e.g., it implements the delta parameterization).
 		
-		evaluate -ln( N( y | X*beta , h2*K + h2*(W*diag(weightW)*W^T) + (1-h2)*I ) ),
+		evaluate -ln( N( y | X*beta , sigma^2(h2*K + h2*(W*diag(weightW)*W^T) + (1-h2)*I ) ))  (in h2 parameterization)
+		         -ln( N( y | X*beta , sigma^2(delta*K + I )))  (in delta parameterization, 1 Kernel only)
+
+		If scale is not equal to 1, then the above is generalized from a Normal to a multivariate Student's t distribution.
 
 		Allows to provide a second "low-rank" kernel matrix in form of a rotated design matrix W
 		second kernel K2 = W.dot(W.T))
@@ -565,7 +572,7 @@ class LMM(object):
 						(default None uses multivariate Normal likelihood)
 		    logdelta: log(delta) allows to optionally parameterize in delta space
 		    delta   : delta     allows to optionally parameterize in delta space
-		    scale   : Scale parameter the multiplies the Covariance matrix (default 1.0)
+		    scale   : Scale parameter that multiplies the shape matrix in the Student's multivariate t (default 1.0, corresponding to a Gaussian)
 		    penalty : L2 penalty for SNP effects (default: 0.0)
 		    snps    : [N x S] np.array holding S SNPs for N individuals to be tested
 		    Usnps   : [k x S] np.array holding S rotated SNPs (U.T.dot(snps)) for N individuals to be tested, where k is rank of the kernel used
@@ -578,7 +585,7 @@ class LMM(object):
 		Returns:
 		    Output dictionary:
 		        'nLL'       : negative log-likelihood
-			    'sigma2'    : the model variance sigma^2
+			    'sigma2'    : the model variance sigma^2 (if h2 parameterization it is sigma^2_g+sigma^2_e; if delta parameterization it is sigma^2_e)
 			    'beta'      : [D*1] array of fixed effects weights beta
 			    'h2'        : mixture weight between Covariance and noise
 			    'REML'      : True: REML was computed, False: ML was computed
@@ -599,6 +606,7 @@ class LMM(object):
 			Sd = (self.S + delta) * scale
 			denom = delta * scale         # determine normalization factor
 			h2 = 1.0 / (1.0 + delta)
+			assert weightW is None, 'weightW should be none when used with delta or logdelta parameterization, which support only a single Kernel'
 		else:
 			Sd = (h2 * self.S + (1.0 - h2)) * scale
 			denom = (1.0 - h2) * scale      # determine normalization factor
@@ -619,8 +627,8 @@ class LMM(object):
 			Usnps,UUsnps = self.rotate(A=snps)
         
 		if weightW is not None:
-			#multiply the weight by h2
-			weightW = weightW * h2#TODO: remove
+            #multiply the weight by h2
+	        weightW = weightW * h2#Christoph: fixes bug with h2_1 parameterization in findA2 and/or findH2 and/or innerLoop 
         
 		result = self.nLLcore(Sd=Sd, dof=dof, scale=scale, penalty=penalty, UW=UW, UUW=UUW, weightW=weightW, denom=denom, Usnps=Usnps, UUsnps=UUsnps, idx_pheno=idx_pheno)
 		result['h2'] = h2
@@ -1004,7 +1012,7 @@ if __name__ == "__main__":
         i_G1 = weightW == 4
 
         res2 = lmm.nLLeval_2K(h2=h2, h2_1=(4.0 * h2), dof = None, scale = 1.0, penalty=0.0, snps=G, UW=UGup, UUW=UUGup, i_up=i_up, i_G1=i_G1, subset=False)
-        res = lmm.nLLeval(h2=h2, logdelta = None, delta = None, dof = None, scale = 1.0, penalty=0.0, snps = G, UW=UGup, UUW=UUGup, weightW=weightW)
+        res = lmm.nLLeval(h2=h2, logdelta = None, delta = None, dof = None, scale = 1.0, penalty=0.0, snps = G, UW=UGup, UUW=UUGup, weightW=weightW)#see comment about weightW*h2 in nLLeval
         chi2stats = res['beta'] * res['beta'] / res['variance_beta']
         
         pv = st.chi2.sf(chi2stats,1)
