@@ -627,15 +627,15 @@ class LMM(object):
 
 		if (UUY is not None):#low rank part
 			logdetK+=(N - k) * np.log(denom)
-        
+
 		if (snps is not None) and (Usnps is None):
 			assert snps.shape[0] == self.Y.shape[0], "shape missmatch between snps and Y"
 			Usnps,UUsnps = self.rotate(A=snps)
-        
+
 		if weightW is not None:
-            #multiply the weight by h2
-	        weightW = weightW * h2#Christoph: fixes bug with h2_1 parameterization in findA2 and/or findH2 and/or innerLoop 
-        
+			#multiply the weight by h2
+			weightW = weightW * h2#Christoph: fixes bug with h2_1 parameterization in findA2 and/or findH2 and/or innerLoop 
+
 		result = self.nLLcore(Sd=Sd, dof=dof, scale=scale, penalty=penalty, UW=UW, UUW=UUW, weightW=weightW, denom=denom, Usnps=Usnps, UUsnps=UUsnps, idx_pheno=idx_pheno)
 		result['h2'] = h2
 		return result

@@ -1,33 +1,34 @@
-"""
-file to set up python package, see http://docs.python.org/2/distutils/setupscript.html for details.
-"""
-
-
 import platform
 import os
 import sys
 import shutil
-
-from distutils.core import setup
-from distutils.extension import Extension
+from setuptools import setup, Extension 
+from setuptools import setup
 from distutils.command.clean import clean as Clean
+from Cython.Distutils import build_ext
+import numpy
 
-try:
-	from Cython.Distutils import build_ext
-except Exception:
-	print "cython needed for installation, please install cython first"
-	sys.exit()
-
-try:
-	import numpy
-except Exception:
-	print "numpy needed for installation, please install numpy first"
-	sys.exit()
+# Version number
+version = '0.2.8'
 
 
 def readme():
     with open('README.md') as f:
        return f.read()
+
+# set up macro
+if platform.system() == "Darwin":
+    macros = [("__APPLE__", "1")]
+elif "win" in platform.system().lower():
+    macros = [("_WIN32", "1")]
+else:
+    macros = [("_UNIX", "1")]
+
+ext_modules = [Extension(name="fastlmm.util.stats.quadform.qfc_src.wrap_qfc",
+                         language="c++",
+                         sources=["fastlmm/util/stats/quadform/qfc_src/wrap_qfc.pyx", "fastlmm/util/stats/quadform/qfc_src/QFC.cpp"],
+                         include_dirs=[numpy.get_include()],
+                         define_macros=macros)]
 
 
 class CleanCommand(Clean):
@@ -49,20 +50,10 @@ class CleanCommand(Clean):
                     print "removing", tmp_fn
                     os.unlink(tmp_fn)
 
-# set up macro
-if platform.system() == "Darwin":
-    macros = [("__APPLE__", "1")]
-elif "win" in platform.system().lower():
-    macros = [("_WIN32", "1")]
-else:
-    macros = [("_UNIX", "1")]
-
-ext = [Extension("fastlmm.util.stats.quadform.qfc_src.wrap_qfc", ["fastlmm/util/stats/quadform/qfc_src/wrap_qfc.pyx", "fastlmm/util/stats/quadform/qfc_src/QFC.cpp"], language="c++",define_macros=macros)]
-
 #python setup.py sdist bdist_wininst upload
 setup(
     name='fastlmm',
-    version='0.2.7',
+    version=version,
     description='Fast GWAS',
     long_description=readme(),
     keywords='gwas bioinformatics LMMs MLMs',
@@ -76,7 +67,6 @@ setup(
         "fastlmm/external/util",
         "fastlmm/external",
         "fastlmm/feature_selection",
-        #"fastlmm/inference/bingpc",
         "fastlmm/inference",
         "fastlmm/pyplink/altset_list", #old snpreader
         "fastlmm/pyplink/snpreader", #old snpreader
@@ -117,11 +107,8 @@ setup(
                        "examples/toydataTrain.phe"
 					   ]
                  },
-    requires = ['cython', 'numpy', 'scipy', 'pandas', 'scikit-learn', 'matplotlib', 'pysnptools'],
-    #zip_safe=False,
-    # extensions
+    install_requires = ['cython', 'numpy', 'scipy', 'pandas', 'scikit-learn', 'matplotlib', 'pysnptools'],
     cmdclass = {'build_ext': build_ext, 'clean': CleanCommand},
-    ext_modules = ext,
-	include_dirs = [numpy.get_include()]
+    ext_modules = ext_modules,
   )
 
