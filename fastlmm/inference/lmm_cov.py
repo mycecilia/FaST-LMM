@@ -770,14 +770,14 @@ class LMM(object):
                                 variance_explained_beta *= (snpsKsnps/(snpsKsnps+penalty_)) * (snpsKsnps/(snpsKsnps + penalty_))
                         else:
                                 variance_beta = (YKY[np.newaxis,:] - variance_explained_beta) / (N - 1) / snpsKsnps
-                        fraction_variance_explaned_beta = variance_explained_beta / YKY[np.newaxis,:] # variance explained by beta over total variance
+                        fraction_variance_explained_beta = variance_explained_beta / YKY[np.newaxis,:] # variance explained by beta over total variance
                         
 		else:
 			r2 = YKY
 			beta = None
 			variance_beta = None
                         variance_explained_beta = None
-                        fraction_variance_explaned_beta = None
+                        fraction_variance_explained_beta = None
 
 		if dof is None:#Use the Multivariate Gaussian
 			sigma2 = r2 / N
@@ -790,8 +790,8 @@ class LMM(object):
                         'dof':dof,
                         'beta':beta,
                         'variance_beta':variance_beta,
-                        'variance_eplained_beta':variance_explained_beta,
-                        'fraction_variance_exaplained_beta':fraction_variance_exaplained_beta,
+                        'variance_explained_beta':variance_explained_beta,
+                        'fraction_variance_explained_beta':fraction_variance_explained_beta,
                         'scale':scale
                 }
 		return result
