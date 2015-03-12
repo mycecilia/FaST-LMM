@@ -764,12 +764,13 @@ class LMM(object):
 			    logging.warning("NaN beta value seen, may be due to an SNC (a constant SNP)")
 			    beta[snpsKY==0] = 0.0
 			variance_explained_beta = (snpsKY * beta)
+                        r2 = YKY[np.newaxis,:] - variance_explained_beta 
 			if penalty:
-				variance_beta = (YKY[np.newaxis,:] - variance_explained_beta) / (N - 1) * (snpsKsnps / ((snpsKsnps + penalty_) * (snpsKsnps + penalty_)))#note that we assume the loss in DOF is 1 here, even though it is less, so the
+				variance_beta = r2 / (N - 1) * (snpsKsnps / ((snpsKsnps + penalty_) * (snpsKsnps + penalty_)))#note that we assume the loss in DOF is 1 here, even though it is less, so the
                                 #variance estimate is conservative, due to N-1 for penalty case
                                 variance_explained_beta *= (snpsKsnps/(snpsKsnps+penalty_)) * (snpsKsnps/(snpsKsnps + penalty_))
                         else:
-                                variance_beta = (YKY[np.newaxis,:] - variance_explained_beta) / (N - 1) / snpsKsnps
+                                variance_beta = r2 / (N - 1) / snpsKsnps
                         fraction_variance_explained_beta = variance_explained_beta / YKY[np.newaxis,:] # variance explained by beta over total variance
                         
 		else:
