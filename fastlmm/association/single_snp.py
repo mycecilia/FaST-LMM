@@ -301,15 +301,16 @@ def _internal_single(G0_standardized, test_snps, pheno,covar, G1_standardized,
 
 
     items = [
-                ('SNP', snps_read.sid),
-                ('Chr', snps_read.pos[:,0]), 
-                ('GenDist', snps_read.pos[:,1]),
-                ('ChrPos', snps_read.pos[:,2]), 
-                ('PValue', p_values),
-                ('SnpWeight', beta[:,0]),
-                ('SnpWeightSE', np.sqrt(res['variance_beta'][:,0])),
-                ('Nullh2', np.zeros((snps_read.sid_count)) + h2)
-            ]
+        ('SNP', snps_read.sid),
+        ('Chr', snps_read.pos[:,0]), 
+        ('GenDist', snps_read.pos[:,1]),
+        ('ChrPos', snps_read.pos[:,2]), 
+        ('PValue', p_values),
+        ('SnpWeight', beta[:,0]),
+        ('SnpWeightSE', np.sqrt(res['variance_beta'][:,0])),
+        ('SnpFractVarExpl', np.sqrt(res['fraction_variance_explained_beta'][:,0])),
+        ('Nullh2', np.zeros((snps_read.sid_count)) + h2)
+    ]
     frame = pd.DataFrame.from_items(items)
 
     return frame

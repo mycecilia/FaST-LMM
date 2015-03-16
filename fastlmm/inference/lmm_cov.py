@@ -763,17 +763,22 @@ class LMM(object):
 			if np.isnan(beta.min()):
 			    logging.warning("NaN beta value seen, may be due to an SNC (a constant SNP)")
 			    beta[snpsKY==0] = 0.0
-			r2 = -(snpsKY * beta - YKY[np.newaxis,:])
+			variance_explained_beta = (snpsKY * beta)
+                        r2 = YKY[np.newaxis,:] - variance_explained_beta 
 			if penalty:
 				variance_beta = r2 / (N - 1) * (snpsKsnps / ((snpsKsnps + penalty_) * (snpsKsnps + penalty_)))#note that we assume the loss in DOF is 1 here, even though it is less, so the
-                                                                                              #variance estimate is conservative
-			else:
-				variance_beta = r2 / (N - 1) / snpsKsnps
-            
+                                #variance estimate is conservative, due to N-1 for penalty case
+                                variance_explained_beta *= (snpsKsnps/(snpsKsnps+penalty_)) * (snpsKsnps/(snpsKsnps + penalty_))
+                        else:
+                                variance_beta = r2 / (N - 1) / snpsKsnps
+                        fraction_variance_explained_beta = variance_explained_beta / YKY[np.newaxis,:] # variance explained by beta over total variance
+                        
 		else:
 			r2 = YKY
 			beta = None
 			variance_beta = None
+                        variance_explained_beta = None
+                        fraction_variance_explained_beta = None
 
 		if dof is None:#Use the Multivariate Gaussian
 			sigma2 = r2 / N
@@ -782,12 +787,14 @@ class LMM(object):
 			nLL = 0.5 * (logdetK + (dof + N) * np.log(1.0 + r2 / dof))
 			nLL +=  0.5 * N * np.log(dof * np.pi) + SS.gammaln(0.5 * dof) - SS.gammaln(0.5 * (dof + N))
 		result = {
-				'nLL':nLL,
-				'dof':dof,
-				'beta':beta,
-				'variance_beta':variance_beta,
-				'scale':scale
-				}
+                        'nLL':nLL,
+                        'dof':dof,
+                        'beta':beta,
+                        'variance_beta':variance_beta,
+                        'variance_explained_beta':variance_explained_beta,
+                        'fraction_variance_explained_beta':fraction_variance_explained_beta,
+                        'scale':scale
+                }
 		return result
 
 
