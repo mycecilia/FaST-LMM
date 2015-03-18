@@ -74,6 +74,7 @@ setup(
         "fastlmm/pyplink", #old snpreader
         "fastlmm/util/runner",
         "fastlmm/util/stats/quadform",
+        "fastlmm/util/stats/quadform/qfc_src",
         "fastlmm/util/standardizer",
         "fastlmm/util/stats",
         "fastlmm/util",
