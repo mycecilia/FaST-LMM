@@ -617,21 +617,24 @@ def addqqplotinfo(qnull,M,xl='-log10(P) observed',yl='-log10(P) expected',xlim=N
         fix_axes()        
 
 
-def qqplot(pvals, fileout = None, alphalevel = 0.05,legend=None,xlim=None,ylim=None,fixaxes=True,addlambda=True,minpval=1e-20,title=None,h1=None):
+def qqplot(pvals, fileout = None, alphalevel = 0.05,legend=None,xlim=None,ylim=None,fixaxes=True,addlambda=True,minpval=1e-20,title=None,h1=None,figsize=[5,5],grid=True):
     '''
     performs a P-value QQ-plot in -log10(P-value) space
     -----------------------------------------------------------------------
-    pvals       P-values, for multiple methods this should be a list (each element will be flattened)
-    fileout    if specified, the plot will be saved to the file (optional)
-    alphalevel  significance level for the error bars (default 0.05)
-                if None: no error bars are plotted
-    legend      legend string. For multiple methods this should be a list
-    xlim        X-axis limits for the QQ-plot (unit: -log10)
-    ylim        Y-axis limits for the QQ-plot (unit: -log10)
-    fixaxes    Makes xlim=0, and ylim=max of the two ylimits, so that plot is square
-    addlambda   Compute and add genomic control to the plot, bool
-    title       plot title, string (default: empty)
-    h1          figure handle (default None)
+    Args:
+        pvals       P-values, for multiple methods this should be a list (each element will be flattened)
+        fileout    if specified, the plot will be saved to the file (optional)
+        alphalevel  significance level for the error bars (default 0.05)
+                    if None: no error bars are plotted
+        legend      legend string. For multiple methods this should be a list
+        xlim        X-axis limits for the QQ-plot (unit: -log10)
+        ylim        Y-axis limits for the QQ-plot (unit: -log10)
+        fixaxes    Makes xlim=0, and ylim=max of the two ylimits, so that plot is square
+        addlambda   Compute and add genomic control to the plot, bool
+        title       plot title, string (default: empty)
+        h1          figure handle (default None)
+        figsize     size of the figure. (default: [5,5])
+        grid        boolean: use a grid? (default: True)
     Returns:   fighandle, qnull, qemp
     -----------------------------------------------------------------------
     '''    
@@ -647,7 +650,9 @@ def qqplot(pvals, fileout = None, alphalevel = 0.05,legend=None,xlim=None,ylim=N
         legendlist = [legend]
     
     if h1 is None:
-        h1=pl.figure() 
+        h1=pl.figure(figsize) 
+    
+    pl.grid(b=grid, alpha = 0.5)
          
     maxval = 0
 
@@ -682,10 +687,10 @@ def qqplot(pvals, fileout = None, alphalevel = 0.05,legend=None,xlim=None,ylim=N
             #pl.legend(["gc="+ '%1.3f' % lambda_gc],loc=2)   
             # if there's only one method, just print the lambda
             if len(pvallist) == 1:
-                legendlist=[lambda_gc]   
+                legendlist=["$\lambda_{GC}=$%1.4f" % lambda_gc]   
             # otherwise add it at the end of the name
             else:
-                legendlist[i] = legendlist[i] + " (%1.2f)" % lambda_gc
+                legendlist[i] = legendlist[i] + " ($\lambda_{GC}=$%1.4f)" % lambda_gc
 
     addqqplotinfo(qnull,M,xl,yl,xlim,ylim,alphalevel,legendlist,fixaxes)  
     
