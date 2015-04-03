@@ -9,7 +9,7 @@ from Cython.Distutils import build_ext
 import numpy
 
 # Version number
-version = '0.2.9'
+version = '0.2.14'
 
 
 def readme():
