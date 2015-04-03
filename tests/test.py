@@ -113,7 +113,7 @@ def getTestSuite():
     for f in os.listdir( 'inputs' ):
         if re.match(r'.*\.py$', f) is None:
             continue
-        from tests.test import WidgetTestCase
+        # from tests.test import WidgetTestCase
         suite.addTest(WidgetTestCase(f))
     return suite
 

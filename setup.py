@@ -108,7 +108,7 @@ setup(
                        "examples/toydataTrain.phe"
 					   ]
                  },
-    install_requires = ['cython', 'numpy', 'scipy', 'pandas', 'scikit-learn', 'matplotlib', 'pysnptools'],
+    install_requires = ['cython', 'numpy', 'scipy', 'pandas', 'scikit-learn>=0.16', 'matplotlib', 'pysnptools'],
     cmdclass = {'build_ext': build_ext, 'clean': CleanCommand},
     ext_modules = ext_modules,
   )

@@ -14,21 +14,21 @@ https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/feature_selecti
 """
 
 import numpy as np
-from sklearn.utils import safe_sqr, check_arrays
+from sklearn.utils import safe_sqr, check_array
 from scipy import stats
 
- 
+
 
 #def TESTBEFOREUSING_get_example_data():
 #    """
 #    load plink files
 #    """
-    
+
 #    import fastlmm.pyplink.plink as plink
 #    import pysnptools.snpreader.bed as Bed
 #    import fastlmm.util.util as util
-    
-    
+
+
 #    ipheno = 0
 #    foldIter = 0
 
@@ -44,14 +44,14 @@ from scipy import stats
 #    fn_bed = "../../featureSelection/examples/toydata"
 #    fn_pheno = "../../featureSelection/examples/toydata.phe"
 
-    
+
 #    pheno = pstpheno.loadPhen(fn_pheno)
-  
+
 #    # load data
 #    bed = plink.Bed(fn_bed)
-    
+
 #    indarr = util.intersect_ids([pheno['iid'],bed.iid])
-    
+
 #    pheno['iid'] = pheno['iid'][indarr[:,0]]
 #    pheno['vals'] = pheno['vals'][indarr[:,0]]
 #    bed = bed[indarr[:,1],:]
@@ -82,7 +82,7 @@ def f_regression_block(fun,X,y,blocksize=None,**args):
 
    idx_start = 0
    idx_stop = int(blocksize)
-    
+
    pval = np.zeros(X.shape[1])
    stats = np.zeros(X.shape[1])
 
@@ -202,7 +202,9 @@ def f_regression_cov(X, y, C):
         p-values of F-scores.
     """
 
-    X, C, y = check_arrays(X, C, y, dtype=np.float)
+    X = check_arrays(X, dtype=np.float)
+    C = check_arrays(C, dtype=np.float)
+    y = check_arrays(y, dtype=np.float)    
     y = y.ravel()
 
     assert C.shape[1] < C.shape[0]
@@ -260,11 +262,10 @@ def test_cov():
 
 
 def main():
- 
+
     test_cov()
     test_bias()
 
 
 if __name__ == "__main__":
     main()
-

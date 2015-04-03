@@ -16,8 +16,8 @@ from scipy import linalg
 from scipy.special import gammaln
 
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.utils import array2d, check_random_state, as_float_array
-from sklearn.utils import atleast2d_or_csr
+from sklearn.utils import check_random_state, as_float_array, check_array
+#from sklearn.utils import atleast2d_or_csr
 from sklearn.utils import deprecated
 from sklearn.utils.extmath import (fast_logdet, safe_sparse_dot, randomized_svd)#,
                              #fast_dot)
@@ -260,7 +260,7 @@ class PCA(BaseEstimator, TransformerMixin):
             The SVD of the input data, copied and centered when
             requested.
         """
-        X = array2d(X)
+        X = check_array(X)
         n_samples, n_features = X.shape
         if S is None and V is None:
             X = as_float_array(X, copy=self.copy)
@@ -337,7 +337,7 @@ class PCA(BaseEstimator, TransformerMixin):
         return cov
 
     def dot_precision(self,X,logdet=False):
-        """Compute the dot product of a matrix X by the data 
+        """Compute the dot product of a matrix X by the data
         precision matrix with the generative model.
 
         Returns
@@ -357,7 +357,7 @@ class PCA(BaseEstimator, TransformerMixin):
                 else:
                     assert self.noise_variance_.shape[0] == X.shape[1], "self.noise_variance_.shape[0] == X.shape[1]"
                     logdet_cov = np.log(self.noise_variance_).sum()
-                return X / self.noise_variance_, logdet_cov 
+                return X / self.noise_variance_, logdet_cov
             else:
                 return X / self.noise_variance_
         if self.n_components_ == n_features:
@@ -382,8 +382,8 @@ class PCA(BaseEstimator, TransformerMixin):
                 logdet_cov = np.log(self.noise_variance_).sum()
             logdet_cov += np.log(((1.0 / exp_var_diff) + (1.0 / self.noise_variance_))).sum()
             logdet_cov += np.log(exp_var_diff).sum()
-            
-        Xprecision *= (self.noise_variance_ * self.noise_variance_)        
+
+        Xprecision *= (self.noise_variance_ * self.noise_variance_)
         Xprecision = (X.dot(components_.T/(-Xprecision))).dot(components_)
         Xprecision += X/self.noise_variance_
         #cprecision=((1.0 / exp_var_diff) + (1.0 / self.noise_variance_))*(-self.noise_variance_ * self.noise_variance_)
@@ -431,7 +431,7 @@ class PCA(BaseEstimator, TransformerMixin):
         #precision = np.dot(components_.T,
         #                np.dot(linalg.inv(precision), components_))
         #precision /= -(self.noise_variance_ ** 2)
-        #precision.flat[::len(precision) + 1] += 1. / self.noise_variance_ 
+        #precision.flat[::len(precision) + 1] += 1. / self.noise_variance_
         #return precision
 
     def transform(self, X):
@@ -448,7 +448,7 @@ class PCA(BaseEstimator, TransformerMixin):
         X_new : array-like, shape (n_samples, n_components)
 
         """
-        X = array2d(X)
+        X = check_array(X)
         if self.mean_ is not None:
             X = X - self.mean_
         #X_transformed = fast_dot(X, self.components_.T)
@@ -597,13 +597,13 @@ class ProbabilisticPCA(PCA):
         log_like = np.zeros(X.shape[0])
         if (self.precision_ is None) and (self.covariance_ is None):
             XrP,ldet = self.dot_precision(X=Xr, logdet=True )
-            
+
         else:
             if self.precision_ is None:
                 self.precision_ = linalg.inv(self.covariance_)
             XrP = np.dot(Xr, self.precision_)
             ldet = fast_logdet(self.covariance_)
-        
+
         log_like = -.5 * (Xr * XrP).sum(axis=1)
         log_like -= .5 * (ldet
                           + n_features * log(2. * np.pi))
@@ -782,7 +782,7 @@ class RandomizedPCA(BaseEstimator, TransformerMixin):
 
         """
         # XXX remove scipy.sparse support here in 0.16
-        X = atleast2d_or_csr(X)
+        X = check_array(X)
         if self.mean_ is not None:
             X = X - self.mean_
 
@@ -803,7 +803,9 @@ class RandomizedPCA(BaseEstimator, TransformerMixin):
         X_new : array-like, shape (n_samples, n_components)
 
         """
-        X = self._fit(atleast2d_or_csr(X))
+        X = check_array(X)
+        X = self._fit(X)
+        #  X = self._fit(atleast2d_or_csr(X))
         X = safe_sparse_dot(X, self.components_.T)
         return X
 
@@ -832,5 +834,3 @@ class RandomizedPCA(BaseEstimator, TransformerMixin):
         if self.mean_ is not None:
             X_original = X_original + self.mean_
         return X_original
-
-
